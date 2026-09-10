@@ -1,0 +1,30 @@
+# Azztec_SaaS_docker_compose_v1_0_0.yml  →  docker-compose.yml (repo root)
+# Version 1.0.0 · 2026-09-10 · Adriaan — PostgreSQL 18 + Adminer for the PG track. `docker compose up -d`
+services:
+  postgres:
+    image: postgres:18
+    container_name: workmate-pg
+    environment:
+      POSTGRES_USER: workmate
+      POSTGRES_PASSWORD: workmate
+      POSTGRES_DB: workmate
+    ports:
+      - "5432:5432"
+    volumes:
+      # postgres:18 images keep PGDATA under /var/lib/postgresql/<major>/…; mount the parent so major upgrades keep the volume
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U workmate -d workmate"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  adminer:
+    image: adminer
+    container_name: workmate-adminer
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+volumes:
+  pgdata:

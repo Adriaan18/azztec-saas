@@ -1,0 +1,49 @@
+# Azztec_SaaS_pyproject_v1_0_0.toml  →  backend/pyproject.toml
+# Version: 1.0.0 · 2026-09-10 · Adriaan · pins verified against PyPI/vendor pages on 2026-09-10
+# Changelog: 1.0.0 initial.
+
+[project]
+name = "workmate-saas"
+version = "0.1.0"
+description = "Workmate Standalone Edition — Azztec Enterprise CMMS backend (FastAPI)"
+readme = "README.md"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+    "fastapi[standard]>=0.141.1,<0.142",
+    "pydantic>=2.11",
+    "pydantic-settings>=2.10",
+    "sqlalchemy>=2.0.52,<2.1",
+    "pyodbc>=5.3",
+    "psycopg[binary]>=3.2",
+    "alembic>=1.16",
+    "pyjwt>=2.10",
+    "pwdlib[argon2]>=0.2",
+    "httpx>=0.28",
+    "typer>=0.26",
+    "tzdata",
+    "python-multipart",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-cov>=6",
+    "ruff>=0.12",
+]
+
+[tool.uv]
+package = false
+
+[tool.ruff]
+line-length = 110
+target-version = "py313"
+extend-exclude = ["alembic/versions"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-q"

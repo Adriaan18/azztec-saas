@@ -1,0 +1,13 @@
+.env
+.env.*
+!.env.example
+*.bak
+backend/.venv/
+backend/.pytest_cache/
+backend/.ruff_cache/
+__pycache__/
+web/node_modules/
+web/dist/
+web/test-results/
+web/playwright-report/
+.claude/settings.local.json

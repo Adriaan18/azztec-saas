@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(uv run *)", "Bash(uv sync*)", "Bash(uv lock*)", "Bash(uvx library-skills*)",
+      "Bash(pnpm *)", "Bash(git status*)", "Bash(git diff*)", "Bash(git log*)", "Bash(git add *)", "Bash(git commit *)", "Bash(git tag *)",
+      "Bash(ruff *)", "Bash(pytest*)"
+    ],
+    "deny": [
+      "Bash(git push --force*)", "Bash(rm -rf *)", "Bash(Remove-Item * -Recurse*)",
+      "Read(**/.env)", "Read(**/.env.*)", "Read(**/*.bak)",
+      "Bash(uv run alembic downgrade*)", "Bash(sqlcmd *)"
+    ]
+  }
+}

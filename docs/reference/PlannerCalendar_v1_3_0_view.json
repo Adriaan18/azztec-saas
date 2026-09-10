@@ -1,0 +1,71 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 860,
+      "width": 1500
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "PlannerFrame"
+        },
+        "position": {
+          "basis": "0px",
+          "grow": 1
+        },
+        "propConfig": {
+          "props.src": {
+            "binding": {
+              "config": {
+                "path": "session.props.id"
+              },
+              "transforms": [
+                {
+                  "code": "\t# v1.1.0 (P-PLN1 S3): the planner UI is served by the WebDev resource\n\t# \u0027planner\u0027 (workmate.planner_api). Root-relative src \u003d same origin on the\n\t# LAN and through the reverse proxy. sid/pid let the API gate the request\n\t# to THIS session and bridge \u0027wm-plan-open\u0027 back into THIS page.\n\t# uid \u003d session.custom.wmUserId (the startup identity, the same one every\n\t# Workmate write uses); tok \u003d HMAC(sid|uid) minted here in gateway scope,\n\t# verified by planner_api - the browser cannot forge an actor.\n\ttry:\n\t\tproj \u003d str(system.util.getProjectName() or \u0027\u0027)\n\texcept:\n\t\tproj \u003d \u0027\u0027\n\tif not proj:\n\t\tproj \u003d \u0027MainSCADA_Timberlands\u0027\n\ttry:\n\t\tpid \u003d str(self.page.props.pageId or \u0027\u0027)\n\texcept:\n\t\tpid \u003d \u0027\u0027\n\tsid \u003d str(value or \u0027\u0027)\n\ttry:\n\t\tuid \u003d int(self.session.custom.wmUserId or 0)\n\texcept:\n\t\tuid \u003d 0\n\ttok \u003d \u0027\u0027\n\tif uid \u003e 0 and sid:\n\t\ttry:\n\t\t\ttok \u003d str(workmate.planner_api.token(sid, uid) or \u0027\u0027)\n\t\texcept:\n\t\t\ttok \u003d \u0027\u0027\n\treturn (\u0027/system/webdev/\u0027 + proj + \u0027/planner/ui?sid\u003d\u0027 + sid + \u0027\u0026pid\u003d\u0027 + pid\n\t\t+ \u0027\u0026uid\u003d\u0027 + str(uid) + \u0027\u0026tok\u003d\u0027 + tok)\n",
+                  "type": "script"
+                }
+              ],
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#24282C",
+            "border": "none",
+            "overflow": "hidden"
+          }
+        },
+        "type": "ia.display.iframe"
+      }
+    ],
+    "meta": {
+      "name": "PlannerCalendar_v1_3_0"
+    },
+    "props": {
+      "direction": "column",
+      "style": {
+        "backgroundColor": "#24282C",
+        "overflow": "hidden"
+      }
+    },
+    "scripts": {
+      "customMethods": [],
+      "extensionFunctions": null,
+      "messageHandlers": [
+        {
+          "messageType": "wm-plan-open",
+          "pageScope": true,
+          "script": "\t# v1.0.0 (P-PLN1 S1): WOMaint handoff requested from inside the planner\n\t# iframe (POST /planner/open -\u003e sendMessage into this page). Same proven\n\t# session handoff as CalendarDayDrill: womaintWoId / womaintShortWoId.\n\ttry:\n\t\twoId \u003d int(float((payload or {}).get(\u0027woId\u0027) or 0))\n\texcept:\n\t\twoId \u003d 0\n\tif woId \u003c\u003d 0:\n\t\treturn\n\tself.session.custom.womaintWoId \u003d woId\n\tself.session.custom.womaintShortWoId \u003d str((payload or {}).get(\u0027shortId\u0027) or \u0027\u0027)\n\tworkmate.diag.forensic(self.session, \u0027PlannerCalendar\u0027, \u0027open WO %s in WOMaint\u0027 % woId)\n\tsystem.perspective.navigate(\u0027/WOMaint\u0027)\n",
+          "sessionScope": true,
+          "viewScope": false
+        }
+      ]
+    },
+    "type": "ia.container.flex"
+  }
+}
