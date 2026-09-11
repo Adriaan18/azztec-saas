@@ -37,6 +37,7 @@ __version__ = "1.0.0"
 # lineage and scope guards (OD-10 / S1a spec §1)
 # ---------------------------------------------------------------------------
 
+
 def test_version_and_lineage():
     assert P.__version__ == "1.0.0"
     assert P.PORTED_FROM == "workmate.planner 1.3.1"
@@ -52,6 +53,7 @@ def test_scope_write_side_stayed_behind():
 # ---------------------------------------------------------------------------
 # t_rules  (test source line 95)
 # ---------------------------------------------------------------------------
+
 
 class TestRules:
     wo = {"id": 1, "estimate": 6, "resp": 7}
@@ -95,21 +97,76 @@ class TestRules:
 # ---------------------------------------------------------------------------
 
 SKILL_ROWS = [
-    {"userId": 7, "shortId": "KF", "name": "Ken Fisher", "skillId": 1, "sysId": 1, "uomId": 9,
-     "skillTitle": "Fitter", "hrsPerWeek": 0, "supplierId": 11, "supplierShort": "TM-MAINT",
-     "supplierName": "M", "internalDept": ""},
-    {"userId": 12, "shortId": "PM", "name": "Pam McDonald", "skillId": 1, "sysId": 2, "uomId": 9,
-     "skillTitle": "Fitter", "hrsPerWeek": 60, "supplierId": 11, "supplierShort": "TM-MAINT",
-     "supplierName": "M", "internalDept": ""},
-    {"userId": 12, "shortId": "PM", "name": "Pam McDonald", "skillId": 2, "sysId": 3, "uomId": 9,
-     "skillTitle": "Welder", "hrsPerWeek": 10, "supplierId": 11, "supplierShort": "TM-MAINT",
-     "supplierName": "M", "internalDept": ""},
-    {"userId": 50, "shortId": "LH", "name": "Liaanna Hay", "skillId": 3, "sysId": 4, "uomId": 9,
-     "skillTitle": "Elec", "hrsPerWeek": 40, "supplierId": 10, "supplierShort": "TM-ELEC",
-     "supplierName": "E", "internalDept": "1"},
-    {"userId": 88, "shortId": "EXT-AMET", "name": "Aiden - MetalForm", "skillId": 4, "sysId": 5, "uomId": 9,
-     "skillTitle": "Welder", "hrsPerWeek": 0, "supplierId": 5565, "supplierShort": "METALFORM",
-     "supplierName": "MF", "internalDept": ""},
+    {
+        "userId": 7,
+        "shortId": "KF",
+        "name": "Ken Fisher",
+        "skillId": 1,
+        "sysId": 1,
+        "uomId": 9,
+        "skillTitle": "Fitter",
+        "hrsPerWeek": 0,
+        "supplierId": 11,
+        "supplierShort": "TM-MAINT",
+        "supplierName": "M",
+        "internalDept": "",
+    },
+    {
+        "userId": 12,
+        "shortId": "PM",
+        "name": "Pam McDonald",
+        "skillId": 1,
+        "sysId": 2,
+        "uomId": 9,
+        "skillTitle": "Fitter",
+        "hrsPerWeek": 60,
+        "supplierId": 11,
+        "supplierShort": "TM-MAINT",
+        "supplierName": "M",
+        "internalDept": "",
+    },
+    {
+        "userId": 12,
+        "shortId": "PM",
+        "name": "Pam McDonald",
+        "skillId": 2,
+        "sysId": 3,
+        "uomId": 9,
+        "skillTitle": "Welder",
+        "hrsPerWeek": 10,
+        "supplierId": 11,
+        "supplierShort": "TM-MAINT",
+        "supplierName": "M",
+        "internalDept": "",
+    },
+    {
+        "userId": 50,
+        "shortId": "LH",
+        "name": "Liaanna Hay",
+        "skillId": 3,
+        "sysId": 4,
+        "uomId": 9,
+        "skillTitle": "Elec",
+        "hrsPerWeek": 40,
+        "supplierId": 10,
+        "supplierShort": "TM-ELEC",
+        "supplierName": "E",
+        "internalDept": "1",
+    },
+    {
+        "userId": 88,
+        "shortId": "EXT-AMET",
+        "name": "Aiden - MetalForm",
+        "skillId": 4,
+        "sysId": 5,
+        "uomId": 9,
+        "skillTitle": "Welder",
+        "hrsPerWeek": 0,
+        "supplierId": 5565,
+        "supplierShort": "METALFORM",
+        "supplierName": "MF",
+        "internalDept": "",
+    },
 ]
 
 
@@ -155,7 +212,12 @@ class TestWorkers:
         ]
         weeks = P.capacityByWeek(wos, ws, "2026-08-31", "2026-10-04")
         assert [w["weekStart"] for w in weeks] == [
-            "2026-08-31", "2026-09-07", "2026-09-14", "2026-09-21", "2026-09-28"]
+            "2026-08-31",
+            "2026-09-07",
+            "2026-09-14",
+            "2026-09-21",
+            "2026-09-28",
+        ]
         assert weeks[0]["planned"] == 6.0
         assert weeks[0]["capacity"] == 110.0
         assert weeks[2]["unknown"] == 1
@@ -164,12 +226,16 @@ class TestWorkers:
 
     def test_worker_weeks_under_empty(self):
         ww = P.workerWeeks(
-            [{"id": 1, "start": "2026-09-03", "hrs": 6.0, "resp": 7},
-             {"id": 2, "start": "2026-09-17", "hrs": 4.0, "resp": 0}],
+            [
+                {"id": 1, "start": "2026-09-03", "hrs": 6.0, "resp": 7},
+                {"id": 2, "start": "2026-09-17", "hrs": 4.0, "resp": 0},
+            ],
             [{"woId": 2, "userId": 12, "hours": 4.0, "date": "2026-09-18"}],
             [{"id": 7, "hrsPerWeek": 40.0}, {"id": 12, "hrsPerWeek": 20.0}],
-            "2026-08-31", "2026-09-20")
-        w7 = {r["weekStart"]: r for r in ww["7"]}   # str keys ARE this function's job
+            "2026-08-31",
+            "2026-09-20",
+        )
+        w7 = {r["weekStart"]: r for r in ww["7"]}  # str keys ARE this function's job
         assert w7["2026-08-31"]["flag"] == "under"
         assert w7["2026-09-07"]["flag"] == "empty"
 
@@ -178,10 +244,20 @@ class TestWorkers:
 # t_moverules  (test source line 139)
 # ---------------------------------------------------------------------------
 
-WO_T = {"id": 1, "sid": "WO-T", "status": "A", "type": "N", "start": "2026-09-03",
-        "end": "2026-09-05", "pinned": False, "pinTable": True, "engineDate": "",
-        "subtaskDates": ["2026-09-03"], "labourDates": [("2026-09-03", 2), ("2026-09-04", 1)],
-        "hasDetails": True}
+WO_T = {
+    "id": 1,
+    "sid": "WO-T",
+    "status": "A",
+    "type": "N",
+    "start": "2026-09-03",
+    "end": "2026-09-05",
+    "pinned": False,
+    "pinTable": True,
+    "engineDate": "",
+    "subtaskDates": ["2026-09-03"],
+    "labourDates": [("2026-09-03", 2), ("2026-09-04", 1)],
+    "hasDetails": True,
+}
 
 
 class TestMoveRules:
@@ -223,8 +299,17 @@ class TestMoveRules:
         assert r["ok"] and r["willPin"] and r["pinnedAfter"]
 
     def test_pm_return_home_unpins(self):
-        pm = dict(WO_T, end="", labourDates=[], type="M", status="H", pinTable=True,
-                  pinned=True, start="2026-09-14", engineDate="2026-09-03")
+        pm = dict(
+            WO_T,
+            end="",
+            labourDates=[],
+            type="M",
+            status="H",
+            pinTable=True,
+            pinned=True,
+            start="2026-09-14",
+            engineDate="2026-09-03",
+        )
         r = P.moveRules(pm, "2026-09-03", "2026-09-05")
         assert r["ok"] and r["willUnpin"] and not r["pinnedAfter"]
 
@@ -234,12 +319,19 @@ class TestMoveRules:
         assert P.estimateRules(dict(WO_T, status="C"), 2)["code"] == "LOCKED_STATUS"
 
     def test_labour_rules(self):
-        sk = {"sysId": 1, "skillId": 1, "supplierId": 11, "uomId": 9, "rate": 0,
-              "hrsPerWeek": 40, "skillTitle": "Fitter"}
+        sk = {
+            "sysId": 1,
+            "skillId": 1,
+            "supplierId": 11,
+            "uomId": 9,
+            "rate": 0,
+            "hrsPerWeek": 40,
+            "skillTitle": "Fitter",
+        }
         lw = {"sid": "WO-T", "status": "A", "start": "2026-09-17"}
         ok = P.labourRules(lw, "Pam", "Y", sk, 4, "")
         assert ok["ok"]
-        assert ok["resDate"] == date(2026, 9, 17)   # OD-9: a datetime.date, from the WO start
+        assert ok["resDate"] == date(2026, 9, 17)  # OD-9: a datetime.date, from the WO start
         assert P.labourRules(dict(lw, status="C"), "Pam", "Y", sk, 4, "")["code"] == "LOCKED_STATUS"
         assert P.labourRules(lw, None, "", sk, 4, "")["code"] == "NO_USER"
         assert P.labourRules(lw, "X", "Y", None, 4, "")["code"] == "NO_SKILL"
@@ -249,6 +341,7 @@ class TestMoveRules:
 # ---------------------------------------------------------------------------
 # t_dst  (test source line 167) - the 1.3.1 fix, on stdlib now
 # ---------------------------------------------------------------------------
+
 
 class TestDst:
     def test_civil_days_symmetric_across_dst(self):
@@ -261,9 +354,18 @@ class TestDst:
         assert P.civilDays("2026-12-30", "2027-01-02") == 3
 
     def test_move_rules_across_dst(self):
-        w = {"sid": "WO-DST", "status": "A", "type": "N", "start": "2026-09-29", "end": "",
-             "pinned": False, "pinTable": False, "engineDate": "", "subtaskDates": [],
-             "labourDates": []}
+        w = {
+            "sid": "WO-DST",
+            "status": "A",
+            "type": "N",
+            "start": "2026-09-29",
+            "end": "",
+            "pinned": False,
+            "pinTable": False,
+            "engineDate": "",
+            "subtaskDates": [],
+            "labourDates": [],
+        }
         r = P.moveRules(w, "2026-09-17", "2026-09-05")
         assert r["ok"] and r["delta"] == -12 and r["newStart"] == "2026-09-17"
 
@@ -273,8 +375,8 @@ class TestDst:
 
     def test_time_of(self):
         assert P.timeOf(datetime(2026, 9, 6, 10, 0, 0)) == "10:00"
-        assert P.timeOf(datetime(2026, 9, 7)) == ""    # midnight == 'no time', as in 1.3.1
-        assert P.timeOf(date(2026, 9, 7)) == ""        # a plain date has no time
+        assert P.timeOf(datetime(2026, 9, 7)) == ""  # midnight == 'no time', as in 1.3.1
+        assert P.timeOf(date(2026, 9, 7)) == ""  # a plain date has no time
         assert P.timeOf(None) == ""
 
 
@@ -282,15 +384,19 @@ class TestDst:
 # S1a port guards (spec §5 - new cases)
 # ---------------------------------------------------------------------------
 
-@pytest.mark.parametrize("day", [
-    "2026-08-31",  # Mon
-    "2026-09-01",  # Tue
-    "2026-09-02",  # Wed
-    "2026-09-03",  # Thu
-    "2026-09-04",  # Fri
-    "2026-09-05",  # Sat
-    "2026-09-06",  # Sun - the convention-flip case
-])
+
+@pytest.mark.parametrize(
+    "day",
+    [
+        "2026-08-31",  # Mon
+        "2026-09-01",  # Tue
+        "2026-09-02",  # Wed
+        "2026-09-03",  # Thu
+        "2026-09-04",  # Fri
+        "2026-09-05",  # Sat
+        "2026-09-06",  # Sun - the convention-flip case
+    ],
+)
 def test_week_start_all_seven_weekdays(day):
     # Stops a (weekday()+1) % 7 ".NET convention" fix sneaking back in.
     assert P.iso(P.weekStart(P.parseIso(day))) == "2026-08-31"
@@ -301,7 +407,7 @@ def test_date_type_rule():
     # week walks can compare them with <= without a TypeError.
     d = P.parseIso("2026-09-06")
     assert isinstance(d, date) and not isinstance(d, datetime)
-    w = P.weekStart(datetime(2026, 9, 6, 10, 30))   # datetime in -> date out
+    w = P.weekStart(datetime(2026, 9, 6, 10, 30))  # datetime in -> date out
     assert isinstance(w, date) and not isinstance(w, datetime)
     assert w <= d
 
@@ -317,16 +423,25 @@ def test_parse_iso_strict_calendar():
     # header): invalid calendar dates are None -> BAD_DATE, not rolled over.
     assert P.parseIso("2026-02-31") is None
     assert P.parseIso("2026-13-01") is None
-    assert P.parseIso("2026-9-1") is None            # < 10 chars
+    assert P.parseIso("2026-9-1") is None  # < 10 chars
     assert P.parseIso("2026-09-17T10:00") == date(2026, 9, 17)  # first 10 chars, as before
     assert P.parseIso(None) is None
 
 
 def test_civil_days_junk_is_none_and_move_rules_says_bad_date():
     assert P.civilDays("nope", "2026-09-01") is None
-    w = {"sid": "WO-J", "status": "A", "type": "N", "start": "garbage-start", "end": "",
-         "pinned": False, "pinTable": False, "engineDate": "", "subtaskDates": [],
-         "labourDates": []}
+    w = {
+        "sid": "WO-J",
+        "status": "A",
+        "type": "N",
+        "start": "garbage-start",
+        "end": "",
+        "pinned": False,
+        "pinTable": False,
+        "engineDate": "",
+        "subtaskDates": [],
+        "labourDates": [],
+    }
     r = P.moveRules(w, "2026-09-17", "2026-09-05")
     assert r["code"] == "BAD_DATE" and "cannot diff" in r["message"]
 
@@ -345,6 +460,8 @@ def test_od8_rounding_documented():
     weeks = P.capacityByWeek(
         [{"id": 1, "start": "2026-09-01", "hrs": 1.0}],
         [{"id": 7, "hrsPerWeek": 8.0, "internal": True}],
-        "2026-08-31", "2026-09-06")
+        "2026-08-31",
+        "2026-09-06",
+    )
     assert len(weeks) == 1
     assert weeks[0]["pct"] == 12

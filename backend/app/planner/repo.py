@@ -87,6 +87,7 @@ def pin_table_exists(conn: Connection) -> bool:
 # work orders
 # ---------------------------------------------------------------------------
 
+
 def _wo_dict(r: dict[str, Any], pin_table: bool) -> dict[str, Any]:
     st = s_(r["Status"])
     tf = s_(r["WO_Type_Flag"]) or "N"
@@ -99,20 +100,37 @@ def _wo_dict(r: dict[str, Any], pin_table: bool) -> dict[str, Any]:
     if sd is not None and ed is not None:
         days = civilDays(iso(sd), iso(ed)) or 0
     return {
-        "id": i_(r["WO_ID"]), "sid": s_(r["Short_WO_Id"]), "title": s_(r["WO_Title"]),
-        "status": st, "statusTitle": STATUS_TITLES.get(st, st), "type": tf,
-        "cat": category(st, tf), "start": iso(sd), "startTime": timeOf(sd),
-        "end": iso(ed) if ed is not None else "", "days": days,
-        "weekNo": f_(r["Week_No"]), "prog": i_(r["Progress_Id"]),
-        "priId": i_(r["Priority_Id"]), "pri": s_(r["PriorityShort"]),
-        "estimate": f_(r["Duration_In_Hours"]), "resp": i_(r["Resp_User_Id"]),
-        "asset": s_(r["AssetId"]), "assetTitle": s_(r["AssetTitle"]),
-        "loc": s_(r["LocationId"]), "locTitle": s_(r["LocationTitle"]),
-        "hasPO": i_(r["HasPO"]) == 1, "engineOwned": eo, "pinned": pinned,
+        "id": i_(r["WO_ID"]),
+        "sid": s_(r["Short_WO_Id"]),
+        "title": s_(r["WO_Title"]),
+        "status": st,
+        "statusTitle": STATUS_TITLES.get(st, st),
+        "type": tf,
+        "cat": category(st, tf),
+        "start": iso(sd),
+        "startTime": timeOf(sd),
+        "end": iso(ed) if ed is not None else "",
+        "days": days,
+        "weekNo": f_(r["Week_No"]),
+        "prog": i_(r["Progress_Id"]),
+        "priId": i_(r["Priority_Id"]),
+        "pri": s_(r["PriorityShort"]),
+        "estimate": f_(r["Duration_In_Hours"]),
+        "resp": i_(r["Resp_User_Id"]),
+        "asset": s_(r["AssetId"]),
+        "assetTitle": s_(r["AssetTitle"]),
+        "loc": s_(r["LocationId"]),
+        "locTitle": s_(r["LocationTitle"]),
+        "hasPO": i_(r["HasPO"]) == 1,
+        "engineOwned": eo,
+        "pinned": pinned,
         "pinnedOn": iso(r["Pinned_On"]) if r["Pinned_On"] is not None else "",
         "engineDate": iso(r["Prev_Start"]) if r["Prev_Start"] is not None else "",
-        "locked": locked, "movable": (not locked) and st not in _LOCKED_STATUSES,
-        "hrs": 0.0, "hrsSrc": "", "assigned": [],
+        "locked": locked,
+        "movable": (not locked) and st not in _LOCKED_STATUSES,
+        "hrs": 0.0,
+        "hrsSrc": "",
+        "assigned": [],
     }
 
 
@@ -131,12 +149,18 @@ def fetch_wos(conn: Connection, from_d: date, to_d: date) -> list[dict[str, Any]
 # labour
 # ---------------------------------------------------------------------------
 
+
 def _labour_dict(r: dict[str, Any]) -> dict[str, Any]:
     return {
-        "resId": i_(r["Res_Id"]), "woId": i_(r["WO_Id"]), "userId": i_(r["User_Id"]),
-        "hours": f_(r["Planned_Qty"]), "rate": f_(r["Rate"]), "note": s_(r["Note"]),
+        "resId": i_(r["Res_Id"]),
+        "woId": i_(r["WO_Id"]),
+        "userId": i_(r["User_Id"]),
+        "hours": f_(r["Planned_Qty"]),
+        "rate": f_(r["Rate"]),
+        "note": s_(r["Note"]),
         "date": iso(r["Res_Date"]) if r["Res_Date"] is not None else "",
-        "skillId": i_(r["Skill_Id"]), "skillTitle": s_(r["Skill_Title"]),
+        "skillId": i_(r["Skill_Id"]),
+        "skillTitle": s_(r["Skill_Title"]),
         "uomId": i_(r["UOM_Id"]),
     }
 
@@ -152,16 +176,23 @@ def fetch_labour(conn: Connection, from_d: date, to_d: date) -> list[dict[str, A
 # workers, priorities, uom
 # ---------------------------------------------------------------------------
 
+
 def fetch_skill_rows(conn: Connection) -> list[dict[str, Any]]:
     """One row per active user x active skill. Feeds rules.buildWorkers()."""
     return [
         {
-            "userId": i_(r["User_Id"]), "shortId": s_(r["Short_User_Id"]),
-            "name": s_(r["User_Name"]), "skillId": i_(r["Skill_ID"]),
-            "sysId": i_(r["Sys_User_Skill_Id"]), "uomId": i_(r["UOM_ID"]),
-            "skillTitle": s_(r["Skill_Title"]), "hrsPerWeek": f_(r["Hrs_Per_Week"]),
-            "supplierId": i_(r["Supplier_ID"]), "supplierShort": s_(r["Supplier_Short"]),
-            "supplierName": s_(r["Supplier_Name"]), "internalDept": s_(r["Internal_Dept"]),
+            "userId": i_(r["User_Id"]),
+            "shortId": s_(r["Short_User_Id"]),
+            "name": s_(r["User_Name"]),
+            "skillId": i_(r["Skill_ID"]),
+            "sysId": i_(r["Sys_User_Skill_Id"]),
+            "uomId": i_(r["UOM_ID"]),
+            "skillTitle": s_(r["Skill_Title"]),
+            "hrsPerWeek": f_(r["Hrs_Per_Week"]),
+            "supplierId": i_(r["Supplier_ID"]),
+            "supplierShort": s_(r["Supplier_Short"]),
+            "supplierName": s_(r["Supplier_Name"]),
+            "internalDept": s_(r["Internal_Dept"]),
         }
         for r in db.rows(conn, psql.WORKER_SKILLS)
     ]
@@ -171,8 +202,7 @@ def fetch_priorities(conn: Connection) -> list[dict[str, Any]]:
     """Active priorities in contract order. The order is the point - see the
     Sort_Sequence, Priority_Id note in sql.py."""
     return [
-        {"id": i_(r["Priority_Id"]), "short": s_(r["Short_Priority_Id"]),
-         "title": s_(r["Priority_Title"])}
+        {"id": i_(r["Priority_Id"]), "short": s_(r["Short_Priority_Id"]), "title": s_(r["Priority_Title"])}
         for r in db.rows(conn, psql.PRIORITIES)
     ]
 

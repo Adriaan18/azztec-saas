@@ -52,13 +52,39 @@ TO_D = date(2026, 9, 20)
 
 # Every contract key a WO dict must carry (port spec §3).
 WO_KEYS = {
-    "id", "sid", "title", "status", "statusTitle", "type", "cat", "start", "startTime",
-    "end", "days", "weekNo", "prog", "priId", "pri", "estimate", "resp", "asset",
-    "assetTitle", "loc", "locTitle", "hasPO", "engineOwned", "pinned", "pinnedOn",
-    "engineDate", "locked", "movable", "hrs", "hrsSrc", "assigned",
+    "id",
+    "sid",
+    "title",
+    "status",
+    "statusTitle",
+    "type",
+    "cat",
+    "start",
+    "startTime",
+    "end",
+    "days",
+    "weekNo",
+    "prog",
+    "priId",
+    "pri",
+    "estimate",
+    "resp",
+    "asset",
+    "assetTitle",
+    "loc",
+    "locTitle",
+    "hasPO",
+    "engineOwned",
+    "pinned",
+    "pinnedOn",
+    "engineDate",
+    "locked",
+    "movable",
+    "hrs",
+    "hrsSrc",
+    "assigned",
 }
-LABOUR_KEYS = {"resId", "woId", "userId", "hours", "rate", "note", "date",
-               "skillId", "skillTitle", "uomId"}
+LABOUR_KEYS = {"resId", "woId", "userId", "hours", "rate", "note", "date", "skillId", "skillTitle", "uomId"}
 
 ISO_DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 HHMM = re.compile(r"^\d{2}:\d{2}$")
@@ -137,6 +163,7 @@ def test_exclusive_end_adds_one_day():
 # ---------------------------------------------------------------------------
 # RST DB - rolled back
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture(scope="module")
 def conn():
@@ -318,9 +345,9 @@ def test_rules_consume_repo_output(conn, wos):
     workers, teams = buildWorkers(repo.fetch_skill_rows(conn))
     assert workers and teams
     assert all(isinstance(w["hrsPerWeek"], float) for w in workers)
-    assert [w["internal"] for w in workers] == sorted(
-        (w["internal"] for w in workers), reverse=True
-    ), "internal workers must sort first"
+    assert [w["internal"] for w in workers] == sorted((w["internal"] for w in workers), reverse=True), (
+        "internal workers must sort first"
+    )
     for wo in wos[:50]:
         hrs, src = hoursFor(wo, labour)
         assert isinstance(hrs, float)

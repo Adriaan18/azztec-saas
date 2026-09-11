@@ -137,7 +137,10 @@ _LABOUR_COLS = """
        COALESCE(r.UOM_Id, 0) AS UOM_Id
 """
 
-LABOUR_RANGE = "SELECT " + _LABOUR_COLS + """
+LABOUR_RANGE = (
+    "SELECT "
+    + _LABOUR_COLS
+    + """
   FROM dbo.WO_N_Resource r
   JOIN dbo.WO_N_Header h ON h.WO_ID = r.WO_Id
   LEFT JOIN dbo.Skill k ON k.Skill_ID = r.Skill_Id
@@ -147,6 +150,7 @@ LABOUR_RANGE = "SELECT " + _LABOUR_COLS + """
    AND h.Request_Start_Date <  :to_d
  ORDER BY r.WO_Id, r.Res_Date, r.Res_Id
 """
+)
 
 
 # ---------------------------------------------------------------------------

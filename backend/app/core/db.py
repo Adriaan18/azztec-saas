@@ -39,6 +39,7 @@ __version__ = "1.0.0"
 # engine
 # ---------------------------------------------------------------------------
 
+
 def build_url(s: Settings) -> str:
     if s.db_kind == "postgresql":
         if not s.db_url:
@@ -82,6 +83,7 @@ def get_conn() -> Iterator[Connection]:
 # coercion twins (_s / _i / _f from workmate.planner)
 # ---------------------------------------------------------------------------
 
+
 def s_(v: Any) -> str:
     return "" if v is None else str(v).strip()
 
@@ -104,13 +106,16 @@ def _clean(v: Any) -> Any:
     if isinstance(v, str):
         return v.strip()  # legacy char(n) padding
     if isinstance(v, Decimal):
-        return int(v) if v == v.to_integral_value() else float(v)  # Pydantic would emit Decimal as a JSON string
+        return (
+            int(v) if v == v.to_integral_value() else float(v)
+        )  # Pydantic would emit Decimal as a JSON string
     return v
 
 
 # ---------------------------------------------------------------------------
 # statements
 # ---------------------------------------------------------------------------
+
 
 def rows(conn: Connection, sql: str, **params: Any) -> list[dict[str, Any]]:
     res = conn.execute(text(sql), params)
