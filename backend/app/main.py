@@ -1,14 +1,25 @@
 """
-Azztec_SaaS_app_main_v1_0_2.py  ->  backend/app/main.py
-Version:  0.2.1   (app version reported by /api/v1/health)
+Azztec_SaaS_app_main_v1_0_3.py  ->  backend/app/main.py
+Version:  0.3.0   (app version reported by /api/v1/health)
 Author:   Adriaan
-Spec:     Azztec_SaaS_Architecture_and_Stack_v1_0_0.md (D-6, D-8, D-9), S1c chunk spec §3.4 / §5 / §6
+Spec:     Azztec_SaaS_Architecture_and_Stack_v1_0_0.md (D-6, D-8, D-9), S1d chunk spec §5 (OD-19, OD-20)
 
 App factory, lifespan (engine up/down + tz probe), request-id middleware with [F]/[G]/[E] outcome lines,
 /api/v1/health, /api/v1/_diag/self-test, the planner router, and app.frontend() serving web/dist in prod.
 Run: uv run fastapi dev app/main.py
 
 Changelog:
+  0.3.0  S1d. create_app() calls diag.configure(level=WORKMATE_LOG_LEVEL) FIRST, so the lifespan's own
+         startup lines are the boot-time proof the seam is wired; one [F] diag wired line names the level.
+         OD-19: app.frontend() mounts only when dist/index.html exists - an /api/... miss no longer depends
+         on the SPA mount, so it reaches the StarletteHTTPException handler as a flat 404 instead of
+         500ing on StaticFiles' missing directory. Reverses OD-17; the "no frontend" signal moves to
+         /health frontend:"missing" plus a [G] frontend not built line at boot, which is only visible
+         because of the diag fix in the same slice. Deliberately NOT a catch-all /api/{rest:path} route:
+         Starlette only falls back to its Match.PARTIAL 405 when nothing FULL-matches, so a catch-all
+         would turn POST /planner/range into a 404 and red a green test.
+         OD-20: health gains diagWired (is anything printing) next to diag (where records persist), and
+         versions.config reads config.__version__ instead of a literal that was already stale at 1.0.0.
   0.2.1  Ruff B008: the two S0 routes take `Annotated[Connection, Depends(db.get_conn)]` like router.py.
          Pre-existing from 0.1.0; surfaced once main.py changed. No behaviour change.
   0.2.0  S1c: mount app.planner.router under /api/v1; lifespan probes WORKMATE_TZ and logs [E] on a bad
@@ -32,12 +43,12 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.engine import Connection
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from app.core import db, diag
+from app.core import config, db, diag
 from app.core.config import get_settings
 from app.planner import router as planner_router
 from app.planner import service as planner_service
 
-__version__ = "0.2.1"
+__version__ = "0.3.0"
 
 _HTTP_CODES = {401: "NO_IDENTITY", 403: "FORBIDDEN", 404: "NOT_FOUND", 405: "METHOD_NOT_ALLOWED"}
 
@@ -63,6 +74,14 @@ async def lifespan(app: FastAPI):
 
 def create_app() -> FastAPI:
     s = get_settings()
+
+    # First, before anything can want to log. Until 0.3.0 nothing attached a handler to 'workmate.diag'
+    # and its effective level was root's WARNING, so every [F]/[G] was dropped on a dev server.
+    diag.configure(level=s.log_level)
+    diag.log(
+        "F", f"diag wired level={s.log_level.upper()} stream=stdout diag={diag.__version__}", source="main"
+    )
+
     app = FastAPI(title="Workmate SaaS", version=__version__, lifespan=lifespan)
 
     @app.middleware("http")
@@ -120,11 +139,12 @@ def create_app() -> FastAPI:
             else (s.db_url.rsplit("/", 1)[-1] if s.db_url else ""),
             "tz": s.tz,
             "frontend": "built" if (dist / "index.html").exists() else "missing",
-            "diag": diag.persist_mode(),
+            "diag": diag.persist_mode(),  # where records PERSIST
+            "diagWired": diag.is_wired(),  # whether anything is PRINTING (OD-20)
             "versions": {
                 "db": db.__version__,
                 "diag": diag.__version__,
-                "config": "1.0.0",
+                "config": config.__version__,  # read, never a literal - /health must not lie (WoW §2)
                 "planner": planner_router.__version__,
             },
         }
@@ -138,6 +158,7 @@ def create_app() -> FastAPI:
             "rid": rid,
             "actor": s.dev_user_id if s.is_dev else 0,
             "persist": diag.persist_mode(),
+            "wired": diag.is_wired(),
             "db": db.ping(conn),
             "record": rec,
         }
@@ -146,8 +167,13 @@ def create_app() -> FastAPI:
     app.include_router(api)
 
     # SPA: path operations always win; fallback serves index.html for browser navigations only.
-    # check_dir only in prod so pytest / first boot work before `pnpm build`.
-    app.frontend("/", directory=str(_dist_dir(s.frontend_dist)), check_dir=(s.env == "prod"))
+    # OD-19: mount only when there is something to serve. Without this, StaticFiles raises on the missing
+    # directory and an /api/... miss becomes a 500 instead of reaching the flat-404 handler above.
+    dist = _dist_dir(s.frontend_dist)
+    if (dist / "index.html").exists():
+        app.frontend("/", directory=str(dist), check_dir=(s.env == "prod"))
+    else:
+        diag.log("G", f"frontend not built dist={dist}", source="main")
     return app
 
 

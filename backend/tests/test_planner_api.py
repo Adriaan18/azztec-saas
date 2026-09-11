@@ -1,9 +1,9 @@
 """
-Azztec_SaaS_test_planner_api_v1_0_0.py  ->  backend/tests/test_planner_api.py
-Version:  1.0.0
+Azztec_SaaS_test_planner_api_v1_0_1.py  ->  backend/tests/test_planner_api.py
+Version:  1.0.1
 Author:   Adriaan
-Spec:     Azztec_SaaS_S1c_Api_Chunk_Spec_v1_0_0.md §7. Pair of router.py 1.0.0 + service.py 1.0.0 + schemas.py 1.0.0
-          + deps.py 1.0.0 + main.py 0.2.0.
+Spec:     Azztec_SaaS_S1c_Api_Chunk_Spec_v1_0_0.md §7. Pair of router.py 1.0.1 + service.py 1.0.1 + schemas.py 1.0.0
+          + deps.py 1.0.0 + main.py 0.3.0.
 
 TestClient over the real app, DB dependency overridden with one RST connection inside a transaction that is
 rolled back (D-10), actor dependency overridden (OD-12). Standing window 2026-09-14..2026-09-20 (Raw Log
@@ -14,12 +14,17 @@ pytest and get_settings() is lru_cached, so the un-overridden actor is a 401 by 
 Trip-wire: #12 asserts pinTable is False (OD-1) and flips when S3 migration 0002 lands.
 
 Changelog:
+  1.0.1  S1d instrument migration, assertions unchanged. diag.py 1.1.0 sets propagate=False on
+         'workmate.diag' (OD-18), so caplog - whose handler sits on root - no longer sees the record.
+         test_range_forensic_line_once reads capfd instead, which is the stronger test anyway: caplog
+         proved diag.log() was CALLED, capfd proves the line reached stdout. `import logging` dropped,
+         `import json` added.
   1.0.0  Initial S1c.
 """
 
 from __future__ import annotations
 
-import logging
+import json
 import os
 from collections.abc import Iterator
 from datetime import date, datetime
@@ -254,10 +259,13 @@ def test_range_response_model_rejects_drift(client: TestClient, monkeypatch: pyt
 # ---------------------------------------------------------------------------
 
 
-def test_range_forensic_line_once(client: TestClient, caplog: pytest.LogCaptureFixture) -> None:
-    caplog.set_level(logging.INFO, logger="workmate.diag")
+def test_range_forensic_line_once(client: TestClient, capfd: pytest.CaptureFixture[str]) -> None:
+    """capfd, not caplog (S1d OD-18). diag.py 1.1.0 sets propagate=False, so caplog's root handler sees
+    nothing - and caplog only ever proved diag.log() was CALLED. This proves the line reached stdout.
+    The middleware's own outcome line is in the same capture but carries no `rows=`, so the count holds."""
     r = client.get(RANGE, params={"from": FROM, "to": TO})
     assert r.status_code == 200
-    hits = [rec.getMessage() for rec in caplog.records if f"range {FROM}..{TO} rows=" in rec.getMessage()]
+    lines = [x.strip() for x in capfd.readouterr().out.splitlines() if x.strip().startswith("{")]
+    hits = [json.loads(x)["message"] for x in lines if f"range {FROM}..{TO} rows=" in x]
     assert len(hits) == 1, hits
     assert "labour=" in hits[0] and "workers=" in hits[0] and "pinTable=" in hits[0] and " ms" in hits[0]
