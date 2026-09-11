@@ -1,6 +1,6 @@
 # Azztec SaaS — Ways of Working
 
-**File:** Azztec_SaaS_Ways_of_Working_v1_1_0.md · **Version:** 1.1.0 · **Date:** 2026-09-11 · **Author:** Adriaan
+**File:** Azztec_SaaS_Ways_of_Working_v1_2_0.md · **Version:** 1.2.0 · **Date:** 2026-09-12 · **Author:** Adriaan
 **Status:** Active
 **Lineage:** `Workmate_Working_Method_v1_2.md` + `Workmate_Deliverable_Format_Standard_v1_0_0.md`, adapted for a git repo.
 
@@ -12,7 +12,7 @@
 audit → spec → 🤙 → build ONE slice → versioned raw file(s) → smoke-test → raw log → 🤙 → next slice
 ```
 
-- Spec before code for anything structural. The chunk specs (`S1a`…`S1d`) are the template.
+- Spec before code for anything structural. The chunk specs (`S1a`…`S1e`) are the template.
 - One slice at a time. A slice is done when its smoke passes **on the RST dev DB** and the test half is green.
 - 🤙 is the only gate. "Looks good" is not 🤙.
 - **The audit may cut the scope it was handed.** A proposal in a raw log's "next slice" section is an input to the audit, not a decision. Say plainly what is being dropped and why, and where it goes instead.
@@ -25,8 +25,8 @@ The repo is git-versioned, but the chat still hands over **files**, not diffs:
 | Rule | Detail |
 |------|--------|
 | One file per Download card | delivered via `present_files`; never inline; never zipped |
-| Versioned filename | `Azztec_SaaS_<thing>_vX_Y_Z.<ext>` for docs/scripts; code files delivered as `<module>_vX_Y_Z.py` and dropped into the canonical repo path (`backend/app/planner/rules.py`) |
-| Version inside the file | Python: `__version__ = "X.Y.Z"` + header comment; TS/TSX: `export const VERSION = "X.Y.Z"` + header; SQL/MD/PS1: header block |
+| Versioned filename | `Azztec_SaaS_<thing>_vX_Y_Z.<ext>` for docs/scripts; backend code delivered as `Azztec_SaaS_app_<path>_vX_Y_Z.py`, frontend code as `Azztec_SaaS_web_<path>_vX_Y_Z.ts` / `.tsx` / `.js` (`Azztec_SaaS_web_lib_dates_v1_0_0.ts` → `web/src/lib/dates.ts`), each dropped into the canonical repo path |
+| Version inside the file | Python: `__version__ = "X.Y.Z"` + header comment; TS/TSX/JS: `export const VERSION = "X.Y.Z"` + header (config files too — an extra named export is harmless to ESLint, Vitest and hey-api); SQL/MD/PS1: header block, **PS1 ASCII-only** (Landmines §A) |
 | Never overwrite | a change is a new version; the previous file stays in the chat history; git keeps the repo history |
 | Header block | file, version, target path, author, spec reference, changelog newest-first |
 | Bump rules | patch = fix, no contract change · minor = new function/route/field · major = contract break (route shape, JSON key rename, DB DDL) |
@@ -44,7 +44,7 @@ The repo is git-versioned, but the chat still hands over **files**, not diffs:
 | Backend code | `.py` — 4-space indent, Ruff-formatted, type-hinted | f-strings only (UP031) and `Annotated[T, Depends(...)]` only (B008), from the first draft |
 | SQL | lives **inside** `backend/app/<module>/sql.py` as `text()` constants | carries the NQ-style header: name, dialect line, PG-CONVERT tags. The CI gate greps the **whole file** — describe banned tokens, never spell them. A standalone `.sql` only for DDL run in SSMS |
 | Migrations | `backend/alembic/versions/*.py` | only for tables Workmate adds (WO_N_Plan, Diag_Log, …) — never autogenerate against the legacy 227 tables |
-| Frontend code | `.ts` / `.tsx`, strict TypeScript, Prettier | generated API client is never hand-edited |
+| Frontend code | `.ts` / `.tsx`, strict TypeScript, Prettier, `@tanstack/eslint-config` | generated API client (`src/api/client/**`) is never hand-edited **and never linted** — `eslint.config.js` ignores it, and the generator post-processes with Prettier only |
 | Tests | `backend/tests/test_<module>_<slice>.py` (pytest), `web/src/**/*.test.tsx` (Vitest), `web/e2e/*.spec.ts` (Playwright) | pair rule: a library slice ships with its test file |
 | Docs | `.md` in `docs/` and in project knowledge | raw logs append-only |
 | Scripts | `.ps1` (Windows dev), `.sh` (appliance/Linux) | idempotent, print what they did |
@@ -58,9 +58,11 @@ The repo is git-versioned, but the chat still hands over **files**, not diffs:
 
 ## 5. Fact-check before build
 
+- A CLI flag is verified on the box before a script relies on it — `pnpm dlx @tanstack/cli@latest create --list-add-ons … --json` and `--addon-details <id>` pasted, not a README remembered. S0 lost `web/` to a flag that had stopped existing; S1e checked first and lost nothing.
+- A scaffold or script that deletes must fail before it deletes, never after. Guard on the target existing, run the risky command, check `$LASTEXITCODE`, and only then touch anything else.
 - Column names, status codes, flag domains, FK targets: verify against `All_Tables_InDetail.csv` and the RST DB itself (`SELECT TOP 5 …` in SSMS, pasted). The RST DB is the same legacy schema but **its data domains may differ from KT** — probe, don't assume (Data Layer doc §5).
 - Anything the Ignition planner computes is the parity oracle: same window, same DB → same `counts`.
-- **Never re-emit a file you have not read.** Reconstructing a shipped module from its spec silently reverts whatever the spec did not describe. Ask for the current source; the cost of asking is one paste.
+- **Never re-emit a file you have not read.** Reconstructing a shipped module from its spec silently reverts whatever the spec did not describe. Ask for the current source; the cost of asking is one paste. This includes files a CLI wrote: read `eslint.config.js` before replacing it, and read the generated client's `^export` lines before writing anything that imports them.
 
 ## 6. Smoke-testing
 
@@ -74,6 +76,8 @@ uv run fastapi dev app/main.py                # boots, /api/v1/health returns ve
 curl "http://localhost:8000/api/v1/planner/range?from=2026-09-14&to=2026-09-20"
 pnpm --dir web test && pnpm --dir web build   # frontend green + builds
 ```
+
+Frontend order when the slice touches `web/`: `pnpm gen:api` → `pnpm lint` → `pnpm test` → `pnpm build`, then `gci web\dist\index.html`. **Any slice that creates or changes `web/dist` re-runs the backend suite and the dev-server request set with `dist/` present** — the mount flips behaviour without a backend file changing (Landmines §A).
 
 Console output is pasted verbatim into the chat before the next step. **The dev-server terminal is part of the smoke, not decoration** — the `[F]`/`[G]` lines are where a slice proves it did what it claimed.
 
@@ -109,5 +113,6 @@ Two layers as before: **raw** (dated logs, schema CSVs, the Ignition sources, `.
 
 ## 10. Changelog
 
+- 1.2.0 (2026-09-12) §1 template list gains S1e. §2 names the frontend delivered-filename form and the PS1 ASCII rule. §3 frontend row: generated client is never linted. §5 gains the verify-the-flag and fail-before-delete rules, and extends read-before-re-emit to CLI-written and generated files. §6 gains the frontend smoke order and the `dist/`-present backend re-run. From the S1e session.
 - 1.1.0 (2026-09-11) §1 gains the scope-cut and unsigned-dependency rules. §2 gains the PK marker, tag-what-shipped, and the drop-verification rule. §5 gains "never re-emit a file you have not read". §6 fixes the smoke ordering and the test-count rule. §7 rewritten around the instrument law. §8 gains the carry-forward rule for open items. §9 gains the project-knowledge obligation. All from the S1c/S1d sessions.
 - 1.0.0 (2026-09-10) Initial.
