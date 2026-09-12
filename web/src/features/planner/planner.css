@@ -1,0 +1,155 @@
+/*
+ * Azztec_SaaS_web_planner_css_v1_0_1.css  ->  web/src/features/planner/planner.css
+ * Version:  1.0.1   Date: 2026-09-12   Author: Adriaan
+ * Spec:     Azztec_SaaS_S1f_Grid_Chunk_Spec_v1_0_0.md s5.4 . OD-27
+ * Oracle:   Planner_v1_8_1.html <style> 102-137 (tokens, base, header), 149-172 (body, grid, cell,
+ *           chip), 179-186 (rail week bars), 215-221 (twoweek), 273-301 (chip parts, strip, bar,
+ *           week headers), 320-335 (rail), 349-354 (loading, banner), 374-375 (foot).
+ *           wm-ui.css v1.0.0 tokens are the same values (the Work Board shares them).
+ *
+ * Every selector is scoped under .wm-planner so the CTA starter and Tailwind preflight are untouched
+ * outside the planner route. Class names are the oracle's on purpose: the screenshot smoke is held
+ * next to the live Ignition planner, and S2 dnd-kit / S6 Playwright key on the same DOM.
+ * Not ported: filters row, worker menu, drag/drop states, dialog, popover, toast, suggest, ai.
+ * ASCII only.
+ *
+ * 1.0.1 departs from the oracle in one rule, deliberately. `.chip` sets height:var(--chip-h) but is a
+ * flex item in a column list, so flex-shrink defaults to 1: past roughly 25 chips in a cell the chips
+ * crush instead of the list scrolling. The oracle carries the same rule and the same latent bug - KT
+ * never had a day like RST's 14 Sep 2026, which holds 106 PMs. flex:none makes .list scroll, which is
+ * what its overflow:auto was always for. Worth carrying back to Planner 1.8.1.
+ *
+ * Changelog:
+ *   1.0.1  .chip gets flex:none - the 106-chip cell squashed instead of scrolling (smoke, 2026-09-12).
+ *   1.0.0  Initial S1f.
+ */
+
+/* tokens (oracle 102-107, wm-ui.css) */
+:root {
+  --bg: #24282C; --panel: #2B3036; --cell: #343A41; --cell2: #3A4149; --line: #3F464E;
+  --txt: #E7E4DC; --mut: #9AA3AD; --dim: #6E7A84; --gold: #FFC65C; --gold2: #D4A863;
+  --cyan: #4DD0E1; --pink: #F48FB1; --green: #81C784; --red: #EF6C57; --blue: #7FB3FF; --amber: #E0A23A;
+  --chip-h: 18px;
+}
+
+/* base (oracle 108-121, #app 122) */
+.wm-planner{display:flex;flex-direction:column;height:100vh;padding:8px;gap:6px;background:var(--bg);color:var(--txt);
+  font:12px/1.35 "Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;overflow:hidden}
+.wm-planner *{box-sizing:border-box}
+.wm-planner button,.wm-planner select,.wm-planner input{font:inherit;color:inherit}
+.wm-planner button{cursor:pointer;background:transparent;border:1px solid var(--line);border-radius:4px;padding:3px 9px;color:var(--txt)}
+.wm-planner button:hover{background:var(--cell2)}
+.wm-planner button:disabled{cursor:not-allowed;opacity:.4}
+.wm-planner button.on{background:rgba(255,198,92,.16);border-color:var(--gold2);color:var(--gold)}
+.wm-planner button.gold{background:rgba(212,168,99,.12);border-color:transparent;color:var(--gold2);font-weight:700}
+.wm-planner button.gold:hover{background:rgba(212,168,99,.24)}
+.wm-planner label{display:flex;align-items:center;gap:5px;white-space:nowrap}
+
+/* header (oracle 123-137) */
+.wm-planner .hdr{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:6px 10px}
+.wm-planner .hdr .title{font-weight:700;letter-spacing:1.2px;font-size:12px;color:var(--txt)}
+.wm-planner .hdr .range{color:var(--mut);font-style:italic;margin-left:4px}
+.wm-planner .hdr .sp{flex:1}
+.wm-planner .seg{display:flex;gap:2px;background:var(--cell);border-radius:5px;padding:2px}
+.wm-planner .seg button{border:none;padding:3px 10px;border-radius:4px}
+.wm-planner .seg button.on{background:var(--gold);color:#2b2b2b;font-weight:700}
+.wm-planner .cats{display:flex;gap:4px}
+.wm-planner .cats button{padding:2px 8px;font-weight:700;border-color:transparent;color:var(--mut)}
+.wm-planner .cats button[data-cat=WO].on{background:rgba(255,198,92,.18);color:var(--gold)}
+.wm-planner .cats button[data-cat=PM].on{background:rgba(77,208,225,.18);color:var(--cyan)}
+.wm-planner .cats button[data-cat=REQ].on{background:rgba(244,143,177,.18);color:var(--pink)}
+.wm-planner .cats button[data-cat=DONE].on{background:rgba(129,199,132,.18);color:var(--green)}
+.wm-planner .totals{color:var(--mut);font-size:11px;white-space:nowrap}
+
+/* body + grid (oracle 149-169) */
+.wm-planner .body{display:flex;flex:1;min-height:0;gap:8px}
+.wm-planner .grid-wrap{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px;position:relative}
+.wm-planner .dow{display:grid;grid-template-columns:repeat(7,1fr) 86px;gap:4px;padding:0 0 4px}
+.wm-planner .dow div{text-align:center;color:var(--mut);font-weight:700;font-size:11px;letter-spacing:.6px}
+.wm-planner .dow div.strip{color:var(--dim);font-size:10px}
+.wm-planner .grid{flex:1;min-height:0;display:grid;grid-template-columns:repeat(7,1fr) 86px;grid-auto-rows:minmax(78px,1fr);gap:4px;overflow:auto}
+.wm-planner .grid.week{grid-template-columns:repeat(7,1fr);grid-auto-rows:1fr}
+.wm-planner .cell{background:var(--cell);border:1px solid transparent;border-radius:8px;padding:5px 7px;display:flex;flex-direction:column;gap:2px;min-height:78px;min-width:0;overflow:hidden}
+.wm-planner .grid.week .cell{min-height:0}
+.wm-planner .cell.past{opacity:.72}
+.wm-planner .cell.today{border-color:var(--gold2);box-shadow:inset 0 0 0 1px rgba(212,168,99,.35)}
+.wm-planner .cell.out{background:transparent;border-style:dashed;border-color:var(--line)}
+.wm-planner .cell .ch{display:flex;align-items:baseline;gap:6px;color:var(--mut);font-size:11px}
+.wm-planner .cell .ch .d{font-weight:700;color:var(--txt);font-size:12px}
+.wm-planner .cell.today .ch .d{color:var(--gold)}
+.wm-planner .cell .ch .c{margin-left:auto;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wm-planner .cell .list{display:flex;flex-direction:column;gap:2px;min-height:0;overflow:hidden}
+.wm-planner .cell.x .list,.wm-planner .grid.week .cell .list{overflow:auto;flex:1}
+.wm-planner .more{color:var(--gold2);font-size:10px;font-weight:700;cursor:pointer;user-select:none}
+.wm-planner .more:hover{text-decoration:underline}
+
+/* twoweek + week headers (oracle 215-221, 299-301) */
+.wm-planner .grid.twoweek{grid-template-columns:repeat(7,1fr) 86px;grid-auto-rows:1fr}
+.wm-planner .grid.twoweek .cell .list{overflow:auto;flex:1}
+.wm-planner .grid.twoweek .cell .ch,.wm-planner .grid.week .cell .ch{flex-direction:column;align-items:flex-start;gap:0;border-bottom:1px solid var(--line);padding-bottom:3px;margin-bottom:2px}
+.wm-planner .grid.twoweek .cell .ch .c,.wm-planner .grid.week .cell .ch .c{margin-left:0}
+.wm-planner .grid.twoweek .cell .ch .hh,.wm-planner .grid.week .cell .ch .hh{color:var(--gold2);font-size:10px}
+
+/* chips (oracle 171-172, 273-288) */
+.wm-planner .chip{display:flex;align-items:center;gap:4px;height:var(--chip-h);flex:none;padding:0 5px 0 0;border-radius:3px;border-left:3px solid var(--gold);background:rgba(255,255,255,.03);cursor:pointer;user-select:none;-webkit-user-drag:none;touch-action:none;white-space:nowrap;overflow:hidden;font-size:11px;line-height:var(--chip-h)}
+.wm-planner .chip.mv{cursor:grab}
+.wm-planner .chip:hover{background:rgba(255,255,255,.08)}
+.wm-planner .chip.sel{outline:1px solid var(--gold2);background:rgba(212,168,99,.14)}
+.wm-planner .chip .sid{font-weight:700;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0;padding-left:4px}
+.wm-planner .chip.cat-WO{border-left-color:var(--gold)} .wm-planner .chip.cat-WO .sid{color:var(--gold)}
+.wm-planner .chip.cat-PM{border-left-color:var(--cyan)} .wm-planner .chip.cat-PM .sid{color:var(--cyan)}
+.wm-planner .chip.cat-REQ{border-left-color:var(--pink)} .wm-planner .chip.cat-REQ .sid{color:var(--pink)}
+.wm-planner .chip.cat-DONE{border-left-color:var(--green)} .wm-planner .chip.cat-DONE .sid{color:var(--green)}
+.wm-planner .chip .pri{font-size:9px;font-weight:700;color:#2b2b2b;background:var(--mut);border-radius:2px;padding:0 3px;line-height:12px;margin-left:3px}
+/* KT letters; RST's P1..P6 / N/A fall to the base .pri style (verified 2026-09-12) */
+.wm-planner .chip .pri.A{background:var(--red);color:#fff} .wm-planner .chip .pri.B{background:var(--gold2)} .wm-planner .chip .pri.C{background:#8fa3b5} .wm-planner .chip .pri.D{background:#6f7c87;color:#fff}
+.wm-planner .chip .hrs{font-size:10px;color:var(--mut);background:rgba(0,0,0,.25);border-radius:3px;padding:0 4px;line-height:14px}
+.wm-planner .chip .hrs.unk{color:var(--gold2);border:1px dashed rgba(212,168,99,.5);background:transparent}
+.wm-planner .chip .who{font-size:9px;color:var(--blue);letter-spacing:.3px}
+.wm-planner .chip .lk{width:9px;height:11px;flex:none;opacity:.75}
+.wm-planner .chip .pn{width:10px;height:11px;flex:none;color:var(--gold);opacity:.9}
+
+/* week strip + bar (oracle 290-297) */
+.wm-planner .strip{background:transparent;border:1px dashed var(--line);border-radius:8px;padding:6px 6px;display:flex;flex-direction:column;justify-content:center;gap:4px;min-width:0;overflow:hidden}
+.wm-planner .strip .n{font-size:11px;font-weight:700;color:var(--txt);white-space:nowrap}
+.wm-planner .strip .n small{color:var(--mut);font-weight:400}
+.wm-planner .strip .u{font-size:10px;color:var(--gold2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wm-planner .bar{height:5px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden}
+.wm-planner .bar i{display:block;height:100%;background:var(--dim);border-radius:3px;width:0}
+.wm-planner .bar i.ok{background:var(--green)} .wm-planner .bar i.over{background:var(--red)}
+.wm-planner .strip .w{font-size:10px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* rail (oracle 179-186, 320-335) */
+.wm-planner .rail{width:290px;flex:none;display:flex;flex-direction:column;gap:8px;min-height:0}
+.wm-planner .rail.hide{display:none}
+.wm-planner .card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 10px;display:flex;flex-direction:column;min-height:0}
+.wm-planner .card h3{margin:0 0 6px;font-size:11px;letter-spacing:1px;color:var(--txt);display:flex;align-items:center;gap:6px}
+.wm-planner .card h3 span{color:var(--mut);font-weight:400;letter-spacing:0}
+.wm-planner .card .tog{display:flex;gap:10px;color:var(--mut);font-size:10px;margin:0 0 6px}
+.wm-planner .workers{flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;gap:2px}
+.wm-planner .wk{display:flex;align-items:center;gap:7px;padding:3px 5px;border-radius:5px;border:1px solid transparent;touch-action:none}
+.wm-planner .wk:hover{background:var(--cell2)}
+.wm-planner .wk.on{border-color:var(--gold2);background:rgba(212,168,99,.12)}
+.wm-planner .wk .av{width:26px;height:20px;border-radius:4px;background:var(--cell2);color:var(--txt);font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none;letter-spacing:.3px}
+.wm-planner .wk.contr .av{background:rgba(127,179,255,.18);color:var(--blue)}
+.wm-planner .wk .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wm-planner .wk .nm small{display:block;color:var(--dim);font-size:9px}
+.wm-planner .wk .wkb{display:flex;gap:1px;height:5px;margin-top:3px}
+.wm-planner .wk .wkb i{flex:1;background:rgba(255,255,255,.07);border-radius:1px}
+.wm-planner .wk .wkb i.under{background:var(--amber)} .wm-planner .wk .wkb i.ok{background:var(--green)} .wm-planner .wk .wkb i.over{background:var(--red)}
+.wm-planner .wk .ld{text-align:right;font-size:10px;color:var(--mut);white-space:nowrap;line-height:1.2}
+.wm-planner .wk .ld b{color:var(--txt)}
+.wm-planner .wk .ld .bar{width:64px;margin-top:2px}
+.wm-planner .wk .ld .flags{display:block;font-size:9px;color:var(--mut)}
+.wm-planner .wk .ld .flags b.over{color:var(--red)} .wm-planner .wk .ld .flags b.under{color:var(--amber)}
+.wm-planner .empty{color:var(--dim);font-style:italic}
+
+/* overlays (oracle 349-354), foot (374-375) */
+.wm-planner .loading{position:absolute;inset:0;background:rgba(36,40,44,.55);display:none;align-items:center;justify-content:center;border-radius:8px;color:var(--gold);font-weight:700;letter-spacing:1px;z-index:5}
+.wm-planner .loading.on{display:flex}
+.wm-planner .banner{display:none;background:rgba(239,108,87,.15);border:1px solid rgba(239,108,87,.5);color:#ffb3a7;border-radius:6px;padding:5px 10px;align-items:center;gap:10px}
+.wm-planner .banner.on{display:flex}
+.wm-planner .banner b{color:#ffd0c8}
+.wm-planner .foot{display:flex;gap:10px;color:var(--dim);font-size:10px;padding:0 4px}
+.wm-planner .foot .sp{flex:1}
+.wm-planner ::-webkit-scrollbar{width:8px;height:8px} .wm-planner ::-webkit-scrollbar-thumb{background:#4a5159;border-radius:4px} .wm-planner ::-webkit-scrollbar-track{background:transparent}
