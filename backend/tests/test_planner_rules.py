@@ -1,9 +1,10 @@
 """
-workmate_test_planner_rules_v1_0_0.py  ->  backend/tests/test_planner_rules.py
-Version:  1.0.0
+workmate_test_planner_rules_v1_1_0.py  ->  backend/tests/test_planner_rules.py
+Version:  1.1.0
 Author:   Adriaan
 Spec:     Azztec_SaaS_S1a_Rules_Chunk_Spec_v1_0_0.md §5
-Pair of:  backend/app/planner/rules.py 1.0.0
+          Azztec_SaaS_S1h_Priority_Initials_Chunk_Spec_v1_0_0.md §5.1
+Pair of:  backend/app/planner/rules.py 1.1.0
 
 ZERO DB - plain dicts, exactly as Test_workmate_planner ran on the gateway.
 Ports the four pure Night Shift cases from
@@ -19,6 +20,13 @@ validation, _fmtDelta, and the OD-8 rounding divergence documented as a
 test instead of a surprise.
 
 Changelog:
+  1.1.0  S1h. TestInitialsOf - initialsOf direct, on the real RST names
+         (item 21 / OD-35), plus _nameForInitials edges. Every name in it
+         was read out of dbWorkmate.dbo.Users on 2026-09-13, none invented.
+         No existing assertion changed: no fixture name in this file
+         contains a bracket, and test_initials at line 201 reaches AMET
+         through the EXT- short-id path and KF through a 2-char short id,
+         neither of which touches the name path.
   1.0.0  Initial - pair of rules.py 1.0.0.
 """
 
@@ -30,7 +38,7 @@ import pytest
 
 from app.planner import rules as P
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 
 
 # ---------------------------------------------------------------------------
@@ -39,7 +47,7 @@ __version__ = "1.0.0"
 
 
 def test_version_and_lineage():
-    assert P.__version__ == "1.0.0"
+    assert P.__version__ == "1.1.0"
     assert P.PORTED_FROM == "workmate.planner 1.3.1"
 
 
@@ -465,3 +473,84 @@ def test_od8_rounding_documented():
     )
     assert len(weeks) == 1
     assert weeks[0]["pct"] == 12
+
+
+# ---------------------------------------------------------------------------
+# initialsOf  (S1h §5.1, item 21 / OD-35)
+#
+# Every shortId/name pair below was read out of dbWorkmate.dbo.Users on
+# 2026-09-13. None of them is invented - roughly 300 RST rows carry a bracket
+# and the oracle failed on them in two ways: a one-word bracket showed the
+# bracket itself, a multi-word bracket showed a letter from inside it, which
+# looks right and is not.
+# ---------------------------------------------------------------------------
+
+
+class TestInitialsOf:
+    @pytest.mark.parametrize(
+        ("short_id", "name", "want", "why"),
+        [
+            # one-word bracket - the visible break (was 'J(', 'A(', 'B(')
+            ("JEANP", "JP Paalvast (TS)", "JP", "the item-21 case"),
+            ("AARONW", "Aaron Wilson (Livewires)", "AW", "one-word bracket"),
+            ("BIG MOW", "Big Mow (FORMA)", "BM", "space inside the short id"),
+            ("KEEGANOB", "Keegan O'Brien (Livewires)", "KO", "apostrophe in the surname"),
+            # multi-word bracket - the silent class (was 'AE', 'TE', 'SS', 'NP')
+            ("ADAMD", "Adam Donald (Max Edkins)", "AD", "was AE - looked correct"),
+            ("TERRYHK", "Terry Herangi-Kingi (Max Edkins)", "TK", "hyphen then bracket, was TE"),
+            ("SPENCERC", "Spencer Calvert (Summer Student)", "SC", "was SS"),
+            ("LIVEWIRE_NS PRIMARY", "Night Shift Primary (Livewires)", "NP", "not a person"),
+            # bracket edges present in the real data
+            ("GARYCO", "Gary Colbert ( FORMA )", "GC", "padded bracket, bare ) was its own token"),
+            ("ANGELAS", "Angela Southerland (no longer in us", "AS", "truncated, unbalanced"),
+            ("TUPUAP", "Tupua PAO-TOLEAFOA (FORMA)", "TT", "hyphenated caps surname"),
+            # must not move - these already behaved
+            ("ALLANA", "Allan Andrewson(Temp)", "AA", "no space before the bracket - was right by accident"),
+            ("ANNEL", "Anne  (No longer in use)", "ANN", "one token left, falls to the short-id path"),
+            ("JASON?", "Jason (No longer in use)", "JAS", "one token left, punctuation in the short id"),
+            ("EXT-AMET", "Aiden - MetalForm", "AMET", "EXT- strip then the short-id bound"),
+            ("KF", "Ken Fisher", "KF", "2-char short id never reaches the name"),
+            ("LH", "Liaanna Hay", "LH", "same"),
+            ("", "", "?", "nothing in, ? out"),
+        ],
+    )
+    def test_real_rst_names(self, short_id, name, want, why):
+        assert P.initialsOf(short_id, name) == want, why
+
+    def test_role_suffix_is_NOT_fixed(self):
+        # Open item 35, deliberately unsigned and deliberately asserted WRONG.
+        # After the brackets are gone the oracle still takes first-and-last, so
+        # a trailing role token wins the second letter: 'Andrew Hornby R2' gives
+        # AR, not AH. Fixing it needs a site-specific list of role tokens (R2,
+        # NS, SUP, CALLOUT, PROJECT) and its own decision. If this assertion
+        # ever fails, item 35 was fixed - update it deliberately, do not patch
+        # it to match.
+        assert P.initialsOf("ANDREWHO R2", "Andrew Hornby R2 (Max Edkins)") == "AR"
+        assert P.initialsOf("MAXWEB R2", "Max Webber R2 (Max Edkins") == "MR"
+
+    @pytest.mark.parametrize(
+        ("name", "want"),
+        [
+            ("no brackets here", "no brackets here"),
+            ("Adam Donald (Max Edkins)", "Adam Donald "),
+            ("a (b (c) d) e", "a  e"),
+            ("abc (unbalanced", "abc "),
+            ("(all of it)", ""),
+            ("", ""),
+        ],
+    )
+    def test_name_for_initials(self, name, want):
+        assert P._nameForInitials(name) == want
+
+    def test_bracketed_name_never_leaks_a_bracket(self):
+        # The one property that matters on the rail and the chips: no initials
+        # string may contain bracket punctuation, whatever the name holds.
+        for name in (
+            "JP Paalvast (TS)",
+            "Gary Colbert ( FORMA )",
+            "Max Webber R2 (Max Edkins",
+            "(all of it)",
+            "x )stray( y",
+        ):
+            got = P.initialsOf("LONGSHORTID", name)
+            assert "(" not in got and ")" not in got, (name, got)

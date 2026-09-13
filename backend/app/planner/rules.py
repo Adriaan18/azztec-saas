@@ -2,13 +2,14 @@
 # (printf-style %-formatting is kept 1:1 from the Ignition source - every
 #  refusal/confirm message string must stay byte-identical for parity.)
 """
-workmate_planner_rules_v1_0_0.py  ->  backend/app/planner/rules.py
-Version:  1.0.0
+workmate_planner_rules_v1_1_0.py  ->  backend/app/planner/rules.py
+Version:  1.1.0
 Author:   Adriaan
 Spec:     Azztec_SaaS_S1a_Rules_Chunk_Spec_v1_0_0.md (whole file)
+          Azztec_SaaS_S1h_Priority_Initials_Chunk_Spec_v1_0_0.md §3.4 (initialsOf)
 Parent:   Azztec_SaaS_Planner_Port_Spec_v1_0_0.md §2, §5
 Ported from: workmate.planner 1.3.1 (docs/reference/workmate_planner_code_v1_3_1.py)
-Pair:     backend/tests/test_planner_rules.py 1.0.0
+Pair:     backend/tests/test_planner_rules.py 1.1.0
 
 The PURE rules of the Planner. Zero I/O: no database, no FastAPI, no config,
 no imports beyond datetime. Plain dicts in, plain dicts/tuples out.
@@ -36,6 +37,18 @@ Signed decisions in force:
   OD-10 New version lineage from 1.0.0; PORTED_FROM carries the Ignition
         lineage for parity assertions. The /range contract's libVersion
         reports __version__.
+  OD-35 initialsOf DEPARTS from the oracle: bracketed segments come out of
+        the name before the first-and-last pick. Delegated 2026-09-13, not
+        signed with the gate - recorded as such in the raw log. The oracle
+        is wrong on roughly 300 RST rows and wrong in two ways: a one-word
+        bracket shows the bracket ('JP Paalvast (TS)' -> 'J('), and a
+        multi-word bracket shows a letter from INSIDE it, which looks
+        correct and is not ('Adam Donald (Max Edkins)' -> 'AE'). The second
+        class is the reason this is not cosmetic. Consequence: the parity
+        script (open item 26) must carry workers[].initials as an EXPECTED
+        diff against the live Ignition oracle, and the Ignition-side fix is
+        a separate carry-back (open item 34). PORTED_FROM stays 1.3.1 - the
+        lineage is unchanged, this paragraph is the record of the departure.
 
 Deliberate deviation (S1a spec §3.1): parseIso validates the calendar
 strictly - '2026-02-31' is None here, where Java's lenient SimpleDateFormat
@@ -43,6 +56,14 @@ rolled it to March. civilDays() (_civil) was already strict in 1.3.1, so
 this makes the module agree with itself; garbage in is BAD_DATE out.
 
 Changelog:
+  1.1.0  S1h. initialsOf strips bracketed segments from the name before
+         splitting, via the new _nameForInitials helper (OD-35). One line of
+         initialsOf changes - the EXT- strip, the short-id bound, the
+         first-and-last pick and the s[:3] fallback are all untouched. Not
+         fixed here and asserted unfixed in the pair: a trailing role token
+         ('Andrew Hornby R2 (Max Edkins)' -> 'AR') still skews the pick,
+         because deciding which tokens are role suffixes needs a
+         site-specific list and its own decision (open item 35).
   1.0.0  Initial port of the pure set from workmate.planner 1.3.1:
          category engineOwned hoursFor assignedFor classifyTeams
          buildWorkers initialsOf workerLoad capacityByWeek workerWeeks
@@ -56,7 +77,7 @@ from __future__ import annotations
 
 from datetime import date, datetime, timedelta
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 PORTED_FROM = "workmate.planner 1.3.1"
 
 _LOCKED_STATUSES = ("C", "D")  # never movable
@@ -322,13 +343,47 @@ def buildWorkers(skillRows):
     return workers, teamList
 
 
+def _nameForInitials(name):
+    """Name with bracketed segments removed (OD-35).
+
+    RST stores the employer or a status in brackets on nearly every row, and
+    the first-and-last pick in initialsOf would take a letter out of the
+    bracket instead of out of the surname. Depth-counted rather than regexed
+    so the real data's edges behave:
+      'Adam Donald (Max Edkins)'   -> 'Adam Donald '      (was giving AE)
+      'JP Paalvast (TS)'           -> 'JP Paalvast '       (was giving J()
+      'Gary Colbert ( FORMA )'     -> 'Gary Colbert '      (bare ) dropped)
+      'Max Webber R2 (Max Edkins'  -> 'Max Webber R2 '     (unbalanced ( in
+                                                            RST User_Id 996
+                                                            takes the rest)
+      'Allan Andrewson(Temp)'      -> 'Allan Andrewson'    (no space before ()
+    A ')' at depth zero is dropped rather than kept - it is punctuation, and
+    keeping it made it a token of its own.
+    """
+    out = []
+    depth = 0
+    for ch in _s(name):
+        if ch == "(":
+            depth += 1
+        elif ch == ")":
+            if depth > 0:
+                depth -= 1
+        elif depth == 0:
+            out.append(ch)
+    return "".join(out)
+
+
 def initialsOf(shortId, name):
     s = _s(shortId)
     if s.upper().startswith("EXT-"):
         s = s[4:]
     if 1 < len(s) <= 4:
         return s.upper()
-    parts = [p for p in _s(name).replace("-", " ").split(" ") if p]
+    # OD-35: brackets out of the name first, and drop any token that does not
+    # start with a letter. Everything else below is the oracle, unchanged -
+    # including the s[:3] fallback, which is what a name that brackets down to
+    # a single token gets ('Anne  (No longer in use)' + ANNEL -> 'ANN').
+    parts = [p for p in _nameForInitials(name).replace("-", " ").split(" ") if p and p[0].isalpha()]
     if len(parts) >= 2:
         return (parts[0][0] + parts[-1][0]).upper()
     return s[:3].upper() if s else "?"

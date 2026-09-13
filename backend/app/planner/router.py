@@ -1,6 +1,6 @@
 """
-Azztec_SaaS_app_planner_router_v1_0_1.py  ->  backend/app/planner/router.py
-Version:  1.0.1
+Azztec_SaaS_app_planner_router_v1_1_0.py  ->  backend/app/planner/router.py
+Version:  1.1.0
 Author:   Adriaan
 Spec:     Azztec_SaaS_S1c_Api_Chunk_Spec_v1_0_0.md §6 · Planner Port Spec §4 · Architecture D-9
 Ported:   workmate.planner_api 1.8.3 _range (src 571-594) - sid/tok gate replaced by Depends(get_current_actor)
@@ -12,6 +12,11 @@ S1c: GET /range only. Plain def (D-2). Mounted under /api/v1 by main.py -> /api/
 One [F] line per request in the Ignition text; the service is silent; the middleware line is separate.
 
 Changelog:
+  1.1.0  S1h, OD-37. VERSION LINE ONLY - no logic, no route, no response
+         change in this file. Priority gained a colour field (schemas 1.1.0)
+         and apiVersion, set from __version__ below, is the only signal a
+         generated client gets that the payload shape moved. A client pinned
+         to apiVersion 1.0.1 must not be able to receive two shapes.
   1.0.1  Ruff UP031: diag lines to f-strings. Ignition message text unchanged. No behaviour change.
   1.0.0  Initial S1c.
 """
@@ -30,14 +35,12 @@ from app.core.deps import get_current_actor
 from app.planner import service
 from app.planner.schemas import ApiError, RangeData
 
-__version__ = "1.0.1"
+__version__ = "1.1.0"
 
 router = APIRouter(prefix="/planner", tags=["planner"])
 
 
-@router.get(
-    "/range", response_model=RangeData, responses={400: {"model": ApiError}, 401: {"model": ApiError}}
-)
+@router.get("/range", response_model=RangeData, responses={400: {"model": ApiError}, 401: {"model": ApiError}})
 def get_range(
     request: Request,
     from_: Annotated[str, Query(alias="from", description="yyyy-MM-dd, inclusive")],

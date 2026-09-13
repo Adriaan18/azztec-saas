@@ -1,12 +1,12 @@
 """
-workmate_planner_sql_v1_0_1.py  ->  backend/app/planner/sql.py
-Version:  1.0.1
+workmate_planner_sql_v1_1_0.py  ->  backend/app/planner/sql.py
+Version:  1.1.0
 Author:   Adriaan
-Spec:     Azztec_SaaS_S1b_Data_Chunk_Spec_v1_0_0.md §3
+Spec:     Azztec_SaaS_S1h_Priority_Initials_Chunk_Spec_v1_0_0.md §3.1
 Parent:   Azztec_SaaS_Data_Layer_and_RST_DB_v1_0_0.md §4-§5, Architecture D-3
 Ported from: workmate.planner 1.3.1 lines 539-629 (_woSql, _LABOUR_SQL, _WORKER_SQL,
              _PRIORITY_SQL, hoursUomId probes)
-Pair:     backend/app/planner/repo.py 1.0.0
+Pair:     backend/app/planner/repo.py 1.1.0
 
 Every statement the planner READ path runs, as dialect-portable text() source.
 No Python logic here beyond assembling the two pin variants - repo.py binds
@@ -33,6 +33,8 @@ survives the port. Header comments below are Python comments, outside the
 strings, so they are safe.
 
 Changelog:
+  1.1.0  S1h. PRIORITIES gains Colour (open item 29). One column added to one
+         SELECT list - no other statement touched, ORDER BY unchanged.
   1.0.1  Docstring reworded so the CI dialect gate stops matching this
          module's own documentation. No SQL change - every statement is
          byte-identical to 1.0.0. Caught by the gate on first run.
@@ -42,7 +44,7 @@ Changelog:
 
 from __future__ import annotations
 
-__version__ = "1.0.1"
+__version__ = "1.1.0"
 
 
 # ---------------------------------------------------------------------------
@@ -195,12 +197,28 @@ SELECT u.User_Id,
 #          BEARING. RST has four-way ties on Sort_Sequence (raw log 8.2f);
 #          without Priority_Id the JSON contract order drifts between runs.
 #          Do not drop it.
+#
+#          The Active filter drops HALF the RST table. Fourteen rows exist,
+#          Active is 1 or 0 there, and seven reach the payload - P2 P1 P3 P5
+#          P6 P4 and N/A (read 2026-09-13, and dm_exec_query_stats reports
+#          max_rows 7 on this statement, so two oracles agree). Ties survive
+#          the filter (P2 and P1 at 1, P5 and P6 at 3), which is why OD-11
+#          above still matters and why OD-32 stays withdrawn.
+#
+#          Colour is varchar(255) NULL on BOTH databases - free text, no
+#          constraint, no guarantee of a hex triplet. COALESCE gives '' for
+#          NULL and the API ships whatever is stored (OD-36); deciding
+#          whether the value is paintable belongs to the renderer, not here.
+#          Among RST's seven active rows every colour is distinct; KT carries
+#          the same colour on all four of its rows, so there the letter class
+#          is what paints. Both are real data, neither is the right one.
 # ---------------------------------------------------------------------------
 
 PRIORITIES = """
 SELECT Priority_Id,
        RTRIM(COALESCE(Short_Priority_Id, '')) AS Short_Priority_Id,
        RTRIM(COALESCE(Priority_Title, '')) AS Priority_Title,
+       RTRIM(COALESCE(Colour, '')) AS Colour,
        COALESCE(Sort_Sequence, 0) AS Sort_Sequence
   FROM dbo.Priority
  WHERE RTRIM(COALESCE(Active, '')) NOT IN ('0', 'N')

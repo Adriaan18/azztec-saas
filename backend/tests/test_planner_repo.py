@@ -1,9 +1,9 @@
 """
-workmate_test_planner_repo_v1_0_1.py  ->  backend/tests/test_planner_repo.py
-Version:  1.0.1
+workmate_test_planner_repo_v1_0_2.py  ->  backend/tests/test_planner_repo.py
+Version:  1.0.2
 Author:   Adriaan
 Spec:     Azztec_SaaS_S1b_Data_Chunk_Spec_v1_0_0.md §6
-Pair of:  backend/app/planner/sql.py 1.0.1 + backend/app/planner/repo.py 1.0.0
+Pair of:  backend/app/planner/sql.py 1.1.0 + backend/app/planner/repo.py 1.1.0
 
 Two halves:
   - no DB: the PG-CONVERT / dialect gate, run as a unit test so a bad
@@ -21,6 +21,14 @@ in the raw log; here they are derived from control queries so the suite still
 means something when it is pointed at the KT dev copy.
 
 Changelog:
+  1.0.2  S1h. HEADER ONLY - the Pair line pointed at sql.py 1.0.1 and repo.py
+         1.0.0, both of which moved to 1.1.0 when PRIORITIES gained Colour. No
+         assertion changed and none needed to: this file checks the port, not
+         the data, so the added column touches nothing -
+         test_fetch_priorities_matches_control_order compares Priority_Id order
+         only, and test_sql_module_source_is_gate_clean was re-run by hand
+         against sql.py 1.1.0 (clean: the new comment prose carries none of the
+         four banned tokens).
   1.0.1  Ruff I001 on the app imports. Adds test_sql_module_source_is_gate_clean:
          1.0.0 only scanned ALL_STATEMENTS, so a banned token in sql.py's own
          docstring passed here and failed the CI grep. The unit test now reads
@@ -44,7 +52,7 @@ from app.planner import repo  # noqa: E402
 from app.planner import sql as psql  # noqa: E402
 from app.planner.rules import buildWorkers, hoursFor  # noqa: E402
 
-__version__ = "1.0.1"
+__version__ = "1.0.2"
 
 # The project's canonical planner window (Ways of Working §6, Architecture §6).
 FROM_D = date(2026, 9, 14)

@@ -1,19 +1,26 @@
 """
-Azztec_SaaS_test_planner_api_v1_0_1.py  ->  backend/tests/test_planner_api.py
-Version:  1.0.1
+Azztec_SaaS_test_planner_api_v1_1_0.py  ->  backend/tests/test_planner_api.py
+Version:  1.1.0
 Author:   Adriaan
-Spec:     Azztec_SaaS_S1c_Api_Chunk_Spec_v1_0_0.md §7. Pair of router.py 1.0.1 + service.py 1.0.1 + schemas.py 1.0.0
-          + deps.py 1.0.0 + main.py 0.3.0.
+Spec:     Azztec_SaaS_S1c_Api_Chunk_Spec_v1_0_0.md §7 · Azztec_SaaS_S1h_Priority_Initials_Chunk_Spec_v1_0_0.md §5.2
+          Pair of router.py 1.1.0 + service.py 1.0.1 + schemas.py 1.1.0 + deps.py 1.0.0 + main.py 0.3.0.
 
 TestClient over the real app, DB dependency overridden with one RST connection inside a transaction that is
 rolled back (D-10), actor dependency overridden (OD-12). Standing window 2026-09-14..2026-09-20 (Raw Log
 2026-09-11 §5). Zero skips - every assertion is written to hold on dbWorkmate as restored.
 
-Twenty tests from spec §7 plus one for the [F] line (§9 acceptance). Env trap: WORKMATE_ENV=test under
+Twenty tests from spec §7 plus one for the [F] line (§9 acceptance), plus five from S1h §5.2 (priority colour). Env trap: WORKMATE_ENV=test under
 pytest and get_settings() is lru_cached, so the un-overridden actor is a 401 by design (§7.4 #19).
 Trip-wire: #12 asserts pinTable is False (OD-1) and flips when S3 migration 0002 lands.
 
 Changelog:
+  1.1.0  S1h. Five priority-colour tests (item 29 / OD-36); apiVersion and
+         libVersion assertions needed no edit, they read the module constants
+         (OD-37). Deliberately NO assertion on the number of priority rows, and
+         none on the order being non-alphabetical: seven rows is one database's
+         Active state on one day, and KT's A B C D order IS alphabetical, so
+         both would fire on correct data. Row order is checked against a control
+         query instead.
   1.0.1  S1d instrument migration, assertions unchanged. diag.py 1.1.0 sets propagate=False on
          'workmate.diag' (OD-18), so caplog - whose handler sits on root - no longer sees the record.
          test_range_forensic_line_once reads capfd instead, which is the stronger test anyway: caplog
@@ -41,6 +48,7 @@ from app.core.config import get_settings  # noqa: E402
 from app.main import app  # noqa: E402
 from app.planner import repo, rules  # noqa: E402
 from app.planner import router as planner_router  # noqa: E402
+from app.planner.schemas import Priority  # noqa: E402 - after env is set
 
 RANGE = "/api/v1/planner/range"
 FROM, TO = "2026-09-14", "2026-09-20"
@@ -269,3 +277,72 @@ def test_range_forensic_line_once(client: TestClient, capfd: pytest.CaptureFixtu
     hits = [json.loads(x)["message"] for x in lines if f"range {FROM}..{TO} rows=" in x]
     assert len(hits) == 1, hits
     assert "labour=" in hits[0] and "workers=" in hits[0] and "pinTable=" in hits[0] and " ms" in hits[0]
+
+
+# ---------------------------------------------------------------------------
+# S1h - priority colour on the wire (item 29 / OD-36)
+# ---------------------------------------------------------------------------
+
+
+def test_range_priorities_all_carry_a_colour(body: dict) -> None:
+    assert body["priorities"], "no active priorities"
+    for p in body["priorities"]:
+        assert "colour" in p, p
+        assert isinstance(p["colour"], str), p
+
+
+def test_range_priority_colour_is_actually_read(body: dict) -> None:
+    """Guards the difference between reading the column and defaulting it. Every
+    colour coming back '' would satisfy the type test above and mean the SELECT
+    lost the column - as it would on a typo'd alias."""
+    assert any(p["colour"] for p in body["priorities"])
+
+
+def test_range_priority_colour_matches_the_table(body: dict, conn: Connection) -> None:
+    """OD-36: the API ships what the column holds, no default, no validation.
+    Control query, so it still means something pointed at the KT dev copy -
+    where every row legitimately carries the same colour."""
+    control = {
+        r["Priority_Id"]: (r["Colour"] or "")
+        for r in db.rows(
+            conn,
+            "SELECT Priority_Id, RTRIM(COALESCE(Colour, '')) AS Colour FROM dbo.Priority "
+            "WHERE RTRIM(COALESCE(Active, '')) NOT IN ('0', 'N')",
+        )
+    }
+    assert control, "no active priorities in the table"
+    for p in body["priorities"]:
+        assert p["colour"] == control[p["id"]], p
+
+
+def test_range_priority_order_survives_the_whole_chain(body: dict, conn: Connection) -> None:
+    """Contract order is Sort_Sequence then Priority_Id (OD-11). repo's own test
+    asserts that at the mapper; this asserts it at the wire, so the chain
+    repo -> service -> schema -> JSON cannot quietly reorder it.
+
+    Control query, not a hard-coded list: on RST the order is P2 P1 P3 P5 P6 P4
+    N/A, which is NOT alphabetical, but on the KT copy it is A B C D, which is -
+    so an 'order is not alphabetical' trip-wire would fire on correct data
+    there. Compare against the table instead."""
+    control = [
+        r["Priority_Id"]
+        for r in db.rows(
+            conn,
+            "SELECT Priority_Id FROM dbo.Priority "
+            "WHERE RTRIM(COALESCE(Active, '')) NOT IN ('0', 'N') "
+            "ORDER BY Sort_Sequence, Priority_Id",
+        )
+    ]
+    assert [p["id"] for p in body["priorities"]] == control
+
+
+def test_priority_model_takes_colour_and_still_forbids_extras() -> None:
+    from pydantic import ValidationError  # noqa: PLC0415 - local to the one test that needs it
+
+    ok = Priority(id=1, short="P2", title="Priority 2", colour="#FF9F40")
+    assert ok.colour == "#FF9F40"
+    assert Priority(id=6, short="N/A", title="Not Applicable", colour="").colour == ""
+    with pytest.raises(ValidationError):
+        Priority(id=1, short="P2", title="Priority 2", colour="#FF9F40", rank=1)
+    with pytest.raises(ValidationError):
+        Priority(id=1, short="P2", title="Priority 2")

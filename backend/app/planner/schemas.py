@@ -1,8 +1,8 @@
 """
-Azztec_SaaS_app_planner_schemas_v1_0_0.py  ->  backend/app/planner/schemas.py
-Version:  1.0.0
+Azztec_SaaS_app_planner_schemas_v1_1_0.py  ->  backend/app/planner/schemas.py
+Version:  1.1.0
 Author:   Adriaan
-Spec:     Azztec_SaaS_S1c_Api_Chunk_Spec_v1_0_0.md §4 · Planner Port Spec §3 · Architecture D-9
+Spec:     Azztec_SaaS_S1h_Priority_Initials_Chunk_Spec_v1_0_0.md §3.3 · Planner Port Spec §3 · Architecture D-9
 
 The /range JSON contract as Pydantic v2 models. Field names are the Ignition rangeData keys, camelCase,
 declared in src order (cosmetic - Jython dicts were unordered, so order was never contract).
@@ -14,6 +14,8 @@ Two things to know:
     key the service adds or drops raises loudly instead of being swallowed by response_model.
 
 Changelog:
+  1.1.0  S1h. Priority gains colour (open item 29). Ships with repo.py 1.1.0
+         or not at all - extra="forbid" makes the two halves one change.
   1.0.0  Initial S1c.
 """
 
@@ -21,7 +23,7 @@ from __future__ import annotations
 
 from pydantic import BaseModel, ConfigDict, Field
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 
 
 class _Strict(BaseModel):
@@ -107,6 +109,10 @@ class Priority(_Strict):
     id: int
     short: str
     title: str
+    # dbo.Priority.Colour, varchar(255) NULL on both databases. Free text - no
+    # enum, no hex validator, no backend default (OD-36): a default would be
+    # indistinguishable from real data downstream. '' when the column is NULL.
+    colour: str
 
 
 class WeekLoad(_Strict):

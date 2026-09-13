@@ -1,12 +1,12 @@
 """
-workmate_planner_repo_v1_0_0.py  ->  backend/app/planner/repo.py
-Version:  1.0.0
+workmate_planner_repo_v1_1_0.py  ->  backend/app/planner/repo.py
+Version:  1.1.0
 Author:   Adriaan
-Spec:     Azztec_SaaS_S1b_Data_Chunk_Spec_v1_0_0.md §4
+Spec:     Azztec_SaaS_S1h_Priority_Initials_Chunk_Spec_v1_0_0.md §3.2
 Parent:   Azztec_SaaS_Planner_Port_Spec_v1_0_0.md §2, §3
 Ported from: workmate.planner 1.3.1 lines 532-706 (hoursUomId, fetchWOs,
              fetchLabour, fetchSkillRows, fetchPriorities, _labourDict)
-Pair:     backend/tests/test_planner_repo.py 1.0.0
+Pair:     backend/tests/test_planner_repo.py 1.0.2
 
 Row fetch and row mapping. Takes a SQLAlchemy Connection, returns PLAIN
 DICTS - the exact shapes rules.py already consumes and the JSON contract
@@ -27,6 +27,10 @@ locked=True, movable=False. On RST that is ~2,364 PMs (raw log §1). Expect
 no PM to drag until the S3 migration - that is the decision working.
 
 Changelog:
+  1.1.0  S1h. fetch_priorities gains the colour key (open item 29). Ships
+         with schemas.py 1.1.0 or not at all - Priority is extra='forbid',
+         so a key here that the model does not declare is a 500 on every
+         /range, and a field there without this key is a validation error.
   1.0.0  Initial. hours_uom_id caches per ENGINE OBJECT, not per URL string:
          the MSSQL odbc_connect URL carries the password in its query string
          and SQLAlchemy's hide_password does not mask it, so a URL-keyed
@@ -53,7 +57,7 @@ from app.planner.rules import (
     timeOf,
 )
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 
 PIN_TABLE = "WO_N_Plan"
 
@@ -202,7 +206,15 @@ def fetch_priorities(conn: Connection) -> list[dict[str, Any]]:
     """Active priorities in contract order. The order is the point - see the
     Sort_Sequence, Priority_Id note in sql.py."""
     return [
-        {"id": i_(r["Priority_Id"]), "short": s_(r["Short_Priority_Id"]), "title": s_(r["Priority_Title"])}
+        {
+            "id": i_(r["Priority_Id"]),
+            "short": s_(r["Short_Priority_Id"]),
+            "title": s_(r["Priority_Title"]),
+            # varchar(255) NULL, free text, '' when NULL - shipped as stored,
+            # validated nowhere in the backend (OD-36). s_ is belt and braces
+            # over the SQL COALESCE, as every other field here has it.
+            "colour": s_(r["Colour"]),
+        }
         for r in db.rows(conn, psql.PRIORITIES)
     ]
 
