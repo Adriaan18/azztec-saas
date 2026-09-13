@@ -1,16 +1,21 @@
 /*
- * Azztec_SaaS_web_planner_css_v1_0_1.css  ->  web/src/features/planner/planner.css
- * Version:  1.0.1   Date: 2026-09-12   Author: Adriaan
- * Spec:     Azztec_SaaS_S1f_Grid_Chunk_Spec_v1_0_0.md s5.4 . OD-27
- * Oracle:   Planner_v1_8_1.html <style> 102-137 (tokens, base, header), 149-172 (body, grid, cell,
- *           chip), 179-186 (rail week bars), 215-221 (twoweek), 273-301 (chip parts, strip, bar,
- *           week headers), 320-335 (rail), 349-354 (loading, banner), 374-375 (foot).
+ * Azztec_SaaS_web_planner_css_v1_1_1.css  ->  web/src/features/planner/planner.css
+ * Version:  1.1.1   Date: 2026-09-13   Author: Adriaan
+ * Spec:     Azztec_SaaS_S1g_Readonly_Chunk_Spec_v1_0_0.md s5.3 . OD-27, OD-31, OD-32
+ * Oracle:   Planner_v1_8_1.html <style> 102-137 (tokens, base, header), 138-148 (filters, worker menu),
+ *           149-172 (body, grid, cell, chip), 179-186 (rail week bars), 194 (.dlg.wide), 215-221
+ *           (twoweek), 267-272 (day dialog rows), 273-301 (chip parts, strip, bar, week headers),
+ *           320-335 (rail), 336-347 (selected card, kv, badge, lab), 349-354 (loading, banner),
+ *           361-369 (overlay, dialog), 374-375 (foot).
  *           wm-ui.css v1.0.0 tokens are the same values (the Work Board shares them).
  *
  * Every selector is scoped under .wm-planner so the CTA starter and Tailwind preflight are untouched
  * outside the planner route. Class names are the oracle's on purpose: the screenshot smoke is held
  * next to the live Ignition planner, and S2 dnd-kit / S6 Playwright key on the same DOM.
- * Not ported: filters row, worker menu, drag/drop states, dialog, popover, toast, suggest, ai.
+ * Ported in 1.1.0: filters row, worker menu, day dialog, overlay, selected card. Still not ported:
+ * drag/drop states, .lab .x (remove control - S4), popover, toast, suggest, ai.
+ * The oracle's inline style attributes in showDay/renderSelected (723-726, 810-818, 821) become scoped
+ * classes here - .job .pri, .job .sid.<cat>, .none, .pinned, .nobody, .sub, .kv .v small - same values.
  * ASCII only.
  *
  * 1.0.1 departs from the oracle in one rule, deliberately. `.chip` sets height:var(--chip-h) but is a
@@ -19,7 +24,17 @@
  * never had a day like RST's 14 Sep 2026, which holds 106 PMs. flex:none makes .list scroll, which is
  * what its overflow:auto was always for. Worth carrying back to Planner 1.8.1.
  *
+ * 1.1.0 added .pri.r1..r4 (OD-32: colour by rank in Sort_Sequence order). 1.1.1 removes them: RST's
+ * dbo.Priority ties four rows at Sort_Sequence 1 and the Priority_Id tie-break puts P2 ahead of P1, so
+ * rank is not priority there (pasted 2026-09-13). The rank CLASSES still arrive on the badge (rules.ts
+ * priClass, unchanged, tested); they just carry no colour until the badge is painted from
+ * Priority.Colour, which RST populates and the API does not yet send. Every badge is the oracle's base
+ * grey again - parity - and the letter classes stay for KT.
+ *
  * Changelog:
+ *   1.1.1  .pri.r1..r4 colour rules removed (OD-32 falsified by the RST Priority table). No other change.
+ *   1.1.0  S1g: filters row + worker menu (138-148), .dlg.wide (194), day dialog rows (267-272),
+ *          selected card / kv / badge / lab (336-347), overlay + dialog (361-369); .pri.r1..r4 (OD-32).
  *   1.0.1  .chip gets flex:none - the 106-chip cell squashed instead of scrolling (smoke, 2026-09-12).
  *   1.0.0  Initial S1f.
  */
@@ -103,6 +118,7 @@
 .wm-planner .chip .pri{font-size:9px;font-weight:700;color:#2b2b2b;background:var(--mut);border-radius:2px;padding:0 3px;line-height:12px;margin-left:3px}
 /* KT letters; RST's P1..P6 / N/A fall to the base .pri style (verified 2026-09-12) */
 .wm-planner .chip .pri.A{background:var(--red);color:#fff} .wm-planner .chip .pri.B{background:var(--gold2)} .wm-planner .chip .pri.C{background:#8fa3b5} .wm-planner .chip .pri.D{background:#6f7c87;color:#fff}
+/* .pri.r1..r4 (OD-32) removed in 1.1.1 - see header. The rank class is still on the badge, unstyled. */
 .wm-planner .chip .hrs{font-size:10px;color:var(--mut);background:rgba(0,0,0,.25);border-radius:3px;padding:0 4px;line-height:14px}
 .wm-planner .chip .hrs.unk{color:var(--gold2);border:1px dashed rgba(212,168,99,.5);background:transparent}
 .wm-planner .chip .who{font-size:9px;color:var(--blue);letter-spacing:.3px}
@@ -153,3 +169,54 @@
 .wm-planner .foot{display:flex;gap:10px;color:var(--dim);font-size:10px;padding:0 4px}
 .wm-planner .foot .sp{flex:1}
 .wm-planner ::-webkit-scrollbar{width:8px;height:8px} .wm-planner ::-webkit-scrollbar-thumb{background:#4a5159;border-radius:4px} .wm-planner ::-webkit-scrollbar-track{background:transparent}
+
+/* filters row + worker menu (oracle 138-148) */
+.wm-planner .filters{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:4px 10px;color:var(--mut)}
+.wm-planner .filters label{display:flex;align-items:center;gap:5px;white-space:nowrap}
+.wm-planner .filters .hint{font-style:italic;color:var(--dim);font-size:11px}
+.wm-planner .filters .who{color:var(--gold);font-weight:700}
+.wm-planner .filters .sp{flex:1}
+.wm-planner .filters select,.wm-planner .filters input[type=text]{background:var(--cell);border:1px solid var(--line);border-radius:4px;padding:3px 6px;color:var(--txt)}
+.wm-planner .wsel{position:relative}
+.wm-planner .wsel .menu{display:none;position:absolute;top:28px;left:0;z-index:20;min-width:260px;max-height:320px;overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:6px;box-shadow:0 8px 24px rgba(0,0,0,.45);padding:4px}
+.wm-planner .wsel.open .menu{display:block}
+.wm-planner .wsel .menu label{display:flex;align-items:center;gap:6px;padding:3px 6px;border-radius:4px;cursor:pointer;color:var(--txt)}
+.wm-planner .wsel .menu label:hover{background:var(--cell2)}
+.wm-planner .wsel .menu .grp{padding:5px 6px 2px;color:var(--gold2);font-weight:700;font-size:10px;letter-spacing:.8px;text-transform:uppercase}
+.wm-planner .wsel .menu .cap{margin-left:auto;color:var(--mut);font-size:11px}
+
+/* selected card (oracle 336-347) - a .card in the rail, under the workers */
+.wm-planner .selc{flex:none;max-height:44%;overflow:auto}
+.wm-planner .selc .t{font-weight:700;color:var(--txt);margin:2px 0 6px;line-height:1.3}
+.wm-planner .selc .actions{display:flex;gap:6px;margin-top:8px}
+.wm-planner .selc .sub{margin-top:6px;color:var(--dim);font-size:10px;letter-spacing:.6px}
+.wm-planner .kv{display:grid;grid-template-columns:70px 1fr;gap:2px 8px;font-size:11px}
+.wm-planner .kv .k{color:var(--dim)}
+.wm-planner .kv .v small{color:var(--dim)}
+.wm-planner .kv .v .pinned{color:var(--gold)}
+.wm-planner .kv .v .none{color:var(--gold2)}
+.wm-planner .kv .v .nobody{color:var(--dim)}
+.wm-planner .badge{display:inline-block;padding:0 6px;border-radius:3px;font-size:10px;font-weight:700;line-height:16px}
+.wm-planner .badge.WO{background:rgba(255,198,92,.18);color:var(--gold)} .wm-planner .badge.PM{background:rgba(77,208,225,.18);color:var(--cyan)}
+.wm-planner .badge.REQ{background:rgba(244,143,177,.18);color:var(--pink)} .wm-planner .badge.DONE{background:rgba(129,199,132,.18);color:var(--green)}
+.wm-planner .lab{display:flex;justify-content:space-between;padding:1px 0;font-size:11px}
+.wm-planner .lab span:last-child{color:var(--mut)}
+.wm-planner .lab small{color:var(--dim)}
+
+/* overlay + day dialog (oracle 194, 267-272, 361-369) */
+.wm-planner .ovl{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:40}
+.wm-planner .ovl.on{display:flex}
+.wm-planner .dlg{background:var(--panel);border:1px solid var(--gold2);border-radius:10px;padding:14px 16px;min-width:360px;max-width:520px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.wm-planner .dlg h2{margin:0 0 8px;font-size:13px;letter-spacing:1px;color:var(--gold)}
+.wm-planner .dlg h2 span{color:var(--mut);font-weight:400;letter-spacing:0;font-size:11px}
+.wm-planner .dlg .btns{display:flex;justify-content:flex-end;gap:8px;margin-top:10px}
+.wm-planner .dlg.wide{min-width:680px;max-width:820px;max-height:86vh;overflow:auto}
+.wm-planner .dlg .none{color:var(--dim);font-style:italic;padding:6px 0}
+.wm-planner .dd2 .job{display:grid;grid-template-columns:150px 1fr auto;gap:4px 10px;padding:6px 0;border-bottom:1px solid var(--line);font-size:12px}
+.wm-planner .dd2 .job .sid{font-weight:700}
+.wm-planner .dd2 .job .sid.WO{color:var(--gold)} .wm-planner .dd2 .job .sid.PM{color:var(--cyan)} .wm-planner .dd2 .job .sid.REQ{color:var(--pink)} .wm-planner .dd2 .job .sid.DONE{color:var(--green)}
+.wm-planner .dd2 .job .pri{font-size:9px;font-weight:700;color:#2b2b2b;background:var(--mut);border-radius:2px;padding:0 3px;margin-left:4px}
+.wm-planner .dd2 .job .meta{color:var(--mut);font-size:11px}
+.wm-planner .dd2 .job .meta .none{color:var(--gold2)}
+.wm-planner .dd2 .job .acts{display:flex;gap:4px}
+.wm-planner .dd2 .job .acts button{padding:1px 8px;font-size:11px}

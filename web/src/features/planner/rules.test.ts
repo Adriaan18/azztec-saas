@@ -1,12 +1,17 @@
 /**
- * Azztec_SaaS_web_planner_rules_test_v1_0_1.ts  ->  web/src/features/planner/rules.test.ts
- * Version:  1.0.1   Date: 2026-09-12   Author: Adriaan
- * Spec:     Azztec_SaaS_S1f_Grid_Chunk_Spec_v1_0_0.md §6 (rules.test.ts row) · pair rule
+ * Azztec_SaaS_web_planner_rules_test_v1_1_0.ts  ->  web/src/features/planner/rules.test.ts
+ * Version:  1.1.0   Date: 2026-09-13   Author: Adriaan
+ * Spec:     Azztec_SaaS_S1g_Readonly_Chunk_Spec_v1_0_0.md §6 (rules.test.ts row) · pair rule
  *
  * Zero network, zero DOM, plain objects from range.fixture.ts. The string cases are byte-for-byte the
  * oracle's output - a planner reads these tooltips every day, so they are the parity surface.
  *
  * Changelog:
+ *   1.1.0  S1g: every 1.0.1 case kept. Two strings updated on purpose - rowTitle now ends with the
+ *          OD-34 click line, VERSION is 1.1.0. New: full visibleWos precedence, capacityWorkers
+ *          selected > team > internal, railRows team filter, teamOptions/priorityOptions/workerMenu/
+ *          workerLabel, dowIso against known days, priRank/priClass/priRankMap, dialogTitle/dialogRows,
+ *          cardRows, HINT/actorLabel.
  *   1.0.1  Four assertions corrected against the oracle: fmtLong is the ABBREVIATED day name
  *          ('Mon 14 Sep 2026', src 514), not the full one. Caught by the run, not by reading -
  *          1.0.0 asserted 'Monday' from memory and rules.ts was right all along.
@@ -16,47 +21,70 @@ import { describe, expect, it } from 'vitest';
 
 import {
   DEFAULT_CATS,
+  DEFAULT_FILTERS,
   DEFAULT_RAIL,
+  HINT,
   VERSION,
+  actorLabel,
+  anySelectedWorker,
   barClass,
   barWidth,
   byDay,
   capacityPerWeek,
   capacityWorkers,
+  cardRows,
   chipTitle,
   countLine,
   countText,
+  dialogRows,
+  dialogTitle,
+  dowIso,
   flagCounts,
   fmtH,
   fmtLong,
+  fmtLongAny,
   fmtNum,
   fmtRange,
   indexWorkers,
   isCat,
+  labourFor,
   loadOf,
   monthKey,
   monthLabel,
   pctOf,
+  peopleFor,
+  priClass,
+  priRank,
+  priRankMap,
+  priorityOptions,
   railRows,
   rowLoad,
   rowTitle,
   stripTitle,
+  teamOptions,
   visibleWos,
   weekBarTitle,
   weekStats,
   weeksIn,
   whoFor,
+  workerLabel,
+  workerMenu,
   ymd,
 } from './rules';
-import { DONE_104, FROM, PIN_105, PM_102, RANGE, REQ_103, TO, WO_101, WORKERS, WOS, WW_692, W_2, W_692, mkWo } from './range.fixture';
+import type { Filters } from './rules';
+import { DONE_104, FROM, PIN_105, PM_102, RANGE, REQ_103, TO, WO_101, WORKERS, WOS, WW_692, W_2, W_3, W_692, mkWo } from './range.fixture';
 
-export const TEST_VERSION = '1.0.1';
+export const TEST_VERSION = '1.1.0';
+
+const byId = indexWorkers(WORKERS);
+const f = (over: Partial<Filters>): Filters => ({ ...DEFAULT_FILTERS, ...over });
 
 describe('rules.ts - constants and ISO parts', () => {
   it('carries its version and the oracle cats default (DONE off)', () => {
-    expect(VERSION).toBe('1.0.1');
+    expect(VERSION).toBe('1.1.0');
     expect(DEFAULT_CATS).toEqual({ WO: true, PM: true, REQ: true, DONE: false });
     expect(DEFAULT_RAIL).toEqual({ contractors: false, loadedOnly: true });
+    expect(DEFAULT_FILTERS).toEqual({ teamId: 0, workers: {}, pri: 0, unassigned: false, q: '' });
   });
 
   it('isCat accepts the four cats only', () => {
@@ -71,15 +99,27 @@ describe('rules.ts - constants and ISO parts', () => {
     expect(monthKey('2026-09-14')).toBe('2026-09');
   });
 
+  it('dowIso is Monday = 0 on known days, including the DST day and a leap February', () => {
+    expect(dowIso('2026-09-14')).toBe(0); // the standing Monday
+    expect(dowIso('2026-09-20')).toBe(6);
+    expect(dowIso('2026-09-27')).toBe(6); // NZ DST starts, still a Sunday
+    expect(dowIso('2026-01-01')).toBe(3); // Thursday
+    expect(dowIso('2026-02-01')).toBe(6);
+    expect(dowIso('2024-02-29')).toBe(3); // leap day, Thursday
+    expect(dowIso('2030-12-31')).toBe(1);
+  });
+
   it('fmtRange shows the from-year only when it differs (oracle 510-513)', () => {
     expect(fmtRange('2026-09-14', '2026-09-20')).toBe('14 Sep \u2013 20 Sep 2026');
     expect(fmtRange('2026-12-28', '2027-01-03')).toBe('28 Dec 2026 \u2013 3 Jan 2027');
   });
 
-  it('fmtLong and monthLabel match the oracle strings', () => {
+  it('fmtLong, fmtLongAny and monthLabel match the oracle strings', () => {
     expect(fmtLong('2026-09-14', 0)).toBe('Mon 14 Sep 2026');
     expect(fmtLong('2026-09-20', 6)).toBe('Sun 20 Sep 2026');
     expect(fmtLong('2026-09-16', 2)).toBe('Wed 16 Sep 2026');
+    expect(fmtLongAny('2026-09-16')).toBe('Wed 16 Sep 2026');
+    expect(fmtLongAny('2026-09-15')).toBe('Tue 15 Sep 2026');
     expect(monthLabel('2026-09-16', '2026-08-31', '2026-10-04')).toBe('September 2026  \u00b7  31 Aug \u2013 4 Oct 2026');
   });
 });
@@ -139,20 +179,69 @@ describe('rules.ts - visibility and indexes (oracle 541-558)', () => {
   });
 
   it('indexWorkers keys by id', () => {
-    const byId = indexWorkers(WORKERS);
     expect(byId.get(692)?.initials).toBe('JB');
     expect(byId.get(999)).toBeUndefined();
   });
 });
 
+describe('rules.ts - the S1g filters (oracle 540-556)', () => {
+  const ALL = { ...DEFAULT_CATS, DONE: true };
+
+  it('anySelectedWorker', () => {
+    expect(anySelectedWorker(DEFAULT_FILTERS)).toBe(false);
+    expect(anySelectedWorker(f({ workers: { 692: false } }))).toBe(false);
+    expect(anySelectedWorker(f({ workers: { 692: true } }))).toBe(true);
+  });
+
+  it('priority keeps only that priId', () => {
+    expect(visibleWos(WOS, ALL, f({ pri: 1 })).map((w) => w.id)).toEqual([101]);
+    expect(visibleWos(WOS, ALL, f({ pri: 7 })).map((w) => w.id)).toEqual([103]);
+    expect(visibleWos(WOS, ALL, f({ pri: 42 }))).toHaveLength(0);
+  });
+
+  it('unassigned hides anything with assigned people', () => {
+    expect(visibleWos(WOS, ALL, f({ unassigned: true })).map((w) => w.id)).toEqual([102, 103, 104]);
+  });
+
+  it('a selected worker keeps only WOs assigned to them; two selected is a union', () => {
+    expect(visibleWos(WOS, ALL, f({ workers: { 692: true } })).map((w) => w.id)).toEqual([101, 105]);
+    expect(visibleWos(WOS, ALL, f({ workers: { 4: true } })).map((w) => w.id)).toEqual([105]);
+    expect(visibleWos(WOS, ALL, f({ workers: { 4: true, 2: true } })).map((w) => w.id)).toEqual([101, 105]);
+    expect(visibleWos(WOS, ALL, f({ workers: { 692: false } }))).toHaveLength(5); // false = not selected
+  });
+
+  it('search is case-insensitive over sid / title / asset / assetTitle / loc / locTitle', () => {
+    expect(visibleWos(WOS, ALL, f({ q: 'infeed' })).map((w) => w.id)).toEqual([101]);
+    expect(visibleWos(WOS, ALL, f({ q: 'SAWMILL' })).map((w) => w.id)).toEqual([101]);
+    expect(visibleWos(WOS, ALL, f({ q: 'pm-10' })).map((w) => w.id)).toEqual([102, 105]);
+    expect(visibleWos(WOS, ALL, f({ q: 'zzz' }))).toHaveLength(0);
+  });
+
+  it('precedence: cats off beats everything; filters stack', () => {
+    expect(visibleWos(WOS, { WO: false, PM: false, REQ: false, DONE: false }, f({ q: 'infeed' }))).toHaveLength(0);
+    expect(visibleWos(WOS, ALL, f({ workers: { 692: true }, q: 'filter' })).map((w) => w.id)).toEqual([105]);
+    expect(visibleWos(WOS, ALL, f({ workers: { 692: true }, unassigned: true }))).toHaveLength(0);
+  });
+});
+
 describe('rules.ts - capacity (oracle 561-577)', () => {
-  it('capacityWorkers is internal only in S1f', () => {
+  it('capacityWorkers: internal by default (the 1.0.1 case, unchanged)', () => {
     expect(capacityWorkers(WORKERS).map((w) => w.id)).toEqual([692, 2]);
   });
 
-  it('capacityPerWeek sums internal hrsPerWeek', () => {
+  it('capacityWorkers precedence: selected workers > team > internal', () => {
+    expect(capacityWorkers(WORKERS, f({ workers: { 3: true } })).map((w) => w.id)).toEqual([3]);
+    expect(capacityWorkers(WORKERS, f({ workers: { 3: true }, teamId: 1 })).map((w) => w.id)).toEqual([3]);
+    expect(capacityWorkers(WORKERS, f({ teamId: 9 })).map((w) => w.id)).toEqual([3]);
+    expect(capacityWorkers(WORKERS, f({ teamId: 1 })).map((w) => w.id)).toEqual([692, 2]);
+    expect(capacityWorkers(WORKERS, f({ teamId: 77 }))).toHaveLength(0);
+  });
+
+  it('capacityPerWeek sums the precedence result', () => {
     expect(capacityPerWeek(WORKERS)).toBe(41);
     expect(capacityPerWeek([])).toBe(0);
+    expect(capacityPerWeek(WORKERS, f({ workers: { 692: true } }))).toBe(1);
+    expect(capacityPerWeek(WORKERS, f({ teamId: 9 }))).toBe(0);
   });
 
   it('weekStats on the fixture, all cats vs default cats', () => {
@@ -180,7 +269,6 @@ describe('rules.ts - text (oracle 590-606, 662-676, 785, 790)', () => {
   });
 
   it('whoFor: up to three initials, +n, #id for unknowns', () => {
-    const byId = indexWorkers(WORKERS);
     expect(whoFor(WO_101, byId)).toBe('JB AK');
     expect(whoFor(PIN_105, byId)).toBe('JB AK CS +1');
     expect(whoFor(PM_102, byId)).toBe('');
@@ -194,7 +282,7 @@ describe('rules.ts - text (oracle 590-606, 662-676, 785, 790)', () => {
     );
   });
 
-  it('chipTitle on a labour WO with asset and location', () => {
+  it('chipTitle on a labour WO with asset and location (OD-33: unchanged by the S1g fixture fields)', () => {
     expect(chipTitle(WO_101)).toBe(
       'WO-101 \u00b7 Replace chain on infeed\nPlanned \u00b7 priority P1\nINF-01 - Infeed conveyor\nSAW - Sawmill\n3.5h (labour)\ndrag to move',
     );
@@ -228,11 +316,13 @@ describe('rules.ts - text (oracle 590-606, 662-676, 785, 790)', () => {
     );
   });
 
-  it('rowTitle', () => {
+  it('rowTitle ends with the OD-34 click line', () => {
     expect(rowTitle(W_692, 10, 1, 1000)).toBe(
-      'Jo Bloggs (JB)\n10 h attributed in this window \u00b7 capacity 1 h/week \u00b7 1000% of 1 h',
+      'Jo Bloggs (JB)\n10 h attributed in this window \u00b7 capacity 1 h/week \u00b7 1000% of 1 h\nclick = filter the work to this person',
     );
-    expect(rowTitle(W_2, 0, 0, 0)).toBe('Ann Kowhai (AK)\n0 h attributed in this window \u00b7 capacity 40 h/week');
+    expect(rowTitle(W_2, 0, 0, 0)).toBe(
+      'Ann Kowhai (AK)\n0 h attributed in this window \u00b7 capacity 40 h/week\nclick = filter the work to this person',
+    );
   });
 });
 
@@ -277,6 +367,17 @@ describe('rules.ts - the rail (OD-24 / OD-26)', () => {
     expect(r.rows.map((w) => w.id)).toEqual([692, 2, 3]);
   });
 
+  it('railRows: the team filter runs first and the counts follow it (S1g)', () => {
+    const opts = { contractors: true, loadedOnly: false };
+    const r1 = railRows(WORKERS, RANGE.load, opts, 1);
+    expect(r1.rows.map((w) => w.id)).toEqual([692, 2]);
+    expect(r1).toMatchObject({ internal: 2, contractors: 0, loaded: 1 });
+    expect(countLine(r1, opts)).toBe('2 of 2 internal \u00b7 0 contractors');
+    const r9 = railRows(WORKERS, RANGE.load, DEFAULT_RAIL, 9);
+    expect(r9.rows).toHaveLength(0);
+    expect(countLine(r9, DEFAULT_RAIL)).toBe('0 of 0 internal \u00b7 1 contractors hidden');
+  });
+
   it('rowLoad is the oracle line 779 - 692 is exactly 1000% on a one-week window', () => {
     expect(rowLoad(W_692, RANGE.load, 1)).toEqual({ ld: 10, cap: 1, pct: 1000 });
     expect(rowLoad(W_692, RANGE.load, 5)).toEqual({ ld: 10, cap: 5, pct: 200 });
@@ -292,5 +393,160 @@ describe('rules.ts - the rail (OD-24 / OD-26)', () => {
         { weekStart: FROM, planned: 0, capacity: 40, pct: 0, flag: 'empty' },
       ]),
     ).toEqual({ over: 1, under: 1 });
+  });
+});
+
+describe('rules.ts - the filters row (oracle 841-852)', () => {
+  it('teamOptions labels byte-for-byte', () => {
+    expect(teamOptions(RANGE.teams)).toEqual([
+      { value: 1, label: 'MAINT \u00b7 2' },
+      { value: 9, label: 'ACME (contractor) \u00b7 1' },
+    ]);
+    expect(teamOptions([{ id: 5, short: '', name: 'Electrical', internal: true, users: 0 }])[0].label).toBe(
+      'Electrical \u00b7 0',
+    );
+  });
+
+  it('priorityOptions labels byte-for-byte', () => {
+    expect(priorityOptions(RANGE.priorities).map((o) => o.label)).toEqual([
+      'P1 \u00b7 Urgent',
+      'P2 \u00b7 High',
+      'P3 \u00b7 Normal',
+      'P4 \u00b7 Low',
+      'N/A \u00b7 Not Applicable',
+    ]);
+    expect(priorityOptions(RANGE.priorities)[4].value).toBe(7);
+  });
+
+  it('workerMenu groups internal first, by team, contractor group suffixed; team filter applies', () => {
+    const m = workerMenu(WORKERS);
+    expect(m.map((g) => g.label)).toEqual(['MAINT', 'ACME \u00b7 contractor']);
+    expect(m[0].rows).toEqual([
+      { id: 2, name: 'Ann Kowhai', cap: '40/wk' },
+      { id: 692, name: 'Jo Bloggs', cap: '1/wk' },
+    ]);
+    expect(m[1].rows).toEqual([{ id: 3, name: 'Con Tractor', cap: '0/wk' }]);
+    expect(workerMenu(WORKERS, 1).map((g) => g.label)).toEqual(['MAINT']);
+    expect(workerMenu(WORKERS, 9)[0].rows.map((r) => r.id)).toEqual([3]);
+    expect(workerMenu([W_2, { ...W_3, team: '' }]).map((g) => g.label)).toEqual(['MAINT', 'other \u00b7 contractor']);
+  });
+
+  it('workerLabel: any / one name / n selected / #id', () => {
+    expect(workerLabel(DEFAULT_FILTERS, byId)).toBe('any');
+    expect(workerLabel(f({ workers: { 692: true } }), byId)).toBe('Jo Bloggs');
+    expect(workerLabel(f({ workers: { 692: true, 2: false } }), byId)).toBe('Jo Bloggs');
+    expect(workerLabel(f({ workers: { 692: true, 2: true } }), byId)).toBe('2 selected');
+    expect(workerLabel(f({ workers: { 999: true } }), byId)).toBe('#999');
+  });
+});
+
+describe('rules.ts - priority rank (OD-32)', () => {
+  it('priRank is the 1-based Sort_Sequence position; 0 when unset or unknown', () => {
+    expect(priRank(WO_101, RANGE.priorities)).toBe(1);
+    expect(priRank(REQ_103, RANGE.priorities)).toBe(5);
+    expect(priRank(PM_102, RANGE.priorities)).toBe(0);
+    expect(priRank(mkWo({ priId: 42, pri: 'P9' }), RANGE.priorities)).toBe(0);
+  });
+
+  it('priClass lights r1..r4 only', () => {
+    expect(priClass(1)).toBe('r1');
+    expect(priClass(4)).toBe('r4');
+    expect(priClass(5)).toBe('');
+    expect(priClass(0)).toBe('');
+  });
+
+  it('priRankMap agrees with priRank for every fixture priority', () => {
+    const m = priRankMap(RANGE.priorities);
+    expect(m.get(1)).toBe(1);
+    expect(m.get(7)).toBe(5);
+    expect(m.get(42)).toBeUndefined();
+    for (const wo of WOS) expect(m.get(wo.priId) ?? 0).toBe(priRank(wo, RANGE.priorities));
+  });
+});
+
+describe('rules.ts - the day dialog (oracle 717-727)', () => {
+  it('labourFor / peopleFor', () => {
+    expect(labourFor(101, RANGE.labour)).toHaveLength(2);
+    expect(labourFor(102, RANGE.labour)).toHaveLength(0);
+    expect(peopleFor(labourFor(101, RANGE.labour), byId)).toEqual(['Jo Bloggs 2.5h', 'Ann Kowhai 1h']);
+    expect(peopleFor([{ ...RANGE.labour[0], userId: 999 }], byId)).toEqual(['#999 2.5h']);
+  });
+
+  it('dialogTitle uppercases the long date', () => {
+    expect(dialogTitle('2026-09-14')).toBe('MON 14 SEP 2026');
+    expect(dialogTitle('2026-09-16')).toBe('WED 16 SEP 2026');
+  });
+
+  it('dialogRows strings on the fixture', () => {
+    const rows = dialogRows([WO_101, PM_102, REQ_103, PIN_105], RANGE.labour, byId);
+    expect(rows[0]).toEqual({
+      id: 101,
+      sid: 'WO-101',
+      cat: 'WO',
+      pri: 'P1',
+      priId: 1,
+      meta1: 'Planned \u2192 2026-09-15',
+      title: 'Replace chain on infeed',
+      meta2: 'INF-01 \u00b7 Infeed conveyor \u00b7 SAW',
+      hours: '3.5h (labour)',
+      noHours: false,
+      who: 'Jo Bloggs 2.5h, Ann Kowhai 1h',
+    });
+    expect(rows[1]).toMatchObject({ meta1: 'Planned \u00b7 engine owned', meta2: 'no asset', hours: 'no hours yet', noHours: true, who: 'owner Ann Kowhai' });
+    expect(rows[2]).toMatchObject({ meta1: 'Request', hours: '2h (estimate)', who: 'nobody planned' });
+    expect(rows[3]).toMatchObject({ meta1: 'Planned \u00b7 pinned', hours: '1h (estimate)' });
+    expect(dialogRows([mkWo({ startTime: '07:30' })], [], byId)[0].meta1).toBe('Planned \u00b7 07:30');
+  });
+});
+
+describe('rules.ts - the selected card (oracle 804-819)', () => {
+  it('cardRows on the labour WO: PO linked, 2 days, labour source, two people', () => {
+    const c = cardRows(WO_101, RANGE.labour, byId);
+    expect(c.status).toBe('Planned \u00b7 PO linked');
+    expect(c.pin).toBe('');
+    expect(c.start).toBe('Mon 14 Sep 2026');
+    expect(c.end).toBe('Tue 15 Sep 2026 (2 days)');
+    expect(c.priority).toBe('P1');
+    expect(c.asset).toBe('INF-01 \u00b7 Infeed conveyor');
+    expect(c.assetTitle).toBe('Infeed conveyor');
+    expect(c.loc).toBe('SAW \u00b7 Sawmill');
+    expect(c.hours).toBe('3.5h');
+    expect(c.hoursSrc).toBe('labour');
+    expect(c.responsible).toBe('');
+    expect(c.labour).toEqual([
+      { name: 'Jo Bloggs', skillTitle: 'Fitter', hours: '2.5h', date: '2026-09-14' },
+      { name: 'Ann Kowhai', skillTitle: '', hours: '1h', date: '' },
+    ]);
+  });
+
+  it('cardRows on the locked PM: engine owned, no estimate, responsible named, no labour', () => {
+    const c = cardRows(PM_102, RANGE.labour, byId);
+    expect(c.status).toBe('Planned \u00b7 engine owned');
+    expect(c.end).toBe('');
+    expect(c.priority).toBe('\u2014');
+    expect(c.asset).toBe('');
+    expect(c.loc).toBe('');
+    expect(c.hours).toBe('');
+    expect(c.responsible).toBe('Ann Kowhai');
+    expect(c.labour).toEqual([]);
+  });
+
+  it('cardRows on the pinned PM and a timed start', () => {
+    const c = cardRows(PIN_105, RANGE.labour, byId);
+    expect(c.status).toBe('Planned \u00b7 pinned');
+    expect(c.pin).toBe('since 2026-09-10 \u00b7 engine date 2026-09-25');
+    expect(cardRows(mkWo({ pinned: true }), [], byId).pin).toBe('since ?');
+    expect(cardRows(mkWo({ start: '2026-09-16', startTime: '07:30', resp: 999 }), [], byId)).toMatchObject({
+      start: 'Wed 16 Sep 2026 07:30',
+      responsible: '#999',
+    });
+    expect(cardRows(mkWo({ end: '2026-09-16', days: 0 }), [], byId).end).toBe('Wed 16 Sep 2026');
+  });
+});
+
+describe('rules.ts - chrome strings (OD-34)', () => {
+  it('HINT and actorLabel byte-for-byte', () => {
+    expect(HINT).toBe('click = select \u00b7 \u2190 \u2192 = navigate \u00b7 T = today \u00b7 Esc = clear');
+    expect(actorLabel(1)).toBe('actor #1');
   });
 });

@@ -1,7 +1,7 @@
 /**
- * Azztec_SaaS_web_planner_WorkerPanel_v1_0_0.tsx  ->  web/src/features/planner/WorkerPanel.tsx
- * Version:  1.0.0   Date: 2026-09-12   Author: Adriaan
- * Spec:     Azztec_SaaS_S1f_Grid_Chunk_Spec_v1_0_0.md §5.10 · OD-24, OD-25, OD-26
+ * Azztec_SaaS_web_planner_WorkerPanel_v1_1_0.tsx  ->  web/src/features/planner/WorkerPanel.tsx
+ * Version:  1.1.0   Date: 2026-09-13   Author: Adriaan
+ * Spec:     Azztec_SaaS_S1f_Grid_Chunk_Spec_v1_0_0.md §5.10 · OD-24, OD-25, OD-26; S1g spec §5.11 · OD-34
  * Oracle:   Planner_v1_8_1.html renderRail (771-799)
  *
  * The workers rail. OD-26, measured not guessed: RST has 363 workers = 179 internal + 184 contractors,
@@ -13,10 +13,13 @@
  * red at 1000%, with the real number in the tooltip. RST's capacity column is a 1 h/week placeholder on
  * most people (Landmines §E), so those rows are honest noise, not a defect.
  *
- * Read-only: the oracle's click-to-filter and click-the-capacity-to-edit are S1g / S4, so the rows are
- * divs with no handlers and the `.cap` span carries no edit affordance.
+ * 1.1.0 (S1g): the oracle's click-to-filter (792) is wired - a row click toggles that worker in the
+ * store's filters and the row shows `.on` (780) - and the team filter (778) runs before the OD-26
+ * toggles, so the count line describes the team. Still no capacity edit (S4): the `.cap` span carries
+ * no handler and no affordance. The row title ends with the click line only (OD-34).
  *
  * Changelog:
+ *   1.1.0  S1g: teamId, selected and onToggleWorker props; `.on` rows; row click.
  *   1.0.0  Initial S1f.
  */
 import { CapacityBar } from './CapacityBar';
@@ -24,7 +27,7 @@ import { countLine, flagCounts, fmtNum, railRows, rowLoad, rowTitle, weekBarTitl
 import type { RailOpts } from './rules';
 import type { Worker, WorkerWeek } from '../../api/client/types.gen';
 
-export const VERSION = '1.0.0';
+export const VERSION = '1.1.0';
 
 export type WorkerPanelProps = {
   workers: ReadonlyArray<Worker>;
@@ -35,6 +38,12 @@ export type WorkerPanelProps = {
   opts: RailOpts;
   onToggleContractors: () => void;
   onToggleLoadedOnly: () => void;
+  /** the filters row's team (oracle 778); 0 = all */
+  teamId: number;
+  /** the filters row's worker selection (oracle S.workers) - `.on` rows */
+  selected: Readonly<Record<number, boolean>>;
+  /** oracle 792: click = filter the work to this person */
+  onToggleWorker: (id: number) => void;
 };
 
 export function WorkerPanel({
@@ -45,9 +54,12 @@ export function WorkerPanel({
   opts,
   onToggleContractors,
   onToggleLoadedOnly,
+  teamId,
+  selected,
+  onToggleWorker,
 }: WorkerPanelProps) {
   const weeks = weeksIn(days);
-  const r = railRows(workers, load, opts);
+  const r = railRows(workers, load, opts, teamId);
   return (
     <div className="card">
       <h3>
@@ -67,7 +79,15 @@ export function WorkerPanel({
       <div className="workers">
         {r.rows.length === 0 ? <div className="empty">nobody matches these toggles</div> : null}
         {r.rows.map((w) => (
-          <WorkerRow key={w.id} w={w} load={load} weeks={weeks} wks={workerWeeks[String(w.id)] ?? []} />
+          <WorkerRow
+            key={w.id}
+            w={w}
+            load={load}
+            weeks={weeks}
+            wks={workerWeeks[String(w.id)] ?? []}
+            on={!!selected[w.id]}
+            onClick={() => onToggleWorker(w.id)}
+          />
         ))}
       </div>
     </div>
@@ -79,14 +99,17 @@ type WorkerRowProps = {
   load: Readonly<Record<string, number>>;
   weeks: number;
   wks: ReadonlyArray<WorkerWeek>;
+  on: boolean;
+  onClick: () => void;
 };
 
-/** Oracle 777-790, minus the click handlers. */
-function WorkerRow({ w, load, weeks, wks }: WorkerRowProps) {
+/** Oracle 777-792: the row, `.on` when selected, click = filter. No capacity edit. */
+function WorkerRow({ w, load, weeks, wks, on, onClick }: WorkerRowProps) {
   const { ld, cap, pct } = rowLoad(w, load, weeks);
   const f = flagCounts(wks);
+  const cls = 'wk' + (on ? ' on' : '') + (w.internal ? '' : ' contr');
   return (
-    <div className={w.internal ? 'wk' : 'wk contr'} data-worker={w.id} title={rowTitle(w, ld, cap, pct)}>
+    <div className={cls} data-worker={w.id} title={rowTitle(w, ld, cap, pct)} onClick={onClick}>
       <div className="av">{w.initials}</div>
       <div className="nm">
         {w.name}

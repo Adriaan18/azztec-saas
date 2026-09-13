@@ -1,7 +1,7 @@
 /**
- * Azztec_SaaS_web_planner_range_fixture_v1_0_0.ts  ->  web/src/features/planner/range.fixture.ts
- * Version:  1.0.0   Date: 2026-09-12   Author: Adriaan
- * Spec:     Azztec_SaaS_S1f_Grid_Chunk_Spec_v1_0_0.md §6.0 · test helper, not a test (vitest include is *.test.*)
+ * Azztec_SaaS_web_planner_range_fixture_v1_1_0.ts  ->  web/src/features/planner/range.fixture.ts
+ * Version:  1.1.0   Date: 2026-09-13   Author: Adriaan
+ * Spec:     Azztec_SaaS_S1g_Readonly_Chunk_Spec_v1_0_0.md §5.4 · test helper, not a test (vitest include is *.test.*)
  *
  * One RangeData for the standing window 2026-09-14..2026-09-20, hand-built and contract-shaped: the
  * backend's test_openapi_contract guards the real shape, this only has to type-check against the
@@ -10,11 +10,15 @@
  * hours, locked vs pinned vs movable, internal vs contractor, loaded vs idle.
  *
  * Changelog:
+ *   1.1.0  S1g. priorities[] in the RST shape (P1..P4, N/A) so priRank has ranks 1..5 (OD-32);
+ *          REQ_103 points at N/A; WO_101 gains hasPO, a two-day span (end, days 1) and a second labour
+ *          row - Jo 2.5h + Ann 1h = the WO's 3.5h, so nothing summed elsewhere moves; PM_102 gains a
+ *          responsible person. Every S1f sum (weeks[], counts, load, chip strings) is unchanged.
  *   1.0.0  Initial S1f.
  */
 import type { RangeData, Wo, Worker, WorkerWeek } from '../../api/client/types.gen';
 
-export const FIXTURE_VERSION = '1.0.0';
+export const FIXTURE_VERSION = '1.1.0';
 
 export const FROM = '2026-09-14';
 export const TO = '2026-09-20';
@@ -75,25 +79,28 @@ export function mkWorker(over: Partial<Worker>): Worker {
   return { ...WORKER_DEFAULTS, ...over };
 }
 
-/** 101 - a corrective WO, labour hours, two people, priority P1, Monday. */
+/** 101 - a corrective WO, labour hours, two people, priority P1, Monday, spans into Tuesday, PO linked. */
 export const WO_101 = mkWo({
   id: 101,
   sid: 'WO-101',
   title: 'Replace chain on infeed',
   cat: 'WO',
   start: '2026-09-14',
+  end: '2026-09-15',
+  days: 1,
   priId: 1,
   pri: 'P1',
   asset: 'INF-01',
   assetTitle: 'Infeed conveyor',
   loc: 'SAW',
   locTitle: 'Sawmill',
+  hasPO: true,
   hrs: 3.5,
   hrsSrc: 'labour',
   assigned: [692, 2],
 });
 
-/** 102 - an engine-owned PM, no pin table: locked, immovable, no hours. OD-1 on RST, 2,364 times. */
+/** 102 - an engine-owned PM, no pin table: locked, immovable, no hours; Ann is responsible. OD-1 on RST, 2,364 times. */
 export const PM_102 = mkWo({
   id: 102,
   sid: 'PM-102',
@@ -101,6 +108,7 @@ export const PM_102 = mkWo({
   type: 'M',
   cat: 'PM',
   start: '2026-09-15',
+  resp: 2,
   engineOwned: true,
   locked: true,
   movable: false,
@@ -108,7 +116,7 @@ export const PM_102 = mkWo({
   hrsSrc: '',
 });
 
-/** 103 - a request with an estimate. */
+/** 103 - a request with an estimate, priority N/A (RST's fifth priority row). */
 export const REQ_103 = mkWo({
   id: 103,
   sid: 'REQ-103',
@@ -117,6 +125,7 @@ export const REQ_103 = mkWo({
   statusTitle: 'Request',
   cat: 'REQ',
   start: '2026-09-16',
+  priId: 7,
   pri: 'N/A',
   hrs: 2,
   hrsSrc: 'estimate',
@@ -190,16 +199,22 @@ export const RANGE: RangeData = {
   to: TO,
   today: TODAY,
   wos: WOS,
+  /** two rows on 101 summing to its 3.5 h: Jo (skilled, dated) and Ann (no skill row, no date) */
   labour: [
-    { resId: 1, woId: 101, userId: 692, hours: 3.5, rate: 0, note: '', date: '2026-09-14', skillId: 5, skillTitle: 'Fitter', uomId: 12 },
+    { resId: 1, woId: 101, userId: 692, hours: 2.5, rate: 0, note: '', date: '2026-09-14', skillId: 5, skillTitle: 'Fitter', uomId: 12 },
+    { resId: 2, woId: 101, userId: 2, hours: 1, rate: 0, note: '', date: '', skillId: 0, skillTitle: '', uomId: 12 },
   ],
   workers: WORKERS,
   teams: [
     { id: 1, short: 'MAINT', name: 'Maintenance', internal: true, users: 2 },
     { id: 9, short: 'ACME', name: 'Acme Contracting', internal: false, users: 1 },
   ],
+  /** RST's shape (Landmines §E): P1..P6 and N/A, ordered by Sort_Sequence - five rows here */
   priorities: [
-    { id: 1, short: 'P1', title: 'Priority 1' },
+    { id: 1, short: 'P1', title: 'Urgent' },
+    { id: 2, short: 'P2', title: 'High' },
+    { id: 3, short: 'P3', title: 'Normal' },
+    { id: 4, short: 'P4', title: 'Low' },
     { id: 7, short: 'N/A', title: 'Not Applicable' },
   ],
   colours: { DONE: '#81C784', PM: '#4DD0E1', REQ: '#F48FB1', WO: '#FFC65C' },

@@ -1,6 +1,6 @@
 /**
- * Azztec_SaaS_web_planner_WOCard_test_v1_0_0.tsx  ->  web/src/features/planner/WOCard.test.tsx
- * Version:  1.0.0   Date: 2026-09-12   Author: Adriaan
+ * Azztec_SaaS_web_planner_WOCard_test_v1_0_1.tsx  ->  web/src/features/planner/WOCard.test.tsx
+ * Version:  1.0.1   Date: 2026-09-13   Author: Adriaan
  * Spec:     Azztec_SaaS_S1f_Grid_Chunk_Spec_v1_0_0.md §6 (WOCard.test.tsx row) · pair rule
  *
  * Zero network AND zero fetch: this component never asks for anything, so the stub from the S1e hook
@@ -12,15 +12,17 @@
  * textContent), never toBeInTheDocument().
  *
  * Changelog:
+ *   1.0.1  S1g: the OD-32 rank class cases and the OD-33 pin (title unchanged with a rank set).
  *   1.0.0  Initial S1f.
  */
 import { cleanup, fireEvent, render } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { WOCard, VERSION } from './WOCard';
-import { DONE_104, PIN_105, PM_102, REQ_103, WO_101, mkWo } from './range.fixture';
+import { DONE_104, PIN_105, PM_102, RANGE, REQ_103, WO_101, mkWo } from './range.fixture';
+import { chipTitle, priRank } from './rules';
 
-export const TEST_VERSION = '1.0.0';
+export const TEST_VERSION = '1.0.1';
 
 afterEach(() => {
   cleanup();
@@ -35,7 +37,7 @@ function must(root: HTMLElement, sel: string): HTMLElement {
 
 describe('WOCard - the chip (oracle chipEl)', () => {
   it('carries its version', () => {
-    expect(VERSION).toBe('1.0.0');
+    expect(VERSION).toBe('1.0.1');
   });
 
   it('a movable WO: cat class, mv, data attributes, priority badge, hours, initials', () => {
@@ -97,6 +99,23 @@ describe('WOCard - the chip (oracle chipEl)', () => {
   it('an empty priority renders no badge (RST leaves pri blank on most PMs)', () => {
     const { container } = render(<WOCard wo={mkWo({ id: 9, sid: 'WO-9', pri: '' })} who="" selected={false} onSelect={vi.fn()} />);
     expect(container.querySelector('.pri')).toBeNull();
+  });
+
+  it('priRank adds the rank class beside the letter (OD-32); 0 and 5+ leave the badge as 1.0.0 drew it', () => {
+    const r1 = render(<WOCard wo={WO_101} who="" selected={false} onSelect={vi.fn()} priRank={priRank(WO_101, RANGE.priorities)} />);
+    expect(must(r1.container, '.pri').className).toBe('pri P1 r1');
+    expect(must(r1.container, '.pri').textContent).toBe('P1');
+    cleanup();
+    const r5 = render(<WOCard wo={REQ_103} who="" selected={false} onSelect={vi.fn()} priRank={priRank(REQ_103, RANGE.priorities)} />);
+    expect(must(r5.container, '.pri').className).toBe('pri N/A');
+    cleanup();
+    const r0 = render(<WOCard wo={WO_101} who="" selected={false} onSelect={vi.fn()} />);
+    expect(must(r0.container, '.pri').className).toBe('pri P1');
+  });
+
+  it('the title is chipTitle whatever the rank (OD-33: the hover is parity)', () => {
+    const { container } = render(<WOCard wo={WO_101} who="JB AK" selected={false} onSelect={vi.fn()} priRank={1} />);
+    expect(must(container, '.chip').getAttribute('title')).toBe(chipTitle(WO_101));
   });
 
   it('click calls onSelect with the id, once, and does not bubble to the cell', () => {

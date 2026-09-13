@@ -1,6 +1,6 @@
 /**
- * Azztec_SaaS_web_planner_PlannerGrid_test_v1_0_0.tsx  ->  web/src/features/planner/PlannerGrid.test.tsx
- * Version:  1.0.0   Date: 2026-09-12   Author: Adriaan
+ * Azztec_SaaS_web_planner_PlannerGrid_test_v1_0_1.tsx  ->  web/src/features/planner/PlannerGrid.test.tsx
+ * Version:  1.0.1   Date: 2026-09-13   Author: Adriaan
  * Spec:     Azztec_SaaS_S1f_Grid_Chunk_Spec_v1_0_0.md §6 (PlannerGrid.test.tsx row) · pair rule
  *
  * Covers DayCell as well as the grid - one drawn surface, one test file (spec §10).
@@ -8,6 +8,8 @@
  * No jest-dom: assertions read className / getAttribute / textContent off the nodes.
  *
  * Changelog:
+ *   1.0.1  S1g: renderGrid passes filters / priorities / onOpenDay / onClearSelect; new cases for the
+ *          day-head click, the cell click, the strip cap under a selected worker, the P1 rank class.
  *   1.0.0  Initial S1f.
  */
 import { cleanup, fireEvent, render } from '@testing-library/react';
@@ -15,10 +17,11 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { PlannerGrid, VERSION } from './PlannerGrid';
 import { FROM, RANGE, TODAY, WORKERS, WOS, mkWo } from './range.fixture';
-import { indexWorkers } from './rules';
+import { DEFAULT_FILTERS, indexWorkers } from './rules';
+import type { Filters } from './rules';
 import { windowFor } from '../../lib/dates';
 
-export const TEST_VERSION = '1.0.0';
+export const TEST_VERSION = '1.0.1';
 
 afterEach(() => {
   cleanup();
@@ -32,8 +35,10 @@ function must(root: HTMLElement, sel: string): HTMLElement {
   return el as HTMLElement;
 }
 
-function renderGrid(mode: 'week' | 'twoweek' | 'month', anchor: string, wos = WOS, selected = 0) {
+function renderGrid(mode: 'week' | 'twoweek' | 'month', anchor: string, wos = WOS, selected = 0, filters: Filters = DEFAULT_FILTERS) {
   const onSelect = vi.fn();
+  const onOpenDay = vi.fn();
+  const onClearSelect = vi.fn();
   const r = render(
     <PlannerGrid
       mode={mode}
@@ -43,16 +48,20 @@ function renderGrid(mode: 'week' | 'twoweek' | 'month', anchor: string, wos = WO
       anchorMonth={anchor.slice(0, 7)}
       workers={WORKERS}
       byId={byId}
+      filters={filters}
+      priorities={RANGE.priorities}
       selected={selected}
       onSelect={onSelect}
+      onOpenDay={onOpenDay}
+      onClearSelect={onClearSelect}
     />,
   );
-  return { ...r, onSelect };
+  return { ...r, onSelect, onOpenDay, onClearSelect };
 }
 
 describe('PlannerGrid - week', () => {
   it('carries its version', () => {
-    expect(VERSION).toBe('1.0.0');
+    expect(VERSION).toBe('1.0.1');
   });
 
   it('draws 7 cells, no dow row and no strip', () => {
@@ -89,10 +98,31 @@ describe('PlannerGrid - week', () => {
     expect(container.querySelectorAll('.cell.out')).toHaveLength(0);
   });
 
-  it('a chip click reaches onSelect with the id', () => {
-    const { container, onSelect } = renderGrid('week', '2026-09-16');
+  it('a chip click reaches onSelect with the id, and clears nothing', () => {
+    const { container, onSelect, onClearSelect } = renderGrid('week', '2026-09-16');
     fireEvent.click(must(container, '[data-date="2026-09-14"] .chip'));
     expect(onSelect).toHaveBeenCalledWith(101);
+    expect(onClearSelect).not.toHaveBeenCalled();
+  });
+
+  it('the day head opens that day (S1g); a click on the cell or its list clears the selection', () => {
+    const { container, onOpenDay, onClearSelect, onSelect } = renderGrid('week', '2026-09-16');
+    fireEvent.click(must(container, '[data-day="2026-09-14"]'));
+    expect(onOpenDay).toHaveBeenCalledWith('2026-09-14');
+    expect(onClearSelect).not.toHaveBeenCalled();
+    fireEvent.click(must(container, '[data-date="2026-09-19"]'));
+    expect(onClearSelect).toHaveBeenCalledTimes(1);
+    fireEvent.click(must(container, '[data-date="2026-09-19"] .list'));
+    expect(onClearSelect).toHaveBeenCalledTimes(2);
+    fireEvent.click(must(container, '[data-date="2026-09-14"] .c')); // the count span: neither head nor cell
+    expect(onClearSelect).toHaveBeenCalledTimes(2);
+    expect(onSelect).not.toHaveBeenCalled();
+  });
+
+  it('the P1 chip carries the rank class, the N/A chip does not (OD-32)', () => {
+    const { container } = renderGrid('week', '2026-09-16');
+    expect(must(container, '[data-date="2026-09-14"] .chip .pri').className).toBe('pri P1 r1');
+    expect(must(container, '[data-date="2026-09-16"] .chip .pri').className).toBe('pri N/A');
   });
 });
 
@@ -124,6 +154,17 @@ describe('PlannerGrid - twoweek and month', () => {
     const target = Array.from(strips).find((s) => s.getAttribute('title')?.includes('Mon 14 Sep 2026'));
     expect(target).toBeTruthy();
     expect(must(target as HTMLElement, '.n').textContent).toBe(`${RANGE.weeks[0].planned} / 41 h`);
+  });
+
+  it('the strip cap follows the filters: a selected worker narrows it to their hours (S1g)', () => {
+    const one = renderGrid('month', '2026-09-15', WOS, 0, { ...DEFAULT_FILTERS, workers: { 692: true } });
+    const strip = Array.from(one.container.querySelectorAll('.grid .strip')).find((s) => s.getAttribute('title')?.includes('Mon 14 Sep 2026'));
+    expect(must(strip as HTMLElement, '.n').textContent).toBe(`${RANGE.weeks[0].planned} / 1 h`);
+    expect(strip?.getAttribute('title')).toContain('(1 workers)');
+    one.unmount();
+    const team = renderGrid('month', '2026-09-15', WOS, 0, { ...DEFAULT_FILTERS, teamId: 9 });
+    const s9 = Array.from(team.container.querySelectorAll('.grid .strip')).find((s) => s.getAttribute('title')?.includes('Mon 14 Sep 2026'));
+    expect(must(s9 as HTMLElement, '.n').textContent).toBe(`${RANGE.weeks[0].planned} / ? h`); // cap 0 renders `?` (OD-25)
   });
 
   it('month caps a busy cell at 4 chips with +n more, and expands on click', () => {

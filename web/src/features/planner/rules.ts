@@ -1,32 +1,42 @@
 /**
- * Azztec_SaaS_web_planner_rules_v1_0_0.ts  ->  web/src/features/planner/rules.ts
- * Version:  1.0.1   Date: 2026-09-12   Author: Adriaan
- * Spec:     Azztec_SaaS_S1f_Grid_Chunk_Spec_v1_0_0.md §5.2 · OD-25, OD-26 · Landmines §D (index once)
+ * Azztec_SaaS_web_planner_rules_v1_1_0.ts  ->  web/src/features/planner/rules.ts
+ * Version:  1.1.0   Date: 2026-09-13   Author: Adriaan
+ * Spec:     Azztec_SaaS_S1g_Readonly_Chunk_Spec_v1_0_0.md §5.1 · OD-30…OD-34 · Landmines §D (index once)
  * Oracle:   Planner_v1_8_1.html - constants 482-485, state defaults 492, fmtRange/fmtLong/fmtH/fmtNum
- *           510-516, visible/byDay 541-558, capacity 561-578, chipEl who/title 590-606, month header
- *           label 623, countText 662-667, strip 668-676, rail 774-790.
- * Consumes: src/api/client/types.gen.ts (Wo, Worker, WorkerWeek - read 2026-09-12, ^export type lines).
+ *           510-516, teamMembers/anySelectedWorker/visible/byDay 536-558, capacity 561-578, chipEl
+ *           who/title 590-606, month header label 623, countText 662-667, strip 668-676, showDay rows
+ *           717-727, rail 774-790, renderSelected 804-819, renderFilters 841-852, Clear 1537.
+ * Consumes: src/api/client/types.gen.ts (Wo, Worker, WorkerWeek, Team, Priority, LabourRow - the
+ *           ^export type lines pasted 2026-09-13).
  *
  * Pure. No Date (dates.ts owns it), no DOM, no fetch. Everything here is a function over the RangeData
  * dicts, so it tests with plain objects and the components stay thin. Strings are byte-for-byte the
  * oracle's - the tooltip texts are the parity surface a planner reads every day.
  *
- * Two deliberate departures from the oracle, both recorded in the spec:
+ * Deliberate departures from the oracle, all recorded in the S1f/S1g specs:
  *   - weeksIn() takes civil days (window.days), never (to - from) / 864e5 - the DST landmine (§C).
  *   - railRows() is OD-24/OD-26: internal by default, contractors and loaded-only as client toggles,
  *     and the count line so hidden rows are counted, never silent. The oracle listed all 363.
- * capacityWorkers() carries only the "all internal" branch: the selected-worker and team branches
- * arrive with the S1g filters, and the precedence order is kept in the comment so nobody reorders it.
+ *   - priRank()/priClass() are OD-32: badge colour by rank in priorities[] (RST has no A-D letters).
+ *   - HINT, actorLabel() and rowTitle()'s last line are OD-34: chrome says only what is true here.
+ *   - dowIso() is pure calendar arithmetic (Sakamoto) so fmtLong can name any day without Date. The
+ *     spec (§5.1) said fmtLong "already takes ISO"; it takes ISO + dow, and the strips passed 0 because
+ *     a week start is always Monday. The card and the dialog name arbitrary days, hence this.
  *
  * Changelog:
+ *   1.1.0  S1g. Filters type + DEFAULT_FILTERS; visibleWos/capacityWorkers/capacityPerWeek gain the
+ *          oracle's full precedence behind an optional trailing parameter (1.0.1 call sites stand);
+ *          railRows gains the team filter; rowTitle gains the click line; teamOptions/priorityOptions/
+ *          workerMenu/workerLabel for the filters row; priRank/priClass/priRankMap (OD-32); dowIso;
+ *          dialogTitle/dialogRows for the day dialog; cardRows for the selected card; HINT/actorLabel.
  *   1.0.1  Comment fix only, no behaviour change: fmtLong's doc line claimed 'Monday 14 Sep 2026'.
  *          The oracle (src 514) builds it from the ABBREVIATED DOW, so the real output is
  *          'Mon 14 Sep 2026'. The code was already right; the comment was not.
  *   1.0.0  Initial S1f.
  */
-import type { Wo, Worker, WorkerWeek } from '../../api/client/types.gen';
+import type { LabourRow, Priority, Team, Wo, Worker, WorkerWeek } from '../../api/client/types.gen';
 
-export const VERSION = '1.0.1';
+export const VERSION = '1.1.0';
 
 /* ------------------------------------------------------------------ constants (oracle 482-485) */
 
@@ -69,6 +79,19 @@ export function monthKey(s: string): string {
   return s.slice(0, 7);
 }
 
+/**
+ * Day of week for a yyyy-MM-dd, 0 = Monday ... 6 = Sunday, by Sakamoto's congruence - pure integer
+ * arithmetic on the proleptic Gregorian calendar, no Date, no zone, no DST. Pinned against dates.ts's
+ * dowOf in dates.test (the two must agree; this one exists so rules.ts stays Date-free).
+ */
+export function dowIso(s: string): number {
+  const p = ymd(s);
+  const t = [0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4];
+  const y = p.m < 3 ? p.y - 1 : p.y;
+  const sunday0 = (y + Math.floor(y / 4) - Math.floor(y / 100) + Math.floor(y / 400) + t[p.m - 1] + p.d) % 7;
+  return (sunday0 + 6) % 7;
+}
+
 /** Oracle fmtRange (510-513): `14 Sep - 20 Sep 2026`, the from-year shown only when it differs. */
 export function fmtRange(from: string, to: string): string {
   const a = ymd(from);
@@ -82,6 +105,11 @@ export function fmtLong(s: string, dow: number): string {
   const p = ymd(s);
   const name = dow >= 0 && dow < 7 ? DOW[dow] : 'MON';
   return `${name.charAt(0)}${name.slice(1).toLowerCase()} ${p.d} ${MON[p.m - 1]} ${p.y}`;
+}
+
+/** fmtLong for any day - the card and the dialog (oracle 717, 812-813 call fmtLong(parseIso(x))). */
+export function fmtLongAny(s: string): string {
+  return fmtLong(s, dowIso(s));
 }
 
 /** Oracle 623: the month view's range label. */
@@ -118,11 +146,43 @@ export function barWidth(pct: number): string {
   return `${Math.min(100, pct)}%`;
 }
 
-/* ------------------------------------------------------------------ visibility (oracle 541-558) */
+/* ------------------------------------------------------------------ filters (oracle 536-557, 1533-1537) */
 
-/** Cats only in S1f. Priority / unassigned / worker / search arrive with the S1g filters row. */
-export function visibleWos(wos: ReadonlyArray<Wo>, cats: Cats): Wo[] {
-  return wos.filter((w) => isCat(w.cat) && cats[w.cat]);
+/** The oracle's S.teamId / S.workers / S.pri / S.unassigned / S.q. */
+export type Filters = {
+  teamId: number;
+  workers: Readonly<Record<number, boolean>>;
+  pri: number;
+  unassigned: boolean;
+  /** already trimmed (oracle 1536) */
+  q: string;
+};
+
+export const DEFAULT_FILTERS: Filters = { teamId: 0, workers: {}, pri: 0, unassigned: false, q: '' };
+
+/** Oracle 540. */
+export function anySelectedWorker(f: Filters): boolean {
+  return Object.values(f.workers).some((v) => v);
+}
+
+/**
+ * Oracle visible() 541-556, in its order: cats, priority, unassigned, selected workers, search.
+ * `filters` defaults to none so every S1f call site and test stands unchanged.
+ */
+export function visibleWos(wos: ReadonlyArray<Wo>, cats: Cats, filters: Filters = DEFAULT_FILTERS): Wo[] {
+  const anyW = anySelectedWorker(filters);
+  const q = filters.q.toLowerCase();
+  return wos.filter((w) => {
+    if (!isCat(w.cat) || !cats[w.cat]) return false;
+    if (filters.pri && w.priId !== filters.pri) return false;
+    if (filters.unassigned && w.assigned.length) return false;
+    if (anyW && !w.assigned.some((id) => filters.workers[id])) return false;
+    if (q) {
+      const hay = `${w.sid} ${w.title} ${w.asset} ${w.assetTitle} ${w.loc} ${w.locTitle}`.toLowerCase();
+      if (hay.indexOf(q) < 0) return false;
+    }
+    return true;
+  });
 }
 
 /** Keyed by `start`. Built once per render (Landmines §D), never per cell. */
@@ -143,17 +203,16 @@ export function indexWorkers(workers: ReadonlyArray<Worker>): Map<number, Worker
 
 /* ------------------------------------------------------------------ capacity (oracle 561-577) */
 
-/**
- * Oracle precedence: selected workers > team > all internal. S1f has no worker or team filter, so only
- * the third branch exists here; S1g adds the first two IN THIS ORDER.
- */
-export function capacityWorkers(workers: ReadonlyArray<Worker>): Worker[] {
+/** Oracle 561-567, its precedence: selected workers > team > all internal. */
+export function capacityWorkers(workers: ReadonlyArray<Worker>, filters: Filters = DEFAULT_FILTERS): Worker[] {
+  if (anySelectedWorker(filters)) return workers.filter((w) => !!filters.workers[w.id]);
+  if (filters.teamId) return workers.filter((w) => w.teamId === filters.teamId);
   return workers.filter((w) => w.internal);
 }
 
-export function capacityPerWeek(workers: ReadonlyArray<Worker>): number {
+export function capacityPerWeek(workers: ReadonlyArray<Worker>, filters: Filters = DEFAULT_FILTERS): number {
   let c = 0;
-  for (const w of capacityWorkers(workers)) c += w.hrsPerWeek || 0;
+  for (const w of capacityWorkers(workers, filters)) c += w.hrsPerWeek || 0;
   return Math.round(c * 100) / 100;
 }
 
@@ -207,7 +266,7 @@ export function whoFor(wo: Wo, byId: ReadonlyMap<number, Worker>): string {
   return inits.join(' ') + (wo.assigned.length > 3 ? ` +${wo.assigned.length - 3}` : '');
 }
 
-/** Oracle 600-606: the chip tooltip. The locked line is OD-1 on RST, 2,364 times. */
+/** Oracle 600-606: the chip tooltip. The locked line is OD-1 on RST, 2,364 times. Unchanged - OD-33. */
 export function chipTitle(wo: Wo): string {
   let t = `${wo.sid} \u00b7 ${wo.title}\n${wo.statusTitle}${wo.pri ? ` \u00b7 priority ${wo.pri}` : ''}`;
   if (wo.asset) t += `\n${wo.asset}${wo.assetTitle ? ` - ${wo.assetTitle}` : ''}`;
@@ -239,11 +298,12 @@ export function weekBarTitle(wk: WorkerWeek): string {
   return `wk of ${wk.weekStart}: ${fmtNum(wk.planned)}${cap} ${wk.flag}`;
 }
 
-/** Oracle 790 minus its last line (click = filter, drag = plan hours are S1g / S4). */
+/** Oracle 790 with the click half of its last line (OD-34: the click exists, the drag does not). */
 export function rowTitle(w: Worker, ld: number, cap: number, pct: number): string {
   return (
     `${w.name} (${w.sid})\n${fmtNum(ld)} h attributed in this window \u00b7 capacity ${fmtNum(w.hrsPerWeek || 0)} h/week` +
-    (cap > 0 ? ` \u00b7 ${pct}% of ${fmtNum(cap)} h` : '')
+    (cap > 0 ? ` \u00b7 ${pct}% of ${fmtNum(cap)} h` : '') +
+    '\nclick = filter the work to this person'
   );
 }
 
@@ -270,17 +330,23 @@ export type RailRows = {
   loaded: number;
 };
 
-/** OD-26. API order kept (internal first, then name - the service sorts, the UI does not). */
+/**
+ * OD-26. API order kept (internal first, then name - the service sorts, the UI does not). The team
+ * filter (oracle 778) runs first and the counts describe the team-filtered population, so
+ * `12 of 12 internal` reads right under a team.
+ */
 export function railRows(
   workers: ReadonlyArray<Worker>,
   load: Readonly<Record<string, number>>,
   opts: RailOpts,
+  teamId = 0,
 ): RailRows {
   let internal = 0;
   let contractors = 0;
   let loaded = 0;
   const rows: Worker[] = [];
   for (const w of workers) {
+    if (teamId && w.teamId !== teamId) continue;
     if (w.internal) {
       internal++;
       if (loadOf(load, w.id) > 0) loaded++;
@@ -322,4 +388,214 @@ export function flagCounts(wks: ReadonlyArray<WorkerWeek>): { over: number; unde
     else if (wk.flag === 'under') under++;
   }
   return { over, under };
+}
+
+/* ------------------------------------------------------------------ the filters row (oracle 841-852) */
+
+export type Option = { value: number; label: string };
+
+/** Oracle 842: `MAINT \u00b7 12`, `ACME (contractor) \u00b7 3`. The `All teams` row is the component's. */
+export function teamOptions(teams: ReadonlyArray<Team>): Option[] {
+  return teams.map((t) => ({
+    value: t.id,
+    label: `${t.short || t.name}${t.internal ? '' : ' (contractor)'} \u00b7 ${t.users}`,
+  }));
+}
+
+/** Oracle 845: `P1 \u00b7 Urgent`. The `Any` row is the component's. */
+export function priorityOptions(priorities: ReadonlyArray<Priority>): Option[] {
+  return priorities.map((p) => ({ value: p.id, label: `${p.short} \u00b7 ${p.title}` }));
+}
+
+export type MenuRow = { id: number; name: string; cap: string };
+export type MenuGroup = { label: string; rows: MenuRow[] };
+
+/**
+ * Oracle 847-852: a copy of workers sorted internal first then `team + name`, filtered by team, grouped
+ * by team with `other` for an empty team and ` \u00b7 contractor` on a contractor group.
+ */
+export function workerMenu(workers: ReadonlyArray<Worker>, teamId = 0): MenuGroup[] {
+  const ws = workers
+    .slice()
+    .sort((a, b) =>
+      a.internal === b.internal
+        ? `${a.team || ''}${a.name}`.localeCompare(`${b.team || ''}${b.name}`)
+        : a.internal
+          ? -1
+          : 1,
+    );
+  const groups: MenuGroup[] = [];
+  let last: string | null = null;
+  for (const w of ws) {
+    if (teamId && w.teamId !== teamId) continue;
+    const team = w.team || '';
+    if (team !== last) {
+      groups.push({ label: `${team || 'other'}${w.internal ? '' : ' \u00b7 contractor'}`, rows: [] });
+      last = team;
+    }
+    groups[groups.length - 1].rows.push({ id: w.id, name: w.name, cap: `${fmtNum(w.hrsPerWeek || 0)}/wk` });
+  }
+  return groups;
+}
+
+/** Oracle 402's `#wlbl`: `any`, one name, or `n selected`. (Ours: the oracle's setter was not read.) */
+export function workerLabel(f: Filters, byId: ReadonlyMap<number, Worker>): string {
+  const ids = Object.keys(f.workers)
+    .map(Number)
+    .filter((id) => f.workers[id]);
+  if (!ids.length) return 'any';
+  if (ids.length === 1) return byId.get(ids[0])?.name ?? `#${ids[0]}`;
+  return `${ids.length} selected`;
+}
+
+/* ------------------------------------------------------------------ priority rank (OD-32) */
+
+/** 1-based position of `priId` in priorities[] (Sort_Sequence order); 0 when absent or unset. */
+export function priRank(wo: Wo, priorities: ReadonlyArray<Priority>): number {
+  if (!wo.priId) return 0;
+  const i = priorities.findIndex((p) => p.id === wo.priId);
+  return i < 0 ? 0 : i + 1;
+}
+
+/** Built once per data load; the grid never runs findIndex per chip (Landmines §D). */
+export function priRankMap(priorities: ReadonlyArray<Priority>): Map<number, number> {
+  return new Map(priorities.map((p, i) => [p.id, i + 1]));
+}
+
+/** `r1`..`r4` reuse the oracle's A/B/C/D colours in rank order; beyond 4 the base .pri style. */
+export function priClass(rank: number): string {
+  return rank >= 1 && rank <= 4 ? `r${rank}` : '';
+}
+
+/* ------------------------------------------------------------------ labour helpers (oracle 720-721, 804-806) */
+
+export function labourFor(woId: number, labour: ReadonlyArray<LabourRow>): LabourRow[] {
+  return labour.filter((r) => r.woId === woId);
+}
+
+function nameOf(id: number, byId: ReadonlyMap<number, Worker>): string {
+  return byId.get(id)?.name ?? `#${id}`;
+}
+
+/** Oracle 721: `Jo Bloggs 3.5h` per labour row. */
+export function peopleFor(rows: ReadonlyArray<LabourRow>, byId: ReadonlyMap<number, Worker>): string[] {
+  return rows.map((r) => `${nameOf(r.userId, byId)} ${fmtH(r.hours)}`);
+}
+
+/* ------------------------------------------------------------------ the day dialog (oracle 717-727) */
+
+/** Oracle 717: `MON 14 SEP 2026`. */
+export function dialogTitle(key: string): string {
+  return fmtLongAny(key).toUpperCase();
+}
+
+export type DialogRow = {
+  id: number;
+  sid: string;
+  cat: string;
+  pri: string;
+  priId: number;
+  /** status · time → end · pinned / engine owned */
+  meta1: string;
+  title: string;
+  /** asset · asset title · loc, or `no asset` */
+  meta2: string;
+  /** `3.5h (labour)` or `no hours yet` */
+  hours: string;
+  noHours: boolean;
+  /** `Jo Bloggs 3.5h, Ann Kowhai 1h` | `owner <name>` | `nobody planned` */
+  who: string;
+};
+
+/** Oracle 719-727, the strings of one `.job` row; the component only places them. */
+export function dialogRows(
+  list: ReadonlyArray<Wo>,
+  labour: ReadonlyArray<LabourRow>,
+  byId: ReadonlyMap<number, Worker>,
+): DialogRow[] {
+  return list.map((wo) => {
+    const people = peopleFor(labourFor(wo.id, labour), byId);
+    const resp = wo.resp ? nameOf(wo.resp, byId) : '';
+    const meta1 =
+      wo.statusTitle +
+      (wo.startTime ? ` \u00b7 ${wo.startTime}` : '') +
+      (wo.end && wo.end !== wo.start ? ` \u2192 ${wo.end}` : '') +
+      (wo.pinned ? ' \u00b7 pinned' : wo.locked ? ' \u00b7 engine owned' : '');
+    const meta2 =
+      (wo.asset ? `${wo.asset}${wo.assetTitle ? ` \u00b7 ${wo.assetTitle}` : ''}` : 'no asset') +
+      (wo.loc ? ` \u00b7 ${wo.loc}` : '');
+    const noHours = !(wo.hrs > 0);
+    const hours = noHours ? 'no hours yet' : `${fmtH(wo.hrs)} (${wo.hrsSrc})`;
+    const who = people.length ? people.join(', ') : resp ? `owner ${resp}` : 'nobody planned';
+    return { id: wo.id, sid: wo.sid, cat: wo.cat, pri: wo.pri, priId: wo.priId, meta1, title: wo.title, meta2, hours, noHours, who };
+  });
+}
+
+/* ------------------------------------------------------------------ the selected card (oracle 804-819, 823) */
+
+export type CardLabour = { name: string; skillTitle: string; hours: string; date: string };
+
+export type CardRows = {
+  /** statusTitle · pinned / engine owned · PO linked */
+  status: string;
+  /** `since <pinnedOn> · engine date <d>` when pinned, else '' */
+  pin: string;
+  start: string;
+  /** '' when the WO has no end */
+  end: string;
+  priority: string;
+  /** `code · title` or '' ; assetTitle is the hover title */
+  asset: string;
+  assetTitle: string;
+  loc: string;
+  locTitle: string;
+  /** `3.5h` or '' (= `no estimate yet`) */
+  hours: string;
+  hoursSrc: string;
+  /** '' = nobody */
+  responsible: string;
+  labour: CardLabour[];
+};
+
+export function cardRows(wo: Wo, labour: ReadonlyArray<LabourRow>, byId: ReadonlyMap<number, Worker>): CardRows {
+  const status =
+    wo.statusTitle +
+    (wo.pinned ? ' \u00b7 pinned' : wo.engineOwned ? ' \u00b7 engine owned' : '') +
+    (wo.hasPO ? ' \u00b7 PO linked' : '');
+  const pin = wo.pinned ? `since ${wo.pinnedOn || '?'}${wo.engineDate ? ` \u00b7 engine date ${wo.engineDate}` : ''}` : '';
+  const start = fmtLongAny(wo.start) + (wo.startTime ? ` ${wo.startTime}` : '');
+  const end = wo.end ? fmtLongAny(wo.end) + (wo.days > 0 ? ` (${wo.days + 1} days)` : '') : '';
+  const asset = wo.asset ? `${wo.asset}${wo.assetTitle ? ` \u00b7 ${wo.assetTitle}` : ''}` : '';
+  const loc = wo.loc ? `${wo.loc}${wo.locTitle ? ` \u00b7 ${wo.locTitle}` : ''}` : '';
+  const rows = labourFor(wo.id, labour).map((r) => ({
+    name: nameOf(r.userId, byId),
+    skillTitle: r.skillTitle || '',
+    hours: fmtH(r.hours),
+    date: r.date || '',
+  }));
+  return {
+    status,
+    pin,
+    start,
+    end,
+    priority: wo.pri || '\u2014',
+    asset,
+    assetTitle: wo.assetTitle || '',
+    loc,
+    locTitle: wo.locTitle || '',
+    hours: wo.hrs > 0 ? fmtH(wo.hrs) : '',
+    hoursSrc: wo.hrsSrc || '',
+    responsible: wo.resp ? nameOf(wo.resp, byId) : '',
+    labour: rows,
+  };
+}
+
+/* ------------------------------------------------------------------ chrome strings (OD-34) */
+
+/** The filters-row hint: only what is true in the read-only planner. */
+export const HINT = 'click = select \u00b7 \u2190 \u2192 = navigate \u00b7 T = today \u00b7 Esc = clear';
+
+/** The envelope's actor is an int until identity (OD-2). */
+export function actorLabel(actor: number): string {
+  return `actor #${actor}`;
 }
