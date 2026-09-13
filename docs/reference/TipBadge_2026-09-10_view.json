@@ -1,0 +1,122 @@
+{
+  "custom": {},
+  "params": {},
+  "propConfig": {
+    "params.pulseColor": {
+      "paramDirection": "input",
+      "persistent": false
+    },
+    "params.tipId": {
+      "paramDirection": "input",
+      "persistent": false
+    },
+    "params.tipText": {
+      "paramDirection": "input",
+      "persistent": false
+    },
+    "params.tipTitle": {
+      "paramDirection": "input",
+      "persistent": false
+    }
+  },
+  "props": {},
+  "root": {
+    "children": [
+      {
+        "children": [
+          {
+            "meta": {
+              "name": "DotIcon"
+            },
+            "props": {
+              "color": "#FFFFFF",
+              "path": "material/help_outline",
+              "style": {
+                "fontSize": "10px"
+              }
+            },
+            "type": "ia.display.icon"
+          }
+        ],
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\ttry:\n\t\ttipId \u003d self.view.params.tipId\n\t\ttipText \u003d self.view.params.tipText\n\t\ttipTitle \u003d self.view.params.tipTitle\n\t\tpulseColor \u003d self.view.params.pulseColor\n\t\tsystem.perspective.sendMessage(\u0027debug-log\u0027, {\u0027source\u0027: \u0027TipBadge\u0027, \u0027message\u0027: \u0027Dot clicked: \u0027 + tipId}, scope\u003d\u0027session\u0027)\n\t\tparams \u003d {\u0027tipId\u0027: tipId, \u0027tipText\u0027: tipText, \u0027tipTitle\u0027: tipTitle, \u0027pulseColor\u0027: pulseColor}\n\t\tstyle \u003d {\u0027modal\u0027: False, \u0027draggable\u0027: False, \u0027resizable\u0027: False, \u0027showCloseIcon\u0027: False, \u0027viewportBound\u0027: True}\n\t\tsystem.perspective.openPopup(\u0027TipPopup_\u0027 + tipId, \u0027Components/Workmate/Objects/Symbols/TipPopup\u0027, params, \u0027\u0027, style)\n\texcept Exception as e:\n\t\tsystem.perspective.sendMessage(\u0027debug-log\u0027, {\u0027source\u0027: \u0027TipBadge\u0027, \u0027message\u0027: \u0027onClick ERROR: \u0027 + str(e)}, scope\u003d\u0027session\u0027)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "TipDot"
+        },
+        "propConfig": {
+          "props.style.backgroundColor": {
+            "binding": {
+              "config": {
+                "expression": "if(isNull({view.params.pulseColor}), \u0027#999999\u0027, {view.params.pulseColor})"
+              },
+              "type": "expr"
+            }
+          },
+          "props.style.boxShadow": {
+            "binding": {
+              "config": {
+                "expression": "if(isNull({view.params.pulseColor}), \u0027none\u0027, concat(\u00270 0 8px 3px \u0027, {view.params.pulseColor}, \u002788\u0027))"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "alignItems": "center",
+          "direction": "column",
+          "justify": "center",
+          "style": {
+            "animation": "tipPulse 2s ease-in-out infinite",
+            "borderRadius": "50%",
+            "cursor": "pointer",
+            "height": "16px",
+            "minHeight": "16px",
+            "minWidth": "16px",
+            "width": "16px"
+          }
+        },
+        "type": "ia.container.flex"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "position": {
+      "basis": "20px"
+    },
+    "props": {
+      "alignItems": "center",
+      "justify": "center",
+      "style": {
+        "height": "20px",
+        "maxWidth": "20px",
+        "minWidth": "20px",
+        "overflow": "hidden",
+        "width": "20px"
+      }
+    },
+    "scripts": {
+      "customMethods": null,
+      "extensionFunctions": null,
+      "messageHandlers": [
+        {
+          "messageType": "tips-refresh",
+          "pageScope": false,
+          "script": "\ttry:\n\t\ttipId \u003d self.view.params.tipId\n\t\tshowTips \u003d self.session.custom.get(\u0027showTips\u0027, True)\n\t\tdismissedStr \u003d self.session.custom.get(\u0027dismissedTips\u0027, \u0027\u0027)\n\t\tdismissed \u003d [t.strip() for t in str(dismissedStr).split(\u0027,\u0027) if t.strip()] if dismissedStr else []\n\t\tvisible \u003d showTips and (tipId not in dismissed)\n\t\tself.props.visible \u003d visible\n\t\tsystem.perspective.sendMessage(\u0027debug-log\u0027, {\u0027source\u0027: \u0027TipBadge\u0027, \u0027message\u0027: \u0027tips-refresh: \u0027 + tipId + \u0027 visible\u003d\u0027 + str(visible) + \u0027 (showTips\u003d\u0027 + str(showTips) + \u0027, dismissed\u003d\u0027 + dismissedStr + \u0027)\u0027}, scope\u003d\u0027session\u0027)\n\texcept Exception as e:\n\t\tsystem.perspective.sendMessage(\u0027debug-log\u0027, {\u0027source\u0027: \u0027TipBadge\u0027, \u0027message\u0027: \u0027tips-refresh ERROR: \u0027 + str(e)}, scope\u003d\u0027session\u0027)",
+          "sessionScope": true,
+          "viewScope": false
+        }
+      ]
+    },
+    "type": "ia.container.flex"
+  }
+}

@@ -1,0 +1,253 @@
+{
+  "custom": {},
+  "params": {},
+  "propConfig": {
+    "params.pulseColor": {
+      "paramDirection": "input",
+      "persistent": false
+    },
+    "params.tipId": {
+      "paramDirection": "input",
+      "persistent": false
+    },
+    "params.tipText": {
+      "paramDirection": "input",
+      "persistent": false
+    },
+    "params.tipTitle": {
+      "paramDirection": "input",
+      "persistent": false
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 160,
+      "width": 220
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "TipIcon"
+                },
+                "props": {
+                  "color": "#FFFFFF",
+                  "path": "material/help_outline",
+                  "style": {
+                    "fontSize": "14px"
+                  }
+                },
+                "type": "ia.display.icon"
+              }
+            ],
+            "meta": {
+              "name": "TipIconWrap"
+            },
+            "props": {
+              "alignItems": "center",
+              "justify": "center",
+              "style": {
+                "height": "16px",
+                "maxWidth": "16px",
+                "minWidth": "16px",
+                "overflow": "hidden",
+                "width": "16px"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "meta": {
+              "name": "TipTitle"
+            },
+            "position": {
+              "grow": 1
+            },
+            "propConfig": {
+              "props.text": {
+                "binding": {
+                  "config": {
+                    "path": "view.params.tipTitle"
+                  },
+                  "type": "property"
+                }
+              }
+            },
+            "props": {
+              "style": {
+                "color": "#FFFFFF",
+                "fontSize": "12px",
+                "fontWeight": "600"
+              }
+            },
+            "type": "ia.display.label"
+          },
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "CloseIcon"
+                },
+                "props": {
+                  "color": "#FFFFFF",
+                  "path": "material/close",
+                  "style": {
+                    "fontSize": "14px",
+                    "opacity": "0.8"
+                  }
+                },
+                "type": "ia.display.icon"
+              }
+            ],
+            "events": {
+              "dom": {
+                "onClick": {
+                  "config": {
+                    "script": "\ttry:\n\t\ttipId \u003d self.view.params.tipId\n\t\tsystem.perspective.closePopup(\u0027TipPopup_\u0027 + tipId)\n\texcept:\n\t\tpass"
+                  },
+                  "scope": "G",
+                  "type": "script"
+                }
+              }
+            },
+            "meta": {
+              "name": "BtnClose"
+            },
+            "props": {
+              "alignItems": "center",
+              "justify": "center",
+              "style": {
+                "cursor": "pointer",
+                "height": "18px",
+                "maxWidth": "18px",
+                "minWidth": "18px",
+                "overflow": "hidden",
+                "width": "18px"
+              }
+            },
+            "type": "ia.container.flex"
+          }
+        ],
+        "meta": {
+          "name": "AccentBar"
+        },
+        "propConfig": {
+          "props.style.backgroundColor": {
+            "binding": {
+              "config": {
+                "path": "view.params.pulseColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "alignItems": "center",
+          "style": {
+            "gap": "6px",
+            "minHeight": "28px",
+            "padding": "6px 12px"
+          }
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "children": [
+          {
+            "meta": {
+              "name": "TipText"
+            },
+            "propConfig": {
+              "props.text": {
+                "binding": {
+                  "config": {
+                    "path": "view.params.tipText"
+                  },
+                  "type": "property"
+                }
+              }
+            },
+            "props": {
+              "style": {
+                "color": "#555555",
+                "fontSize": "12px",
+                "lineHeight": "1.5"
+              }
+            },
+            "type": "ia.display.label"
+          },
+          {
+            "events": {
+              "component": {
+                "onActionPerformed": {
+                  "config": {
+                    "script": "\ttry:\n\t\ttipId \u003d self.view.params.tipId\n\t\tsystem.perspective.sendMessage(\u0027debug-log\u0027, {\u0027source\u0027: \u0027TipPopup\u0027, \u0027message\u0027: \u0027Got it clicked: \u0027 + tipId}, scope\u003d\u0027session\u0027)\n\t\tsystem.perspective.sendMessage(\u0027tips-dismiss\u0027, {\u0027tipId\u0027: tipId}, scope\u003d\u0027session\u0027)\n\t\tsystem.perspective.sendMessage(\u0027debug-log\u0027, {\u0027source\u0027: \u0027TipPopup\u0027, \u0027message\u0027: \u0027tips-dismiss sent for \u0027 + tipId}, scope\u003d\u0027session\u0027)\n\t\tsystem.perspective.closePopup(\u0027TipPopup_\u0027 + tipId)\n\texcept:\n\t\tpass"
+                  },
+                  "scope": "G",
+                  "type": "script"
+                }
+              }
+            },
+            "meta": {
+              "name": "BtnGotIt"
+            },
+            "propConfig": {
+              "props.style.backgroundColor": {
+                "binding": {
+                  "config": {
+                    "path": "view.params.pulseColor"
+                  },
+                  "type": "property"
+                }
+              }
+            },
+            "props": {
+              "style": {
+                "alignSelf": "flex-end",
+                "border": "none",
+                "borderRadius": "4px",
+                "color": "#FFFFFF",
+                "cursor": "pointer",
+                "fontSize": "11px",
+                "fontWeight": "600",
+                "padding": "5px 20px"
+              },
+              "text": "Got it!"
+            },
+            "type": "ia.input.button"
+          }
+        ],
+        "meta": {
+          "name": "Body"
+        },
+        "position": {
+          "grow": 1
+        },
+        "props": {
+          "direction": "column",
+          "style": {
+            "gap": "10px",
+            "padding": "10px 14px"
+          }
+        },
+        "type": "ia.container.flex"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "direction": "column",
+      "style": {
+        "backgroundColor": "#FFFFFF",
+        "gap": "0px"
+      }
+    },
+    "type": "ia.container.flex"
+  }
+}
