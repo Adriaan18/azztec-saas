@@ -1,7 +1,7 @@
 /**
- * Azztec_SaaS_web_planner_DayCell_v1_0_1.tsx  ->  web/src/features/planner/DayCell.tsx
- * Version:  1.0.1   Date: 2026-09-13   Author: Adriaan
- * Spec:     Azztec_SaaS_S1f_Grid_Chunk_Spec_v1_0_0.md §5.6 · OD-6; S1g spec §5.9 · OD-32
+ * Azztec_SaaS_web_planner_DayCell_v1_1_0.tsx  ->  web/src/features/planner/DayCell.tsx
+ * Version:  1.1.0   Date: 2026-09-14   Author: Adriaan
+ * Spec:     Azztec_SaaS_S1f_Grid_Chunk_Spec_v1_0_0.md §5.6 · OD-6; S1g spec §5.9 · OD-32; S1i spec §3.3 · OD-41
  * Oracle:   Planner_v1_8_1.html month cell (643-656), week cell (684-691), twoweek cell (703-711)
  *
  * One day. Two header shapes, exactly as the oracle has them:
@@ -22,6 +22,9 @@
  * propagation, so the cell handler only ever sees the cell or the list as its target.
  *
  * Changelog:
+ *   1.1.0  S1i (OD-41): the `rank` map prop becomes `badges` (rules.priBadgeMap, built once by the
+ *          grid) and each chip receives its own entry as `badge` - one lookup per chip, as before.
+ *          Nothing else in the cell moved.
  *   1.0.1  S1g: onOpenDay on the day head, onClearSelect on cell/list clicks, rank map for the
  *          badge colours (OD-32) passed through to WOCard as priRank.
  *   1.0.0  Initial S1f.
@@ -30,9 +33,10 @@ import { useState } from 'react';
 
 import { WOCard } from './WOCard';
 import { DOW, MON, countText, fmtNum, whoFor, ymd } from './rules';
+import type { PriBadge } from './rules';
 import type { Wo, Worker } from '../../api/client/types.gen';
 
-export const VERSION = '1.0.1';
+export const VERSION = '1.1.0';
 
 const MONTH_CAP = 4;
 
@@ -50,8 +54,8 @@ export type DayCellProps = {
   /** month only: this is the very first cell of the window, so the month name is shown */
   first: boolean;
   byId: ReadonlyMap<number, Worker>;
-  /** priId -> 1-based rank (rules.priRankMap), built once by the grid - OD-32 */
-  rank: ReadonlyMap<number, number>;
+  /** priId -> badge look (rules.priBadgeMap: OD-32 rank + OD-39/41 paint), built once by the grid */
+  badges: ReadonlyMap<number, PriBadge>;
   selected: number;
   onSelect: (id: number) => void;
   /** oracle 1566-1567: the day head opens the day dialog */
@@ -70,7 +74,7 @@ export function DayCell({
   out,
   first,
   byId,
-  rank,
+  badges,
   selected,
   onSelect,
   onOpenDay,
@@ -129,7 +133,7 @@ export function DayCell({
             who={whoFor(wo, byId)}
             selected={selected === wo.id}
             onSelect={onSelect}
-            priRank={rank.get(wo.priId) ?? 0}
+            badge={badges.get(wo.priId)}
           />
         ))}
       </div>

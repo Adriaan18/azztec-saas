@@ -1,7 +1,7 @@
 /**
- * Azztec_SaaS_web_planner_range_fixture_v1_1_0.ts  ->  web/src/features/planner/range.fixture.ts
- * Version:  1.1.0   Date: 2026-09-13   Author: Adriaan
- * Spec:     Azztec_SaaS_S1g_Readonly_Chunk_Spec_v1_0_0.md §5.4 · test helper, not a test (vitest include is *.test.*)
+ * Azztec_SaaS_web_planner_range_fixture_v1_2_0.ts  ->  web/src/features/planner/range.fixture.ts
+ * Version:  1.2.0   Date: 2026-09-14   Author: Adriaan
+ * Spec:     Azztec_SaaS_S1g_Readonly_Chunk_Spec_v1_0_0.md §5.4 · test helper, not a test (vitest include is *.test.*); S1i spec §2.3 / §5
  *
  * One RangeData for the standing window 2026-09-14..2026-09-20, hand-built and contract-shaped: the
  * backend's test_openapi_contract guards the real shape, this only has to type-check against the
@@ -10,6 +10,13 @@
  * hours, locked vs pinned vs movable, internal vs contractor, loaded vs idle.
  *
  * Changelog:
+ *   1.2.0  S1i. priorities[] gain `colour` - the regenerated client makes it a REQUIRED string (S1h's
+ *          schemas.Priority.colour has no default), so this file stopped type-checking the moment
+ *          types.gen.ts moved. Values are RST's real ones for the shorts named here (Landmines §E):
+ *          two that take white text (P1 #FF0000, P4 #0080FF) and three that keep the dark (P2, P3,
+ *          N/A), so every OD-40 branch has a fixture case. Five distinct, so the OD-39 gate is open.
+ *          KT-shaped, junk and empty payloads are test-local literals in rules.test.ts, not here.
+ *          No other value moved: every S1f/S1g sum, string and rank is unchanged.
  *   1.1.0  S1g. priorities[] in the RST shape (P1..P4, N/A) so priRank has ranks 1..5 (OD-32);
  *          REQ_103 points at N/A; WO_101 gains hasPO, a two-day span (end, days 1) and a second labour
  *          row - Jo 2.5h + Ann 1h = the WO's 3.5h, so nothing summed elsewhere moves; PM_102 gains a
@@ -18,7 +25,7 @@
  */
 import type { RangeData, Wo, Worker, WorkerWeek } from '../../api/client/types.gen';
 
-export const FIXTURE_VERSION = '1.1.0';
+export const FIXTURE_VERSION = '1.2.0';
 
 export const FROM = '2026-09-14';
 export const TO = '2026-09-20';
@@ -209,13 +216,13 @@ export const RANGE: RangeData = {
     { id: 1, short: 'MAINT', name: 'Maintenance', internal: true, users: 2 },
     { id: 9, short: 'ACME', name: 'Acme Contracting', internal: false, users: 1 },
   ],
-  /** RST's shape (Landmines §E): P1..P6 and N/A, ordered by Sort_Sequence - five rows here */
+  /** RST's shape (Landmines §E): P1..P6 and N/A, ordered by Sort_Sequence - five rows here, RST's real colours */
   priorities: [
-    { id: 1, short: 'P1', title: 'Urgent' },
-    { id: 2, short: 'P2', title: 'High' },
-    { id: 3, short: 'P3', title: 'Normal' },
-    { id: 4, short: 'P4', title: 'Low' },
-    { id: 7, short: 'N/A', title: 'Not Applicable' },
+    { id: 1, short: 'P1', title: 'Urgent', colour: '#FF0000' },
+    { id: 2, short: 'P2', title: 'High', colour: '#FF9F40' },
+    { id: 3, short: 'P3', title: 'Normal', colour: '#74EE66' },
+    { id: 4, short: 'P4', title: 'Low', colour: '#0080FF' },
+    { id: 7, short: 'N/A', title: 'Not Applicable', colour: '#FFFFFF' },
   ],
   colours: { DONE: '#81C784', PM: '#4DD0E1', REQ: '#F48FB1', WO: '#FFC65C' },
   /** planned = 3.5 + 2 + 4 + 1 (all cats); unknown = the PM; capacity = 1 + 40 internal */

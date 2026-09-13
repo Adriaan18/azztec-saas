@@ -1,13 +1,15 @@
 /**
- * Azztec_SaaS_web_planner_PlannerGrid_test_v1_0_1.tsx  ->  web/src/features/planner/PlannerGrid.test.tsx
- * Version:  1.0.1   Date: 2026-09-13   Author: Adriaan
- * Spec:     Azztec_SaaS_S1f_Grid_Chunk_Spec_v1_0_0.md §6 (PlannerGrid.test.tsx row) · pair rule
+ * Azztec_SaaS_web_planner_PlannerGrid_test_v1_1_0.tsx  ->  web/src/features/planner/PlannerGrid.test.tsx
+ * Version:  1.1.0   Date: 2026-09-14   Author: Adriaan
+ * Spec:     Azztec_SaaS_S1f_Grid_Chunk_Spec_v1_0_0.md §6 (PlannerGrid.test.tsx row) · pair rule; S1i spec §5.2 · pair of PlannerGrid 1.1.0 + DayCell 1.1.0
  *
  * Covers DayCell as well as the grid - one drawn surface, one test file (spec §10).
  * Zero network: the grid takes data as props and has nothing in its import graph that can fetch.
  * No jest-dom: assertions read className / getAttribute / textContent off the nodes.
  *
  * Changelog:
+ *   1.1.0  S1i: every 1.0.1 case kept. New: the paint reaches the chips through the grid and the cell
+ *          (the map is built here, so this is the only test that proves the plumbing - OD-41).
  *   1.0.1  S1g: renderGrid passes filters / priorities / onOpenDay / onClearSelect; new cases for the
  *          day-head click, the cell click, the strip cap under a selected worker, the P1 rank class.
  *   1.0.0  Initial S1f.
@@ -21,7 +23,7 @@ import { DEFAULT_FILTERS, indexWorkers } from './rules';
 import type { Filters } from './rules';
 import { windowFor } from '../../lib/dates';
 
-export const TEST_VERSION = '1.0.1';
+export const TEST_VERSION = '1.1.0';
 
 afterEach(() => {
   cleanup();
@@ -61,7 +63,7 @@ function renderGrid(mode: 'week' | 'twoweek' | 'month', anchor: string, wos = WO
 
 describe('PlannerGrid - week', () => {
   it('carries its version', () => {
-    expect(VERSION).toBe('1.0.1');
+    expect(VERSION).toBe('1.1.0');
   });
 
   it('draws 7 cells, no dow row and no strip', () => {
@@ -123,6 +125,18 @@ describe('PlannerGrid - week', () => {
     const { container } = renderGrid('week', '2026-09-16');
     expect(must(container, '[data-date="2026-09-14"] .chip .pri').className).toBe('pri P1 r1');
     expect(must(container, '[data-date="2026-09-16"] .chip .pri').className).toBe('pri N/A');
+  });
+
+  it('the paint reaches the chips through the grid and the cell (OD-41): P1 red on white text, N/A white on dark', () => {
+    const { container } = renderGrid('week', '2026-09-16');
+    const p1 = must(container, '[data-date="2026-09-14"] .chip .pri');
+    expect(p1.className).toBe('pri P1 r1');
+    expect(p1.style.backgroundColor).toBe('rgb(255, 0, 0)');
+    expect(p1.style.color).toBe('rgb(255, 255, 255)');
+    const na = must(container, '[data-date="2026-09-16"] .chip .pri');
+    expect(na.style.backgroundColor).toBe('rgb(255, 255, 255)');
+    expect(na.style.color).toBe('rgb(43, 43, 43)');
+    expect(container.querySelector('[data-date="2026-09-15"] .chip .pri')).toBeNull(); // the PM has no priority
   });
 });
 

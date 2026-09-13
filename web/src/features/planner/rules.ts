@@ -1,7 +1,8 @@
 /**
- * Azztec_SaaS_web_planner_rules_v1_1_0.ts  ->  web/src/features/planner/rules.ts
- * Version:  1.1.0   Date: 2026-09-13   Author: Adriaan
- * Spec:     Azztec_SaaS_S1g_Readonly_Chunk_Spec_v1_0_0.md §5.1 · OD-30…OD-34 · Landmines §D (index once)
+ * Azztec_SaaS_web_planner_rules_v1_2_0.ts  ->  web/src/features/planner/rules.ts
+ * Version:  1.2.0   Date: 2026-09-14   Author: Adriaan
+ * Spec:     Azztec_SaaS_S1g_Readonly_Chunk_Spec_v1_0_0.md §5.1 · OD-30…OD-34 · Landmines §D (index once);
+ *           Azztec_SaaS_S1i_Priority_Paint_Chunk_Spec_v1_0_0.md §3.2 · OD-39, OD-40, OD-41
  * Oracle:   Planner_v1_8_1.html - constants 482-485, state defaults 492, fmtRange/fmtLong/fmtH/fmtNum
  *           510-516, teamMembers/anySelectedWorker/visible/byDay 536-558, capacity 561-578, chipEl
  *           who/title 590-606, month header label 623, countText 662-667, strip 668-676, showDay rows
@@ -18,12 +19,19 @@
  *   - railRows() is OD-24/OD-26: internal by default, contractors and loaded-only as client toggles,
  *     and the count line so hidden rows are counted, never silent. The oracle listed all 363.
  *   - priRank()/priClass() are OD-32: badge colour by rank in priorities[] (RST has no A-D letters).
+ *   - isHexColour()/luminance()/textOn()/priBadgeMap() are OD-39/40/41 (S1i): the badge paints from the
+ *     payload's `colour` only when the payload's colours carry information, with the higher-contrast of
+ *     the base badge's own text colour and white. Not the oracle's - it never painted from data.
  *   - HINT, actorLabel() and rowTitle()'s last line are OD-34: chrome says only what is true here.
  *   - dowIso() is pure calendar arithmetic (Sakamoto) so fmtLong can name any day without Date. The
  *     spec (§5.1) said fmtLong "already takes ISO"; it takes ISO + dow, and the strips passed 0 because
  *     a week start is always Monday. The card and the dialog name arbitrary days, hence this.
  *
  * Changelog:
+ *   1.2.0  S1i. isHexColour (the OD-36 free-text guard), luminance / textOn (OD-40: WCAG contrast picks
+ *          #2b2b2b or #ffffff, ties dark), PriBadge + priBadgeMap (OD-39: paint only at >= 2 distinct
+ *          usable colours, case-folded; OD-41: one map for both badge sites, rank from priRankMap so the
+ *          rank contract keeps one implementation). Nothing else moved; priRank/priRankMap/priClass stand.
  *   1.1.0  S1g. Filters type + DEFAULT_FILTERS; visibleWos/capacityWorkers/capacityPerWeek gain the
  *          oracle's full precedence behind an optional trailing parameter (1.0.1 call sites stand);
  *          railRows gains the team filter; rowTitle gains the click line; teamOptions/priorityOptions/
@@ -36,7 +44,7 @@
  */
 import type { LabourRow, Priority, Team, Wo, Worker, WorkerWeek } from '../../api/client/types.gen';
 
-export const VERSION = '1.1.0';
+export const VERSION = '1.2.0';
 
 /* ------------------------------------------------------------------ constants (oracle 482-485) */
 
@@ -465,6 +473,70 @@ export function priRankMap(priorities: ReadonlyArray<Priority>): Map<number, num
 /** `r1`..`r4` reuse the oracle's A/B/C/D colours in rank order; beyond 4 the base .pri style. */
 export function priClass(rank: number): string {
   return rank >= 1 && rank <= 4 ? `r${rank}` : '';
+}
+
+/* ------------------------------------------------------------------ priority badge paint (S1i: OD-39 / OD-40 / OD-41) */
+
+/** planner.css 118 / oracle 282: the base badge's own text colour, and the only alternative to it. */
+const PRI_FG_DARK = '#2b2b2b';
+const PRI_FG_LIGHT = '#ffffff';
+const HEX6 = /^#[0-9A-Fa-f]{6}$/;
+
+/** OD-36 ships Priority.colour as varchar(255) free text. Nothing reaches a style attribute without passing this. */
+export function isHexColour(s: string): boolean {
+  return HEX6.test(s);
+}
+
+/** WCAG relative luminance of a validated #RRGGBB: 0 = black, 1 = white. Pure arithmetic - no DOM, no Date. */
+export function luminance(hex: string): number {
+  const lin = (i: number): number => {
+    const c = parseInt(hex.slice(i, i + 2), 16) / 255;
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  };
+  return 0.2126 * lin(1) + 0.7152 * lin(3) + 0.0722 * lin(5);
+}
+
+const L_DARK = luminance(PRI_FG_DARK);
+const L_LIGHT = luminance(PRI_FG_LIGHT);
+
+function contrastRatio(a: number, b: number): number {
+  return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+}
+
+/**
+ * OD-40: whichever of the base badge's dark text and white has the higher WCAG contrast against `hex`;
+ * ties go dark. A contrast floor, not the oracle's aesthetic - on `.pri.A` (#EF6C57) it would pick
+ * dark where the oracle hand-picked white - and it never runs there: A-D are CSS classes and KT never
+ * reaches the paint path (OD-39). On RST's seven: #FF0000 and #0080FF take white, the rest dark.
+ */
+export function textOn(hex: string): string {
+  const l = luminance(hex);
+  return contrastRatio(l, L_DARK) >= contrastRatio(l, L_LIGHT) ? PRI_FG_DARK : PRI_FG_LIGHT;
+}
+
+/** One badge's look: the OD-32 rank always; `bg`/`fg` empty when the payload does not paint. */
+export type PriBadge = { rank: number; bg: string; fg: string };
+
+/**
+ * OD-39 / OD-41: one entry per priority, built once per data load (Landmines §D) and read by both badge
+ * sites. Per row the colour must pass isHexColour; per payload it paints only when there are >= 2
+ * distinct usable colours (case-folded) - RST's seven paint, KT's four identical #FF8000 rows fall to
+ * the `.pri.A-D` classes and keep their letters, and a payload with exactly one usable colour paints
+ * nothing (the documented consequence). Rank comes from priRankMap so the rank contract has one
+ * implementation and the OD-32 tests keep passing on it.
+ */
+export function priBadgeMap(priorities: ReadonlyArray<Priority>): Map<number, PriBadge> {
+  const rank = priRankMap(priorities);
+  const distinct = new Set(priorities.filter((p) => isHexColour(p.colour)).map((p) => p.colour.toUpperCase()));
+  const paint = distinct.size >= 2;
+  return new Map(
+    priorities.map((p): [number, PriBadge] => [
+      p.id,
+      paint && isHexColour(p.colour)
+        ? { rank: rank.get(p.id) ?? 0, bg: p.colour, fg: textOn(p.colour) }
+        : { rank: rank.get(p.id) ?? 0, bg: '', fg: '' },
+    ]),
+  );
 }
 
 /* ------------------------------------------------------------------ labour helpers (oracle 720-721, 804-806) */

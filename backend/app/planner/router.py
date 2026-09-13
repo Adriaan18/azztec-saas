@@ -1,6 +1,6 @@
 """
-Azztec_SaaS_app_planner_router_v1_1_0.py  ->  backend/app/planner/router.py
-Version:  1.1.0
+Azztec_SaaS_app_planner_router_v1_1_1.py  ->  backend/app/planner/router.py
+Version:  1.1.1
 Author:   Adriaan
 Spec:     Azztec_SaaS_S1c_Api_Chunk_Spec_v1_0_0.md §6 · Planner Port Spec §4 · Architecture D-9
 Ported:   workmate.planner_api 1.8.3 _range (src 571-594) - sid/tok gate replaced by Depends(get_current_actor)
@@ -12,6 +12,15 @@ S1c: GET /range only. Plain def (D-2). Mounted under /api/v1 by main.py -> /api/
 One [F] line per request in the Ignition text; the service is silent; the middleware line is separate.
 
 Changelog:
+  1.1.1  S1i. FORMAT ONLY - ruff format wrapped the @router.get decorator, which was 111
+         characters against pyproject's line-length = 110. No logic, no route, no response,
+         no string change; the token stream is identical. 1.1.0 went into 5443ac1 unformatted
+         because S1h's smoke ran `ruff check` on its seven files and no format pass - and
+         `ruff check` can never catch this: [tool.ruff.lint] ignore = ["E501"], so a long line
+         passes lint indefinitely and only `ruff format` fixes it. Version bumped rather than
+         the file left silently differing from its project-knowledge card (the S1h
+         test_planner_repo.py 1.0.2 precedent). A patch on apiVersion reads as "fix, no
+         contract change", which is exactly what this is - OD-37's signal stays honest.
   1.1.0  S1h, OD-37. VERSION LINE ONLY - no logic, no route, no response
          change in this file. Priority gained a colour field (schemas 1.1.0)
          and apiVersion, set from __version__ below, is the only signal a
@@ -35,12 +44,14 @@ from app.core.deps import get_current_actor
 from app.planner import service
 from app.planner.schemas import ApiError, RangeData
 
-__version__ = "1.1.0"
+__version__ = "1.1.1"
 
 router = APIRouter(prefix="/planner", tags=["planner"])
 
 
-@router.get("/range", response_model=RangeData, responses={400: {"model": ApiError}, 401: {"model": ApiError}})
+@router.get(
+    "/range", response_model=RangeData, responses={400: {"model": ApiError}, 401: {"model": ApiError}}
+)
 def get_range(
     request: Request,
     from_: Annotated[str, Query(alias="from", description="yyyy-MM-dd, inclusive")],

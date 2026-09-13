@@ -122,6 +122,10 @@ export type Priority = {
    * Title
    */
   title: string
+  /**
+   * Colour
+   */
+  colour: string
 }
 
 /**

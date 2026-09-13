@@ -1,13 +1,17 @@
 """
-Azztec_SaaS_test_smoke_v1_1_0.py  ->  backend/tests/test_smoke.py
-Version:  1.1.0
+Azztec_SaaS_test_smoke_v1_1_1.py  ->  backend/tests/test_smoke.py
+Version:  1.1.1
 Author:   Adriaan
-Spec:     Planner Port Spec S0 smoke + Azztec_SaaS_S1d_Diag_Chunk_Spec_v1_0_0.md §7.3. Pair of main.py 0.3.0.
+Spec:     Planner Port Spec S0 smoke + Azztec_SaaS_S1d_Diag_Chunk_Spec_v1_0_0.md §7.3. Pair of main.py 0.4.0.
 
 Boots the app through the lifespan (real engine, real .env) and proves: health JSON shape, db ok,
 request-id header, JSON 404 under /api, diag self-test, and the OD-19/OD-20 additions.
 
 Changelog:
+  1.1.1  S1i. HEADER ONLY - the Pair line followed main.py to 0.4.0 (OD-38). No assertion changed:
+         test_health_versions_match_the_modules compares db / diag / config / planner and never main,
+         so nothing here pinned 0.3.0. That gap (/health's own `version` is the one version nobody
+         asserts) is open item 39, deliberately not closed inside a header-only edit.
   1.1.0  S1d. test_api_404_is_json_not_spa GOES GREEN - the one red carried since 2026-09-10, cleared by
          the conditional SPA mount (OD-19), not by building a frontend; it now also asserts the flat
          OD-15 body. New: diagWired (OD-20); versions must match the modules' own __version__ so a

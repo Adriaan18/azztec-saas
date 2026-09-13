@@ -1,12 +1,19 @@
 /**
- * Azztec_SaaS_web_planner_rules_test_v1_1_0.ts  ->  web/src/features/planner/rules.test.ts
- * Version:  1.1.0   Date: 2026-09-13   Author: Adriaan
- * Spec:     Azztec_SaaS_S1g_Readonly_Chunk_Spec_v1_0_0.md §6 (rules.test.ts row) · pair rule
+ * Azztec_SaaS_web_planner_rules_test_v1_2_0.ts  ->  web/src/features/planner/rules.test.ts
+ * Version:  1.2.0   Date: 2026-09-14   Author: Adriaan
+ * Spec:     Azztec_SaaS_S1g_Readonly_Chunk_Spec_v1_0_0.md §6 (rules.test.ts row) · pair rule;
+ *           Azztec_SaaS_S1i_Priority_Paint_Chunk_Spec_v1_0_0.md §5.1 · pair of rules.ts 1.2.0
  *
  * Zero network, zero DOM, plain objects from range.fixture.ts. The string cases are byte-for-byte the
  * oracle's output - a planner reads these tooltips every day, so they are the parity surface.
  *
  * Changelog:
+ *   1.2.0  S1i: every 1.1.0 case kept; VERSION is 1.2.0. New block for the badge paint - isHexColour
+ *          edges, luminance anchors, textOn on the seven RST colours (the S1i spec §5.1 table, computed
+ *          by hand there and VERIFIED by this run - #0080FF is the narrow one, 3.73 vs 3.80), and
+ *          priBadgeMap on the fixture, a KT-shaped literal, case folding, a mixed payload, the
+ *          one-usable-colour consequence, all-junk and empty. Priority literals are test-local so the
+ *          shared fixture stays RST-shaped.
  *   1.1.0  S1g: every 1.0.1 case kept. Two strings updated on purpose - rowTitle now ends with the
  *          OD-34 click line, VERSION is 1.1.0. New: full visibleWos precedence, capacityWorkers
  *          selected > team > internal, railRows team filter, teamOptions/priorityOptions/workerMenu/
@@ -47,12 +54,15 @@ import {
   fmtRange,
   indexWorkers,
   isCat,
+  isHexColour,
   labourFor,
   loadOf,
+  luminance,
   monthKey,
   monthLabel,
   pctOf,
   peopleFor,
+  priBadgeMap,
   priClass,
   priRank,
   priRankMap,
@@ -62,6 +72,7 @@ import {
   rowTitle,
   stripTitle,
   teamOptions,
+  textOn,
   visibleWos,
   weekBarTitle,
   weekStats,
@@ -71,17 +82,18 @@ import {
   workerMenu,
   ymd,
 } from './rules';
-import type { Filters } from './rules';
+import type { Filters, PriBadge } from './rules';
+import type { Priority } from '../../api/client/types.gen';
 import { DONE_104, FROM, PIN_105, PM_102, RANGE, REQ_103, TO, WO_101, WORKERS, WOS, WW_692, W_2, W_3, W_692, mkWo } from './range.fixture';
 
-export const TEST_VERSION = '1.1.0';
+export const TEST_VERSION = '1.2.0';
 
 const byId = indexWorkers(WORKERS);
 const f = (over: Partial<Filters>): Filters => ({ ...DEFAULT_FILTERS, ...over });
 
 describe('rules.ts - constants and ISO parts', () => {
   it('carries its version and the oracle cats default (DONE off)', () => {
-    expect(VERSION).toBe('1.1.0');
+    expect(VERSION).toBe('1.2.0');
     expect(DEFAULT_CATS).toEqual({ WO: true, PM: true, REQ: true, DONE: false });
     expect(DEFAULT_RAIL).toEqual({ contractors: false, loadedOnly: true });
     expect(DEFAULT_FILTERS).toEqual({ teamId: 0, workers: {}, pri: 0, unassigned: false, q: '' });
@@ -461,6 +473,88 @@ describe('rules.ts - priority rank (OD-32)', () => {
     expect(m.get(7)).toBe(5);
     expect(m.get(42)).toBeUndefined();
     for (const wo of WOS) expect(m.get(wo.priId) ?? 0).toBe(priRank(wo, RANGE.priorities));
+  });
+});
+
+describe('rules.ts - priority badge paint (S1i: OD-39 / OD-40 / OD-41)', () => {
+  /** test-local Priority rows; the shared fixture stays RST-shaped (five distinct real colours) */
+  const pri = (id: number, colour: string): Priority => ({ id, short: `P${id}`, title: `Priority ${id}`, colour });
+  const none = (rank: number): PriBadge => ({ rank, bg: '', fg: '' });
+
+  it('isHexColour accepts #RRGGBB in either case and nothing else (OD-36 free text)', () => {
+    for (const ok of ['#FF9F40', '#ff9f40', '#000000', '#FFFFFF']) expect(isHexColour(ok)).toBe(true);
+    for (const bad of ['', '#FFF', '#GGGGGG', 'FF9F40', '#FF9F400', 'red', 'rgb(1,2,3)', ' #FF9F40', '#FF9F40 ']) {
+      expect(isHexColour(bad)).toBe(false);
+    }
+  });
+
+  it('luminance anchors: black 0, white 1', () => {
+    expect(luminance('#000000')).toBe(0);
+    expect(luminance('#FFFFFF')).toBeCloseTo(1, 10);
+  });
+
+  it('textOn on the seven RST colours - the S1i spec §5.1 table, verified here not by hand', () => {
+    expect(textOn('#FF9F40')).toBe('#2b2b2b');
+    expect(textOn('#74EE66')).toBe('#2b2b2b');
+    expect(textOn('#C0C0C0')).toBe('#2b2b2b');
+    expect(textOn('#C499C1')).toBe('#2b2b2b');
+    expect(textOn('#FFFFFF')).toBe('#2b2b2b');
+    expect(textOn('#FF0000')).toBe('#ffffff');
+    expect(textOn('#0080FF')).toBe('#ffffff'); // 3.73 vs 3.80 - the narrow one, pinned on purpose
+  });
+
+  it('textOn: the base badge colour keeps its dark text, black takes white, and the rule is a contrast floor not the oracle', () => {
+    expect(textOn('#9AA3AD')).toBe('#2b2b2b'); // --mut, the base .pri background
+    expect(textOn('#000000')).toBe('#ffffff');
+    expect(textOn('#EF6C57')).toBe('#2b2b2b'); // .pri.A: the oracle hand-picked white; OD-40 never runs there
+    expect(textOn('#6f7c87')).toBe('#ffffff'); // .pri.D: agrees with the oracle
+  });
+
+  it('priBadgeMap on the RST-shaped fixture: every row painted, rank agrees with priRankMap', () => {
+    const m = priBadgeMap(RANGE.priorities);
+    const r = priRankMap(RANGE.priorities);
+    expect(m.size).toBe(5);
+    for (const p of RANGE.priorities) {
+      expect(m.get(p.id)).toEqual({ rank: r.get(p.id), bg: p.colour, fg: textOn(p.colour) });
+    }
+    expect(m.get(1)).toEqual({ rank: 1, bg: '#FF0000', fg: '#ffffff' });
+    expect(m.get(4)).toEqual({ rank: 4, bg: '#0080FF', fg: '#ffffff' });
+    expect(m.get(7)).toEqual({ rank: 5, bg: '#FFFFFF', fg: '#2b2b2b' });
+    expect(m.get(42)).toBeUndefined();
+  });
+
+  it('a KT-shaped payload (four rows, one colour) paints nothing and keeps its ranks (OD-39)', () => {
+    const kt: Priority[] = [
+      { id: 1, short: 'A', title: 'Action Today', colour: '#FF8000' },
+      { id: 2, short: 'B', title: 'Action this week', colour: '#FF8000' },
+      { id: 3, short: 'C', title: 'Action this month', colour: '#FF8000' },
+      { id: 4, short: 'D', title: 'As sched. permits', colour: '#FF8000' },
+    ];
+    expect(Array.from(priBadgeMap(kt).values())).toEqual([none(1), none(2), none(3), none(4)]);
+  });
+
+  it('case does not defeat the gate: #ff8000 and #FF8000 are one colour', () => {
+    const m = priBadgeMap([pri(1, '#ff8000'), pri(2, '#FF8000')]);
+    expect(m.get(1)).toEqual(none(1));
+    expect(m.get(2)).toEqual(none(2));
+  });
+
+  it('a mixed payload: hex rows paint, junk and empty rows fall to the class', () => {
+    const m = priBadgeMap([pri(1, '#FF0000'), pri(2, ''), pri(3, 'not-a-colour'), pri(4, '#0080FF')]);
+    expect(m.get(1)).toEqual({ rank: 1, bg: '#FF0000', fg: '#ffffff' });
+    expect(m.get(2)).toEqual(none(2));
+    expect(m.get(3)).toEqual(none(3));
+    expect(m.get(4)).toEqual({ rank: 4, bg: '#0080FF', fg: '#ffffff' });
+  });
+
+  it('one usable colour among several paints nothing - the documented OD-39 consequence', () => {
+    const m = priBadgeMap([pri(1, '#FF0000'), pri(2, ''), pri(3, 'red')]);
+    expect(Array.from(m.values())).toEqual([none(1), none(2), none(3)]);
+  });
+
+  it('all junk paints nothing with ranks intact; an empty payload is an empty map', () => {
+    expect(Array.from(priBadgeMap([pri(1, ''), pri(2, 'x')]).values())).toEqual([none(1), none(2)]);
+    expect(priBadgeMap([]).size).toBe(0);
   });
 });
 

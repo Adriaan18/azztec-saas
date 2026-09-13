@@ -1,7 +1,7 @@
 /**
- * Azztec_SaaS_web_planner_PlannerGrid_v1_0_1.tsx  ->  web/src/features/planner/PlannerGrid.tsx
- * Version:  1.0.1   Date: 2026-09-13   Author: Adriaan
- * Spec:     Azztec_SaaS_S1f_Grid_Chunk_Spec_v1_0_0.md §5.8 · OD-6, OD-23 · Landmines §D; S1g spec §5.10 · OD-32
+ * Azztec_SaaS_web_planner_PlannerGrid_v1_1_0.tsx  ->  web/src/features/planner/PlannerGrid.tsx
+ * Version:  1.1.0   Date: 2026-09-14   Author: Adriaan
+ * Spec:     Azztec_SaaS_S1f_Grid_Chunk_Spec_v1_0_0.md §5.8 · OD-6, OD-23 · Landmines §D; S1g spec §5.10 · OD-32; S1i spec §3.3 · OD-41
  * Oracle:   Planner_v1_8_1.html renderMonth (633-660), renderWeek (678-693), renderTwoWeek (695-713)
  *
  * Three layouts off one window:
@@ -24,6 +24,8 @@
  * `ev.target === el('grid')`) clears the selection; cells handle their own.
  *
  * Changelog:
+ *   1.1.0  S1i (OD-41): the once-per-load map is rules.priBadgeMap instead of priRankMap - rank plus
+ *          the OD-39/40 paint pair - and DayCell receives it as `badges`. One useMemo, same key.
  *   1.0.1  S1g: filters -> capacity precedence + WeekStrip worker set; priorities -> rank map;
  *          onOpenDay / onClearSelect wired through to DayCell and the grid background.
  *   1.0.0  Initial S1f.
@@ -33,13 +35,13 @@ import type { ReactElement } from 'react';
 
 import { DayCell } from './DayCell';
 import { WeekStrip } from './CapacityBar';
-import { DOW, byDay, capacityPerWeek, capacityWorkers, monthKey, priRankMap } from './rules';
+import { DOW, byDay, capacityPerWeek, capacityWorkers, monthKey, priBadgeMap } from './rules';
 import type { Filters } from './rules';
 import { addDays } from '../../lib/dates';
 import type { Mode, Window } from '../../lib/dates';
 import type { Priority, Wo, Worker } from '../../api/client/types.gen';
 
-export const VERSION = '1.0.1';
+export const VERSION = '1.1.0';
 
 export type PlannerGridProps = {
   mode: Mode;
@@ -54,7 +56,7 @@ export type PlannerGridProps = {
   byId: ReadonlyMap<number, Worker>;
   /** the store's filters - the strips' capacity follows the oracle precedence (S1g) */
   filters: Filters;
-  /** priorities[] in API order - the badge rank map is built once here (OD-32) */
+  /** priorities[] in API order - the badge map (OD-32 rank + OD-39/41 paint) is built once here */
   priorities: ReadonlyArray<Priority>;
   selected: number;
   onSelect: (id: number) => void;
@@ -80,7 +82,7 @@ export function PlannerGrid({
   const days = useMemo(() => byDay(wos), [wos]);
   const capWorkers = useMemo(() => capacityWorkers(workers, filters), [workers, filters]);
   const cap = useMemo(() => capacityPerWeek(workers, filters), [workers, filters]);
-  const rank = useMemo(() => priRankMap(priorities), [priorities]);
+  const badges = useMemo(() => priBadgeMap(priorities), [priorities]);
 
   /** every date in the window, in order - one pass, no Date arithmetic below this line */
   const dates = useMemo(() => {
@@ -105,7 +107,7 @@ export function PlannerGrid({
       out={isMonth && monthKey(dateIso) !== anchorMonth}
       first={isMonth && idx === 0}
       byId={byId}
-      rank={rank}
+      badges={badges}
       selected={selected}
       onSelect={onSelect}
       onOpenDay={onOpenDay}

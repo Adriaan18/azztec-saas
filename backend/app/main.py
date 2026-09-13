@@ -1,6 +1,6 @@
 """
-Azztec_SaaS_app_main_v1_0_3.py  ->  backend/app/main.py
-Version:  0.3.0   (app version reported by /api/v1/health)
+Azztec_SaaS_app_main_v1_0_4.py  ->  backend/app/main.py
+Version:  0.4.0   (app version reported by /api/v1/health, and info.version of the exported OpenAPI document)
 Author:   Adriaan
 Spec:     Azztec_SaaS_Architecture_and_Stack_v1_0_0.md (D-6, D-8, D-9), S1d chunk spec §5 (OD-19, OD-20)
 
@@ -9,6 +9,12 @@ App factory, lifespan (engine up/down + tz probe), request-id middleware with [F
 Run: uv run fastapi dev app/main.py
 
 Changelog:
+  0.4.0  S1i (OD-38). Version line only, no logic change. The published schema gained a required field
+         (Priority.colour, S1h) while this constant - which is the exported document's info.version and
+         therefore the name of docs/api/openapi_<ver>.json - stayed at 0.3.0. Minor-for-a-new-field is the
+         standing bump rule (WoW §2); the export is openapi_0_4_0.json and the 0.3.0 file leaves the tree.
+         Export from THIS module's `app`, never a second create_app(): the module builds one at import
+         time (last line), so the factory called again wires diag twice.
   0.3.0  S1d. create_app() calls diag.configure(level=WORKMATE_LOG_LEVEL) FIRST, so the lifespan's own
          startup lines are the boot-time proof the seam is wired; one [F] diag wired line names the level.
          OD-19: app.frontend() mounts only when dist/index.html exists - an /api/... miss no longer depends
@@ -48,7 +54,7 @@ from app.core.config import get_settings
 from app.planner import router as planner_router
 from app.planner import service as planner_service
 
-__version__ = "0.3.0"
+__version__ = "0.4.0"
 
 _HTTP_CODES = {401: "NO_IDENTITY", 403: "FORBIDDEN", 404: "NOT_FOUND", 405: "METHOD_NOT_ALLOWED"}
 

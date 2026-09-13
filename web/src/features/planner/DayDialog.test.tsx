@@ -1,11 +1,13 @@
 /**
- * Azztec_SaaS_web_planner_DayDialog_test_v1_0_1.tsx  ->  web/src/features/planner/DayDialog.test.tsx
- * Version:  1.0.1   Date: 2026-09-13   Author: Adriaan
- * Spec:     Azztec_SaaS_S1g_Readonly_Chunk_Spec_v1_0_0.md §6 (DayDialog.test.tsx row) · OD-5, OD-32, OD-34
+ * Azztec_SaaS_web_planner_DayDialog_test_v1_1_0.tsx  ->  web/src/features/planner/DayDialog.test.tsx
+ * Version:  1.1.0   Date: 2026-09-14   Author: Adriaan
+ * Spec:     Azztec_SaaS_S1g_Readonly_Chunk_Spec_v1_0_0.md §6 (DayDialog.test.tsx row) · OD-5, OD-32, OD-34; S1i spec §5.2 · pair of DayDialog 1.1.0
  *
  * Zero network, zero fetch by import graph. Explicit cleanup(), plain DOM assertions.
  *
  * Changelog:
+ *   1.1.0  S1i: every 1.0.1 case kept; VERSION is 1.1.0. New: the second badge site paints from the
+ *          payload exactly as the chip does (OD-41), so it cannot silently stay grey.
  *   1.0.1  Lint: querySelectorAll('button') is already NodeListOf<HTMLButtonElement> on TS 6 lib.dom -
  *          the `as HTMLButtonElement` was an unnecessary assertion (no-unnecessary-type-assertion).
  *   1.0.0  Initial S1g.
@@ -18,7 +20,7 @@ import { PIN_105, PM_102, RANGE, REQ_103, WORKERS, WO_101, mkWo } from './range.
 import { indexWorkers } from './rules';
 import type { Wo } from '../../api/client/types.gen';
 
-export const TEST_VERSION = '1.0.1';
+export const TEST_VERSION = '1.1.0';
 
 afterEach(() => {
   cleanup();
@@ -49,7 +51,7 @@ function renderDialog(dateIso: string, list: ReadonlyArray<Wo>, onSelect = vi.fn
 
 describe('DayDialog - the oracle showDay, read-only', () => {
   it('carries its version', () => {
-    expect(VERSION).toBe('1.0.0');
+    expect(VERSION).toBe('1.1.0');
     expect(OPEN_TITLE).toBe('arrives with the WO module (OD-5)');
   });
 
@@ -111,6 +113,19 @@ describe('DayDialog - the oracle showDay, read-only', () => {
     expect(onSelect).toHaveBeenCalledWith(106);
     expect(onClose).toHaveBeenCalledTimes(1);
     expect(onSelect.mock.invocationCallOrder[0]).toBeLessThan(onClose.mock.invocationCallOrder[0]);
+  });
+
+  it('the badge paints from the payload here too (OD-41): P1 red on white text, N/A white on dark', () => {
+    const { container } = renderDialog('2026-09-14', [WO_101, REQ_103]);
+    const jobs = container.querySelectorAll('.job');
+    const p1 = must(jobs[0], '.pri');
+    expect(p1.className).toBe('pri P1 r1');
+    expect(p1.style.backgroundColor).toBe('rgb(255, 0, 0)');
+    expect(p1.style.color).toBe('rgb(255, 255, 255)');
+    const na = must(jobs[1], '.pri');
+    expect(na.className).toBe('pri N/A');
+    expect(na.style.backgroundColor).toBe('rgb(255, 255, 255)');
+    expect(na.style.color).toBe('rgb(43, 43, 43)');
   });
 
   it('the title is a dialog role with an accessible name', () => {

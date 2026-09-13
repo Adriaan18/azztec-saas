@@ -1,7 +1,7 @@
 /**
- * Azztec_SaaS_web_planner_WOCard_v1_0_1.tsx  ->  web/src/features/planner/WOCard.tsx
- * Version:  1.0.1   Date: 2026-09-13   Author: Adriaan
- * Spec:     Azztec_SaaS_S1f_Grid_Chunk_Spec_v1_0_0.md §5.5 · OD-1; S1g spec §5.8 · OD-32, OD-33
+ * Azztec_SaaS_web_planner_WOCard_v1_1_0.tsx  ->  web/src/features/planner/WOCard.tsx
+ * Version:  1.1.0   Date: 2026-09-14   Author: Adriaan
+ * Spec:     Azztec_SaaS_S1f_Grid_Chunk_Spec_v1_0_0.md §5.5 · OD-1; S1g spec §5.8 · OD-32, OD-33; S1i spec §3.3 · OD-41
  * Oracle:   Planner_v1_8_1.html chipEl (585-616), LOCK_SVG / PIN_SVG (486-487)
  *
  * One WO chip. The class string, the data attributes and the child order are the oracle's on purpose:
@@ -16,15 +16,22 @@
  * installed for two 40-byte paths (spec §1).
  *
  * Changelog:
+ *   1.1.0  S1i (OD-41): `priRank?: number` becomes `badge?: PriBadge` - one rules.priBadgeMap entry
+ *          carrying the OD-32 rank and, when the payload's colours carry information (OD-39), a
+ *          `bg`/`fg` pair painted as inline backgroundColor/color longhands (they beat planner.css's
+ *          `background` shorthand; no CSS change, OD-27 intact). The class string is built exactly as
+ *          1.0.1 built it, so `pri P1`, `pri P1 r1` and `pri N/A` are byte-identical; with `bg` empty
+ *          or `badge` absent the chip renders as 1.0.1 did. Title still chipTitle(wo) (OD-33).
  *   1.0.1  S1g: optional priRank prop (OD-32) - the badge gains `r1`..`r4` from rules.priClass beside the
  *          oracle's letter class, so RST's P1 lights up and KT's A-D keep their rules. Default 0 = no
  *          rank class, byte-identical to 1.0.0. The title is still chipTitle(wo), unchanged (OD-33).
  *   1.0.0  Initial S1f.
  */
 import { chipTitle, fmtH, priClass } from './rules';
+import type { PriBadge } from './rules';
 import type { Wo } from '../../api/client/types.gen';
 
-export const VERSION = '1.0.1';
+export const VERSION = '1.1.0';
 
 /** Oracle LOCK_SVG (486): engine-owned, no pin table - the RST state, 2,364 times (OD-1). */
 function LockGlyph() {
@@ -52,12 +59,13 @@ export type WOCardProps = {
   who: string;
   selected: boolean;
   onSelect: (id: number) => void;
-  /** 1-based rank of wo.priId in priorities[] (rules.priRankMap), 0 = none - OD-32 */
-  priRank?: number;
+  /** rules.priBadgeMap entry for wo.priId: the OD-32 rank always, bg/fg only when the payload paints (OD-39/41); absent = the 1.0.0 look */
+  badge?: PriBadge;
 };
 
-export function WOCard({ wo, who, selected, onSelect, priRank = 0 }: WOCardProps) {
-  const rank = priClass(priRank);
+export function WOCard({ wo, who, selected, onSelect, badge }: WOCardProps) {
+  const rank = priClass(badge?.rank ?? 0);
+  const paint = badge?.bg ? { backgroundColor: badge.bg, color: badge.fg } : undefined;
   const cls =
     `chip cat-${wo.cat}` + (wo.locked ? ' locked' : '') + (wo.movable ? ' mv' : '') + (selected ? ' sel' : '');
   return (
@@ -71,7 +79,11 @@ export function WOCard({ wo, who, selected, onSelect, priRank = 0 }: WOCardProps
         onSelect(wo.id);
       }}
     >
-      {wo.pri ? <span className={rank ? `pri ${wo.pri} ${rank}` : `pri ${wo.pri}`}>{wo.pri}</span> : null}
+      {wo.pri ? (
+        <span className={rank ? `pri ${wo.pri} ${rank}` : `pri ${wo.pri}`} style={paint}>
+          {wo.pri}
+        </span>
+      ) : null}
       <span className="sid">{wo.sid}</span>
       <span className={wo.hrs > 0 ? 'hrs' : 'hrs unk'}>{fmtH(wo.hrs)}</span>
       {who ? <span className="who">{who}</span> : null}
