@@ -1,0 +1,1487 @@
+{
+  "generator": "scripts/kt_uplift_ddl.py 1.0.1",
+  "revision": "0001",
+  "source": "dbWorkmate_KT",
+  "generated_on": "2026-09-14",
+  "counts": {
+    "tables": 12,
+    "columns": 15,
+    "pks": 12,
+    "uqs": 2,
+    "fks": 4,
+    "checks": 3,
+    "indexes": 15,
+    "skipped": 1
+  },
+  "tables": [
+    {
+      "name": "Action_Header",
+      "columns": [
+        {
+          "name": "Action_ID",
+          "type": "bigint",
+          "nullable": false,
+          "identity": true,
+          "default": null
+        },
+        {
+          "name": "Short_Action_Id",
+          "type": "varchar(20)",
+          "nullable": false,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Action_Title",
+          "type": "nvarchar(255)",
+          "nullable": false,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Action_Description",
+          "type": "nvarchar(max)",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Asset_ID",
+          "type": "bigint",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Location_ID",
+          "type": "bigint",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Priority_ID",
+          "type": "bigint",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Status",
+          "type": "char(1)",
+          "nullable": false,
+          "identity": false,
+          "default": "'R'"
+        },
+        {
+          "name": "Progress_ID",
+          "type": "int",
+          "nullable": false,
+          "identity": false,
+          "default": "1"
+        },
+        {
+          "name": "Source",
+          "type": "varchar(50)",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Source_Detail",
+          "type": "nvarchar(255)",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Entry_Date",
+          "type": "datetime",
+          "nullable": false,
+          "identity": false,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        {
+          "name": "Due_Date",
+          "type": "datetime",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "User_Id_Created_By",
+          "type": "bigint",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "User_Id_Raised_By",
+          "type": "bigint",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "User_Id_Owner",
+          "type": "bigint",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "User_Id_Ack_By",
+          "type": "bigint",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Acknowledgement_Date",
+          "type": "datetime",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "User_Id_Approved_By",
+          "type": "bigint",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Approved_Date",
+          "type": "datetime",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "User_ID_ClosedBy",
+          "type": "bigint",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Closed_Date",
+          "type": "datetime",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "User_ID_CancelledBy",
+          "type": "bigint",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Cancelled_Date",
+          "type": "datetime",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Promoted_WO_ID",
+          "type": "bigint",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Promoted_Date",
+          "type": "datetime",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "User_Id_Promoted_By",
+          "type": "bigint",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Notes",
+          "type": "nvarchar(max)",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "User_Id_Last_Save",
+          "type": "bigint",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Last_Save_Date",
+          "type": "datetime",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        }
+      ],
+      "pk": {
+        "name": "PK__Action_H__A1196392C97A2CD4",
+        "cols": [
+          "Action_ID"
+        ]
+      },
+      "uniques": [
+        {
+          "name": "UQ_Action_Header_ShortId",
+          "cols": [
+            "Short_Action_Id"
+          ]
+        }
+      ],
+      "indexes": [
+        {
+          "name": "IX_Action_Header_Status_Entry",
+          "unique": false,
+          "cols": [
+            "Status",
+            "Entry_Date"
+          ],
+          "include": []
+        },
+        {
+          "name": "IX_Action_Header_Asset",
+          "unique": false,
+          "cols": [
+            "Asset_ID"
+          ],
+          "include": []
+        },
+        {
+          "name": "IX_Action_Header_Promoted",
+          "unique": false,
+          "cols": [
+            "Promoted_WO_ID"
+          ],
+          "include": []
+        },
+        {
+          "name": "IX_Action_Header_RaisedBy",
+          "unique": false,
+          "cols": [
+            "User_Id_Raised_By"
+          ],
+          "include": []
+        },
+        {
+          "name": "IX_Action_Header_Owner",
+          "unique": false,
+          "cols": [
+            "User_Id_Owner"
+          ],
+          "include": []
+        }
+      ],
+      "skipped_indexes": [],
+      "fks": [],
+      "checks": [
+        {
+          "name": "CK_Action_Header_Status",
+          "definition": "Status='G' OR Status='D' OR Status='C' OR Status='V' OR Status='A' OR Status='K' OR Status='P' OR Status='H' OR Status='R'"
+        },
+        {
+          "name": "CK_Action_Progress",
+          "definition": "Progress_ID>=(1) AND Progress_ID<=(6)"
+        }
+      ]
+    },
+    {
+      "name": "Action_Event",
+      "columns": [
+        {
+          "name": "Event_ID",
+          "type": "bigint",
+          "nullable": false,
+          "identity": true,
+          "default": null
+        },
+        {
+          "name": "Action_ID",
+          "type": "bigint",
+          "nullable": false,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Event_Date",
+          "type": "datetime",
+          "nullable": false,
+          "identity": false,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        {
+          "name": "Event_Type",
+          "type": "varchar(30)",
+          "nullable": false,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Field_Name",
+          "type": "varchar(50)",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Old_Value",
+          "type": "nvarchar(255)",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "New_Value",
+          "type": "nvarchar(255)",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "User_Id",
+          "type": "bigint",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "User_Id_Acting_For",
+          "type": "bigint",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Comment",
+          "type": "nvarchar(max)",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        }
+      ],
+      "pk": {
+        "name": "PK__Action_E__FD6BEFE43AD877DF",
+        "cols": [
+          "Event_ID"
+        ]
+      },
+      "uniques": [],
+      "indexes": [
+        {
+          "name": "IX_Action_Event_Action_Date",
+          "unique": false,
+          "cols": [
+            "Action_ID",
+            "Event_Date"
+          ],
+          "include": [
+            "Event_Type",
+            "Field_Name",
+            "Old_Value",
+            "New_Value",
+            "User_Id",
+            "User_Id_Acting_For",
+            "Comment"
+          ]
+        }
+      ],
+      "skipped_indexes": [],
+      "fks": [
+        {
+          "name": "FK_Action_Event_Action",
+          "cols": [
+            "Action_ID"
+          ],
+          "ref_table": "Action_Header",
+          "ref_cols": [
+            "Action_ID"
+          ]
+        }
+      ],
+      "checks": []
+    },
+    {
+      "name": "Account_WorkCode",
+      "columns": [
+        {
+          "name": "Sys_Account_WorkCode_Id",
+          "type": "numeric(18,0)",
+          "nullable": false,
+          "identity": true,
+          "default": null
+        },
+        {
+          "name": "Account_ID",
+          "type": "numeric(18,0)",
+          "nullable": false,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "WorkCode_ID",
+          "type": "numeric(18,0)",
+          "nullable": false,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Default_WorkCode_ID",
+          "type": "char(1)",
+          "nullable": false,
+          "identity": false,
+          "default": "'F'"
+        }
+      ],
+      "pk": {
+        "name": "PK_Account_WorkCode",
+        "cols": [
+          "Sys_Account_WorkCode_Id"
+        ]
+      },
+      "uniques": [],
+      "indexes": [
+        {
+          "name": "UX_Account_WorkCode_Pair",
+          "unique": true,
+          "cols": [
+            "Account_ID",
+            "WorkCode_ID"
+          ],
+          "include": []
+        }
+      ],
+      "skipped_indexes": [],
+      "fks": [
+        {
+          "name": "FK_Account_WorkCode_Account",
+          "cols": [
+            "Account_ID"
+          ],
+          "ref_table": "Account",
+          "ref_cols": [
+            "Account_ID"
+          ]
+        },
+        {
+          "name": "FK_Account_WorkCode_WorkCode",
+          "cols": [
+            "WorkCode_ID"
+          ],
+          "ref_table": "Work_Code",
+          "ref_cols": [
+            "Work_Code_Id"
+          ]
+        }
+      ],
+      "checks": []
+    },
+    {
+      "name": "External_Contractor",
+      "columns": [
+        {
+          "name": "Sys_External_Contractor_Id",
+          "type": "numeric(18,0)",
+          "nullable": false,
+          "identity": true,
+          "default": null
+        },
+        {
+          "name": "External_Contractor_ID",
+          "type": "numeric(18,0)",
+          "nullable": false,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Short_External_Contractor_Id",
+          "type": "char(20)",
+          "nullable": false,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Contractor_Name",
+          "type": "char(40)",
+          "nullable": false,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Company_Name",
+          "type": "char(35)",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Contractor_Type",
+          "type": "char(1)",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Linked_Supplier_ID",
+          "type": "numeric(18,0)",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Phone",
+          "type": "varchar(20)",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Email",
+          "type": "varchar(100)",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Area",
+          "type": "varchar(20)",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Active",
+          "type": "char(1)",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Notes",
+          "type": "varchar(1000)",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Entry_Date",
+          "type": "datetime",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "User_id_Created_By",
+          "type": "numeric(18,0)",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Server_Name",
+          "type": "varchar(50)",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        }
+      ],
+      "pk": {
+        "name": "PK_External_Contractor",
+        "cols": [
+          "External_Contractor_ID"
+        ]
+      },
+      "uniques": [],
+      "indexes": [
+        {
+          "name": "UX_External_Contractor_ShortId",
+          "unique": true,
+          "cols": [
+            "Short_External_Contractor_Id"
+          ],
+          "include": []
+        }
+      ],
+      "skipped_indexes": [],
+      "fks": [
+        {
+          "name": "FK_External_Contractor_Supplier",
+          "cols": [
+            "Linked_Supplier_ID"
+          ],
+          "ref_table": "Supplier",
+          "ref_cols": [
+            "Supplier_ID"
+          ]
+        }
+      ],
+      "checks": []
+    },
+    {
+      "name": "WO_N_Plan",
+      "columns": [
+        {
+          "name": "WO_ID",
+          "type": "numeric(18,0)",
+          "nullable": false,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Pinned",
+          "type": "char(1)",
+          "nullable": false,
+          "identity": false,
+          "default": "'N'"
+        },
+        {
+          "name": "Pinned_By",
+          "type": "numeric(18,0)",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Pinned_On",
+          "type": "datetime",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Prev_Start",
+          "type": "datetime",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Note",
+          "type": "varchar(255)",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Server_Name",
+          "type": "varchar(50)",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Entry_Date",
+          "type": "datetime",
+          "nullable": false,
+          "identity": false,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        {
+          "name": "Last_Save_Date",
+          "type": "datetime",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        }
+      ],
+      "pk": {
+        "name": "PK_WO_N_Plan",
+        "cols": [
+          "WO_ID"
+        ]
+      },
+      "uniques": [],
+      "indexes": [],
+      "skipped_indexes": [],
+      "fks": [],
+      "checks": []
+    },
+    {
+      "name": "Diag_Log",
+      "columns": [
+        {
+          "name": "Diag_Id",
+          "type": "int",
+          "nullable": false,
+          "identity": true,
+          "default": null
+        },
+        {
+          "name": "Logged_At",
+          "type": "datetime2(3)",
+          "nullable": false,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Session_Id",
+          "type": "varchar(64)",
+          "nullable": false,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Wm_User_Id",
+          "type": "int",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Site_Code",
+          "type": "varchar(8)",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Source",
+          "type": "varchar(64)",
+          "nullable": false,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Tier",
+          "type": "char(1)",
+          "nullable": false,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Msg_Level",
+          "type": "varchar(8)",
+          "nullable": false,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Message",
+          "type": "nvarchar(1000)",
+          "nullable": false,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Detail",
+          "type": "nvarchar(max)",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        }
+      ],
+      "pk": {
+        "name": "PK_Diag_Log",
+        "cols": [
+          "Diag_Id"
+        ]
+      },
+      "uniques": [],
+      "indexes": [
+        {
+          "name": "IX_Diag_Log_LoggedAt",
+          "unique": false,
+          "cols": [
+            "Logged_At"
+          ],
+          "include": [
+            "Wm_User_Id",
+            "Source",
+            "Tier"
+          ]
+        },
+        {
+          "name": "IX_Diag_Log_User_LoggedAt",
+          "unique": false,
+          "cols": [
+            "Wm_User_Id",
+            "Logged_At"
+          ],
+          "include": []
+        }
+      ],
+      "skipped_indexes": [],
+      "fks": [],
+      "checks": []
+    },
+    {
+      "name": "Module_Settings",
+      "columns": [
+        {
+          "name": "Module_Code",
+          "type": "varchar(30)",
+          "nullable": false,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Is_Enabled",
+          "type": "char(1)",
+          "nullable": false,
+          "identity": false,
+          "default": "'N'"
+        },
+        {
+          "name": "Notes",
+          "type": "varchar(255)",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Updated_Date",
+          "type": "datetime",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Updated_By",
+          "type": "varchar(30)",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Run_Token",
+          "type": "varchar(64)",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Run_Started",
+          "type": "datetime",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Run_Host",
+          "type": "varchar(80)",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        }
+      ],
+      "pk": {
+        "name": "PK_Module_Settings",
+        "cols": [
+          "Module_Code"
+        ]
+      },
+      "uniques": [],
+      "indexes": [],
+      "skipped_indexes": [],
+      "fks": [],
+      "checks": []
+    },
+    {
+      "name": "Diag_NightShift",
+      "columns": [
+        {
+          "name": "Sys_Id",
+          "type": "int",
+          "nullable": false,
+          "identity": true,
+          "default": null
+        },
+        {
+          "name": "Run_Id",
+          "type": "int",
+          "nullable": false,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Run_Started",
+          "type": "datetime",
+          "nullable": false,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Run_Mode",
+          "type": "varchar(20)",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Pack",
+          "type": "varchar(60)",
+          "nullable": false,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Test_Name",
+          "type": "varchar(120)",
+          "nullable": false,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Ok",
+          "type": "int",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Detail",
+          "type": "varchar(2000)",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Duration_ms",
+          "type": "int",
+          "nullable": false,
+          "identity": false,
+          "default": "0"
+        },
+        {
+          "name": "Cleanup_Ok",
+          "type": "int",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Lib_Version",
+          "type": "varchar(20)",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        }
+      ],
+      "pk": {
+        "name": "PK_Diag_NightShift",
+        "cols": [
+          "Sys_Id"
+        ]
+      },
+      "uniques": [],
+      "indexes": [
+        {
+          "name": "IX_Diag_NightShift_Run",
+          "unique": false,
+          "cols": [
+            "Run_Id",
+            "Pack"
+          ],
+          "include": []
+        }
+      ],
+      "skipped_indexes": [],
+      "fks": [],
+      "checks": []
+    },
+    {
+      "name": "Diag_PM_Engine_Run",
+      "columns": [
+        {
+          "name": "Run_Id",
+          "type": "int",
+          "nullable": false,
+          "identity": true,
+          "default": null
+        },
+        {
+          "name": "Run_Started",
+          "type": "datetime",
+          "nullable": false,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Run_Ended",
+          "type": "datetime",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Actor",
+          "type": "varchar(60)",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Host",
+          "type": "varchar(80)",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Masters",
+          "type": "int",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Released",
+          "type": "int",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Updated",
+          "type": "int",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Failed",
+          "type": "int",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Verdict",
+          "type": "varchar(24)",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Detail",
+          "type": "varchar(500)",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Lib_Version",
+          "type": "varchar(20)",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        }
+      ],
+      "pk": {
+        "name": "PK_Diag_PM_Engine_Run",
+        "cols": [
+          "Run_Id"
+        ]
+      },
+      "uniques": [],
+      "indexes": [
+        {
+          "name": "IX_Diag_PM_Engine_Run_Started",
+          "unique": false,
+          "cols": [
+            "Run_Started"
+          ],
+          "include": []
+        }
+      ],
+      "skipped_indexes": [],
+      "fks": [],
+      "checks": []
+    },
+    {
+      "name": "Home_View",
+      "columns": [
+        {
+          "name": "Home_View_Id",
+          "type": "int",
+          "nullable": false,
+          "identity": true,
+          "default": null
+        },
+        {
+          "name": "User_ID",
+          "type": "numeric(18,0)",
+          "nullable": false,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "View_Title",
+          "type": "nvarchar(60)",
+          "nullable": false,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Domain_Code",
+          "type": "char(1)",
+          "nullable": false,
+          "identity": false,
+          "default": "'W'"
+        },
+        {
+          "name": "Criteria_Json",
+          "type": "nvarchar(max)",
+          "nullable": false,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Sort_Order",
+          "type": "int",
+          "nullable": false,
+          "identity": false,
+          "default": "0"
+        },
+        {
+          "name": "Active",
+          "type": "char(1)",
+          "nullable": false,
+          "identity": false,
+          "default": "'Y'"
+        },
+        {
+          "name": "Crt_Date",
+          "type": "datetime",
+          "nullable": false,
+          "identity": false,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        {
+          "name": "Upd_Date",
+          "type": "datetime",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        }
+      ],
+      "pk": {
+        "name": "PK_Home_View",
+        "cols": [
+          "Home_View_Id"
+        ]
+      },
+      "uniques": [],
+      "indexes": [
+        {
+          "name": "IX_Home_View_User",
+          "unique": false,
+          "cols": [
+            "User_ID",
+            "Active",
+            "Sort_Order"
+          ],
+          "include": []
+        }
+      ],
+      "skipped_indexes": [],
+      "fks": [],
+      "checks": [
+        {
+          "name": "CK_Home_View_Domain",
+          "definition": "Domain_Code='P' OR Domain_Code='W'"
+        }
+      ]
+    },
+    {
+      "name": "Email_Automation",
+      "columns": [
+        {
+          "name": "Email_Automation_Id",
+          "type": "int",
+          "nullable": false,
+          "identity": true,
+          "default": null
+        },
+        {
+          "name": "Email_Key",
+          "type": "varchar(50)",
+          "nullable": false,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Email_Title",
+          "type": "varchar(100)",
+          "nullable": false,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Schedule_Text",
+          "type": "varchar(100)",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Is_Enabled",
+          "type": "char(1)",
+          "nullable": false,
+          "identity": false,
+          "default": "'Y'"
+        },
+        {
+          "name": "Last_Sent",
+          "type": "datetime",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Last_Recipient_Count",
+          "type": "int",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Sort_Order",
+          "type": "int",
+          "nullable": false,
+          "identity": false,
+          "default": "0"
+        }
+      ],
+      "pk": {
+        "name": "PK__Email_Au__7BC6D8B2EDD27755",
+        "cols": [
+          "Email_Automation_Id"
+        ]
+      },
+      "uniques": [
+        {
+          "name": "UQ_Email_Automation_Key",
+          "cols": [
+            "Email_Key"
+          ]
+        }
+      ],
+      "indexes": [],
+      "skipped_indexes": [],
+      "fks": [],
+      "checks": []
+    },
+    {
+      "name": "PO_Email_Log",
+      "columns": [
+        {
+          "name": "Log_Id",
+          "type": "numeric(18,0)",
+          "nullable": false,
+          "identity": true,
+          "default": null
+        },
+        {
+          "name": "PO_Id",
+          "type": "numeric(18,0)",
+          "nullable": false,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Sent_Date",
+          "type": "datetime",
+          "nullable": false,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Sent_To_Email",
+          "type": "varchar(255)",
+          "nullable": false,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Sent_To_Name",
+          "type": "varchar(100)",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Source",
+          "type": "char(1)",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Sent_By_User",
+          "type": "numeric(18,0)",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Batch_Title",
+          "type": "varchar(255)",
+          "nullable": true,
+          "identity": false,
+          "default": null
+        },
+        {
+          "name": "Is_Urgent",
+          "type": "char(1)",
+          "nullable": false,
+          "identity": false,
+          "default": "'N'"
+        }
+      ],
+      "pk": {
+        "name": "PK_PO_Email_Log",
+        "cols": [
+          "Log_Id"
+        ]
+      },
+      "uniques": [],
+      "indexes": [
+        {
+          "name": "IX_PO_Email_Log_PO_Id",
+          "unique": false,
+          "cols": [
+            "PO_Id",
+            "Sent_Date"
+          ],
+          "include": []
+        },
+        {
+          "name": "IX_PO_Email_Log_SentDate",
+          "unique": false,
+          "cols": [
+            "Sent_Date"
+          ],
+          "include": []
+        }
+      ],
+      "skipped_indexes": [
+        "IX_PO_Email_Log_PO"
+      ],
+      "fks": [],
+      "checks": []
+    }
+  ],
+  "columns": [
+    {
+      "table": "WO_N_Header",
+      "name": "Source_Action_ID",
+      "type": "bigint",
+      "nullable": true,
+      "default": null
+    },
+    {
+      "table": "WO_C_header",
+      "name": "Source_Action_ID",
+      "type": "bigint",
+      "nullable": true,
+      "default": null
+    },
+    {
+      "table": "Supplier",
+      "name": "Email_2",
+      "type": "varchar(255)",
+      "nullable": true,
+      "default": null
+    },
+    {
+      "table": "Supplier",
+      "name": "Email_3",
+      "type": "varchar(255)",
+      "nullable": true,
+      "default": null
+    },
+    {
+      "table": "PO_Details",
+      "name": "Invoice_Ref",
+      "type": "varchar(30)",
+      "nullable": true,
+      "default": null
+    },
+    {
+      "table": "WO_Attachment",
+      "name": "Creation_Date",
+      "type": "datetime",
+      "nullable": true,
+      "default": null
+    },
+    {
+      "table": "WO_Attachment",
+      "name": "User_id_Created_By",
+      "type": "numeric(18,0)",
+      "nullable": true,
+      "default": null
+    },
+    {
+      "table": "WO_M_Attachment",
+      "name": "Creation_Date",
+      "type": "datetime",
+      "nullable": true,
+      "default": null
+    },
+    {
+      "table": "WO_M_Attachment",
+      "name": "User_id_Created_By",
+      "type": "numeric(18,0)",
+      "nullable": true,
+      "default": null
+    },
+    {
+      "table": "PO_Attachment",
+      "name": "Creation_Date",
+      "type": "datetime",
+      "nullable": true,
+      "default": null
+    },
+    {
+      "table": "PO_Attachment",
+      "name": "User_id_Created_By",
+      "type": "numeric(18,0)",
+      "nullable": true,
+      "default": null
+    },
+    {
+      "table": "Part_Attachment",
+      "name": "Creation_Date",
+      "type": "datetime",
+      "nullable": true,
+      "default": null
+    },
+    {
+      "table": "Part_Attachment",
+      "name": "User_id_Created_By",
+      "type": "numeric(18,0)",
+      "nullable": true,
+      "default": null
+    },
+    {
+      "table": "Location_Attachment",
+      "name": "Creation_Date",
+      "type": "datetime",
+      "nullable": true,
+      "default": null
+    },
+    {
+      "table": "Location_Attachment",
+      "name": "User_id_Created_By",
+      "type": "numeric(18,0)",
+      "nullable": true,
+      "default": null
+    }
+  ],
+  "skip_indexes": [
+    "IX_PO_Email_Log_PO"
+  ]
+}

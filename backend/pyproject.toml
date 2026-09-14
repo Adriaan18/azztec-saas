@@ -1,6 +1,9 @@
-# Azztec_SaaS_pyproject_v1_0_0.toml  →  backend/pyproject.toml
-# Version: 1.0.0 · 2026-09-10 · Adriaan · pins verified against PyPI/vendor pages on 2026-09-10
-# Changelog: 1.0.0 initial.
+# Azztec_SaaS_pyproject_v1_0_1.toml  →  backend/pyproject.toml
+# Version: 1.0.1 · 2026-09-14 · Adriaan · pins verified against PyPI/vendor pages on 2026-09-10
+# Changelog: 1.0.1 S1j - ruff isort: `alembic` is third-party. backend/alembic/ (the migrations dir) makes
+#            ruff classify the package as first-party (I001 on env.py); Python itself resolves the real
+#            package (a regular package beats a namespace dir). No pin changed.
+#            1.0.0 initial.
 
 [project]
 name = "workmate-saas"
@@ -42,6 +45,9 @@ extend-exclude = ["alembic/versions"]
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "SIM"]
 ignore = ["E501"]
+
+[tool.ruff.lint.isort]
+known-third-party = ["alembic"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

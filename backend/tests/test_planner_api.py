@@ -1,9 +1,10 @@
 """
-Azztec_SaaS_test_planner_api_v1_1_0.py  ->  backend/tests/test_planner_api.py
-Version:  1.1.0
+Azztec_SaaS_test_planner_api_v1_2_0.py  ->  backend/tests/test_planner_api.py
+Version:  1.2.0
 Author:   Adriaan
 Spec:     Azztec_SaaS_S1c_Api_Chunk_Spec_v1_0_0.md §7 · Azztec_SaaS_S1h_Priority_Initials_Chunk_Spec_v1_0_0.md §5.2
-          Pair of router.py 1.1.0 + service.py 1.0.1 + schemas.py 1.1.0 + deps.py 1.0.0 + main.py 0.3.0.
+          · Azztec_SaaS_S1j_KT_Uplift_Chunk_Spec_v1_0_0.md §3.4
+          Pair of router.py 1.1.1 + service.py 1.0.1 + schemas.py 1.1.0 + deps.py 1.0.0 + main.py 0.4.0.
 
 TestClient over the real app, DB dependency overridden with one RST connection inside a transaction that is
 rolled back (D-10), actor dependency overridden (OD-12). Standing window 2026-09-14..2026-09-20 (Raw Log
@@ -11,9 +12,16 @@ rolled back (D-10), actor dependency overridden (OD-12). Standing window 2026-09
 
 Twenty tests from spec §7 plus one for the [F] line (§9 acceptance), plus five from S1h §5.2 (priority colour). Env trap: WORKMATE_ENV=test under
 pytest and get_settings() is lru_cached, so the un-overridden actor is a 401 by design (§7.4 #19).
-Trip-wire: #12 asserts pinTable is False (OD-1) and flips when S3 migration 0002 lands.
+Assumes dbWorkmate after migration 0001 (S1j): #12 asserts pinTable is True with the pin table EMPTY - OD-1 in
+its intended end state. Before 0001 it is red on purpose; after S2 pins a row the "every row unpinned" half
+moves (S2 owns that edit).
 
 Changelog:
+  1.2.0  S1j (OD-44). The OD-1 trip-wire flipped deliberately: test_range_pin_table_false_on_rst
+         -> test_range_pin_table_true_after_0001. pinTable is True on RST once WO_N_Plan exists;
+         with the table empty every row is still unpinned, and every engine-owned PM now reads
+         locked False / movable True unless its status is C or D (repo._wo_dict, rules._LOCKED_STATUSES).
+         Header: router.py 1.1.1, main.py 0.4.0. Nothing else changed - still zero skips.
   1.1.0  S1h. Five priority-colour tests (item 29 / OD-36); apiVersion and
          libVersion assertions needed no edit, they read the module constants
          (OD-37). Deliberately NO assertion on the number of priority rows, and
@@ -184,10 +192,17 @@ def test_range_by_wo_index_matches_full_scan(body: dict) -> None:
         assert wo["assigned"] == rules.assignedFor(wo, full), wo["id"]
 
 
-def test_range_pin_table_false_on_rst(body: dict) -> None:
-    """OD-1 ground truth. Trip-wire: flips to True when S3 migration 0002 lands - update then."""
-    assert body["pinTable"] is False
+def test_range_pin_table_true_after_0001(body: dict) -> None:
+    """OD-1's end state (OD-44). Assumes dbWorkmate after migration 0001 with WO_N_Plan EMPTY: the table
+    exists, so pinTable is True and engine-owned PMs are movable-with-pin; nothing has pinned yet, so
+    every row is still unpinned. Red before 0001 by design. S2 edits the second half when it pins."""
+    assert body["pinTable"] is True, "WO_N_Plan missing: alembic upgrade head has not run"
     assert all(w["pinned"] is False and w["engineDate"] == "" and w["pinnedOn"] == "" for w in body["wos"])
+    pms = [w for w in body["wos"] if w["engineOwned"]]
+    assert pms, "standing window carries engine-owned PMs (Raw Log 2026-09-11 §5)"
+    for w in pms:
+        assert w["locked"] is False, w["id"]
+        assert w["movable"] is (w["status"] not in rules._LOCKED_STATUSES), w["id"]
 
 
 # ---------------------------------------------------------------------------
