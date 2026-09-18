@@ -1,6 +1,6 @@
 """
-Azztec_SaaS_test_kt_uplift_v1_0_1.py  ->  backend/tests/test_kt_uplift.py
-Version:  1.0.1
+Azztec_SaaS_test_kt_uplift_v1_0_2.py  ->  backend/tests/test_kt_uplift.py
+Version:  1.0.2
 Author:   Adriaan
 Spec:     Azztec_SaaS_S1j_KT_Uplift_Chunk_Spec_v1_0_0.md §5
 Pair of:  scripts/kt_uplift_ddl.py 1.0.1 (+ the generated 0001_kt_parity_additive.py / kt_uplift_manifest_0001.json)
@@ -21,6 +21,11 @@ Three halves:
 Fifteen tests, none parametrised, so the file's own `def test_` count is the number the run must show.
 
 Changelog:
+  1.0.2  D1a (2026-09-19). Diag_Log is the table the app WRITES BY DESIGN from D1a on, so the Marker Law
+         case excludes it by name (WRITTEN_BY_DESIGN) and asserts the others are still empty. The first
+         four rows on RST were written by the S1k dev server, which watchfiles reloaded onto the D1a
+         code mid-drop - the feature working, not a test writing. WO_N_Plan joins the set when S2b
+         ships the first move; Diag_NightShift when the night shift port does. Fifteen tests still.
   1.0.1  Pair of generator 1.0.1: system-named constraints render unnamed, numeric identity is bigint
          on PG - one test each. SIM300 on the SKIP_INDEXES assertion (ruff reads the name as a constant).
   1.0.0  Initial. S1j.
@@ -41,6 +46,9 @@ import pytest
 os.environ.setdefault("WORKMATE_ENV", "test")
 
 from app.core import db  # noqa: E402 - after env is set
+
+# Tables the product fills on purpose. Add one here in the slice that starts writing it, never before.
+WRITTEN_BY_DESIGN = {"Diag_Log"}  # D1a, OD-55
 from app.planner import repo  # noqa: E402
 from app.planner import sql as psql  # noqa: E402
 
@@ -363,9 +371,14 @@ def test_rst_carries_the_twelve_tables_and_fifteen_columns(conn):
 
 
 def test_marker_law_every_crossed_table_is_empty(conn):
-    """Nothing wrote data. Assumes RST after 0001 and before S2 has ever pinned anything."""
+    """Nothing wrote data - except the tables the product writes by design (WRITTEN_BY_DESIGN), which
+    only prove they exist. Assumes RST after 0001 and before S2b has ever pinned anything."""
     for t in gen.TABLES:
-        assert db.scalar(conn, f"SELECT COUNT(*) AS n FROM dbo.{t}") == 0, t
+        n = db.scalar(conn, f"SELECT COUNT(*) AS n FROM dbo.{t}")
+        if t in WRITTEN_BY_DESIGN:
+            assert n is not None, t
+            continue
+        assert n == 0, t
 
 
 def test_pinned_variant_executes_and_agrees_with_nopin(conn):

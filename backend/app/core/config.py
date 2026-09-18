@@ -1,9 +1,9 @@
 """
-Azztec_SaaS_app_core_config_v1_1_0.py  ->  backend/app/core/config.py
-Version:  1.1.0
+Azztec_SaaS_app_core_config_v1_2_0.py  ->  backend/app/core/config.py
+Version:  1.2.0
 Author:   Adriaan
 Spec:     Azztec_SaaS_Architecture_and_Stack_v1_0_0.md (D-11), Azztec_SaaS_Data_Layer_and_RST_DB_v1_0_0.md §3
-          Azztec_SaaS_S1d_Diag_Chunk_Spec_v1_0_0.md §4
+          Azztec_SaaS_S1d_Diag_Chunk_Spec_v1_0_0.md §4, Azztec_SaaS_D1a_Persist_Chunk_Spec_v1_0_0.md §3.5
 
 Settings from environment / backend/.env (prefix WORKMATE_). One place, typed, cached.
 
@@ -12,6 +12,9 @@ a .env change - restart the server. And .env edits do not reliably reach disk fr
 heredoc; verify with Select-String before blaming code.
 
 Changelog:
+  1.2.0  D1a: diag_persist (WORKMATE_DIAG_PERSIST) decides whether main.py hands diag.py the INSERT, and
+         diag_purge (WORKMATE_DIAG_PURGE) whether this process runs the nightly purge - false on every
+         worker but one, or the same rows are chased by several processes (OD-57, OD-60).
   1.1.0  log_level (WORKMATE_LOG_LEVEL, default INFO) - the threshold diag.configure() applies to the
          'workmate.diag' logger. S1d.
   1.0.0  Initial.
@@ -23,7 +26,7 @@ from functools import lru_cache
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-__version__ = "1.1.0"
+__version__ = "1.2.0"
 
 
 class Settings(BaseSettings):
@@ -39,6 +42,8 @@ class Settings(BaseSettings):
 
     # diagnostics — threshold for the 'workmate.diag' logger; [F]/[G] are INFO, [E] is ERROR
     log_level: str = "INFO"
+    diag_persist: bool = True  # False -> stdout only, exactly as every slice before D1a
+    diag_purge: bool = True  # one process only; the others must set this false
 
     # database — kind selects the dialect; url (postgresql or a full mssql+pyodbc url) overrides the parts
     db_kind: str = "mssql"  # mssql | postgresql
