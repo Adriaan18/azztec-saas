@@ -1,0 +1,1112 @@
+{
+  "custom": {
+    "activePage": "partsetup"
+  },
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 900,
+      "width": 50
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "Icon"
+                },
+                "position": {
+                  "basis": 19
+                },
+                "props": {
+                  "color": "#DEBF7A",
+                  "path": "material/dashboard",
+                  "style": {
+                    "fontSize": 21,
+                    "marginBottom": "4px"
+                  }
+                },
+                "type": "ia.display.icon"
+              },
+              {
+                "meta": {
+                  "name": "Label"
+                },
+                "props": {
+                  "style": {
+                    "color": "#F3EEE7",
+                    "fontSize": "7px",
+                    "textAlign": "center"
+                  },
+                  "text": "Home"
+                },
+                "type": "ia.display.label"
+              }
+            ],
+            "events": {
+              "dom": {
+                "onClick": {
+                  "config": {
+                    "script": "\tsystem.perspective.sendMessage(\u0027nav-active\u0027, {\u0027page\u0027: \u0027home\u0027}, scope\u003d\u0027session\u0027)\n\tsystem.perspective.navigate(\u0027/home\u0027)"
+                  },
+                  "scope": "G",
+                  "type": "script"
+                }
+              }
+            },
+            "meta": {
+              "name": "MenuItem_Home"
+            },
+            "propConfig": {
+              "props.style.borderLeft": {
+                "binding": {
+                  "config": {
+                    "expression": "if({session.custom.activePage} \u003d \u0027home\u0027, \u00274px solid #E91E63\u0027, \u00274px solid transparent\u0027)"
+                  },
+                  "type": "expr"
+                }
+              }
+            },
+            "props": {
+              "alignItems": "center",
+              "direction": "column",
+              "justifyContent": "center",
+              "style": {
+                "cursor": "pointer",
+                "minHeight": "50px",
+                "paddingBottom": "6px",
+                "paddingTop": "6px"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "meta": {
+              "name": "Divider1"
+            },
+            "props": {
+              "style": {
+                "borderBottom": "1px solid #333333",
+                "marginBottom": "6px",
+                "marginLeft": "10px",
+                "marginRight": "10px",
+                "marginTop": "6px"
+              }
+            },
+            "type": "ia.display.label"
+          },
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "Icon"
+                },
+                "position": {
+                  "basis": 19
+                },
+                "props": {
+                  "color": "#2196F3",
+                  "path": "material/search",
+                  "style": {
+                    "fontSize": 21,
+                    "marginBottom": "4px"
+                  }
+                },
+                "type": "ia.display.icon"
+              },
+              {
+                "meta": {
+                  "name": "Label"
+                },
+                "props": {
+                  "style": {
+                    "color": "#F3EEE7",
+                    "fontSize": "7px",
+                    "textAlign": "center"
+                  },
+                  "text": "Explorer"
+                },
+                "type": "ia.display.label"
+              }
+            ],
+            "events": {
+              "dom": {
+                "onClick": {
+                  "config": {
+                    "script": "\tsystem.perspective.sendMessage(\u0027nav-active\u0027, {\u0027page\u0027: \u0027explorer\u0027}, scope\u003d\u0027session\u0027)\n\tsystem.perspective.navigate(\u0027/Explorer\u0027)"
+                  },
+                  "scope": "G",
+                  "type": "script"
+                }
+              }
+            },
+            "meta": {
+              "name": "MenuItem_Explorer"
+            },
+            "propConfig": {
+              "props.style.borderLeft": {
+                "binding": {
+                  "config": {
+                    "expression": "if({session.custom.activePage} \u003d \u0027explorer\u0027, \u00274px solid #E91E63\u0027, \u00274px solid transparent\u0027)"
+                  },
+                  "type": "expr"
+                }
+              }
+            },
+            "props": {
+              "alignItems": "center",
+              "direction": "column",
+              "justifyContent": "center",
+              "style": {
+                "cursor": "pointer",
+                "minHeight": "50px",
+                "paddingBottom": "6px",
+                "paddingTop": "6px"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "Icon"
+                },
+                "position": {
+                  "basis": 19
+                },
+                "props": {
+                  "color": "#FF9800",
+                  "path": "material/construction",
+                  "style": {
+                    "fontSize": 21,
+                    "marginBottom": "4px"
+                  }
+                },
+                "type": "ia.display.icon"
+              },
+              {
+                "meta": {
+                  "name": "Label"
+                },
+                "props": {
+                  "style": {
+                    "color": "#F3EEE7",
+                    "fontSize": "7px",
+                    "textAlign": "center"
+                  },
+                  "text": "Assets"
+                },
+                "type": "ia.display.label"
+              }
+            ],
+            "events": {
+              "dom": {
+                "onClick": {
+                  "config": {
+                    "script": "\tsystem.perspective.sendMessage(\u0027nav-active\u0027, {\u0027page\u0027: \u0027assets\u0027}, scope\u003d\u0027session\u0027)\n\tsystem.perspective.navigate(\u0027/assetsetup\u0027)"
+                  },
+                  "scope": "G",
+                  "type": "script"
+                }
+              }
+            },
+            "meta": {
+              "name": "MenuItem_Assets"
+            },
+            "propConfig": {
+              "props.style.borderLeft": {
+                "binding": {
+                  "config": {
+                    "expression": "if({session.custom.activePage} \u003d \u0027assets\u0027, \u00274px solid #E91E63\u0027, \u00274px solid transparent\u0027)"
+                  },
+                  "type": "expr"
+                }
+              }
+            },
+            "props": {
+              "alignItems": "center",
+              "direction": "column",
+              "justifyContent": "center",
+              "style": {
+                "cursor": "pointer",
+                "minHeight": "50px",
+                "paddingBottom": "6px",
+                "paddingTop": "6px"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "Icon"
+                },
+                "position": {
+                  "basis": 19
+                },
+                "props": {
+                  "color": "#FF9800",
+                  "path": "material/engineering",
+                  "style": {
+                    "fontSize": 21,
+                    "marginBottom": "4px"
+                  }
+                },
+                "type": "ia.display.icon"
+              },
+              {
+                "meta": {
+                  "name": "Label"
+                },
+                "props": {
+                  "style": {
+                    "color": "#F3EEE7",
+                    "fontSize": "7px",
+                    "textAlign": "center"
+                  },
+                  "text": "Labour"
+                },
+                "type": "ia.display.label"
+              }
+            ],
+            "events": {
+              "dom": {
+                "onClick": {
+                  "config": {
+                    "script": ""
+                  },
+                  "scope": "G",
+                  "type": "script"
+                }
+              }
+            },
+            "meta": {
+              "name": "MenuItem_Labour"
+            },
+            "propConfig": {
+              "props.style.borderLeft": {
+                "binding": {
+                  "config": {
+                    "expression": "if({session.custom.activePage} \u003d \u0027labour\u0027, \u00274px solid #E91E63\u0027, \u00274px solid transparent\u0027)"
+                  },
+                  "type": "expr"
+                }
+              }
+            },
+            "props": {
+              "alignItems": "center",
+              "direction": "column",
+              "justifyContent": "center",
+              "style": {
+                "cursor": "pointer",
+                "minHeight": "50px",
+                "paddingBottom": "6px",
+                "paddingTop": "6px"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "Icon"
+                },
+                "position": {
+                  "basis": 19
+                },
+                "props": {
+                  "color": "#E91E63",
+                  "path": "material/assignment",
+                  "style": {
+                    "fontSize": 21,
+                    "marginBottom": "4px"
+                  }
+                },
+                "type": "ia.display.icon"
+              },
+              {
+                "meta": {
+                  "name": "Label"
+                },
+                "props": {
+                  "style": {
+                    "color": "#F3EEE7",
+                    "fontSize": "7px",
+                    "textAlign": "center"
+                  },
+                  "text": "WO Maint"
+                },
+                "type": "ia.display.label"
+              }
+            ],
+            "events": {
+              "dom": {
+                "onClick": {
+                  "config": {
+                    "script": "\tsystem.perspective.sendMessage(\u0027nav-active\u0027, {\u0027page\u0027: \u0027womaint\u0027}, scope\u003d\u0027session\u0027)\n\tsystem.perspective.navigate(\u0027/WOMaint\u0027)"
+                  },
+                  "scope": "G",
+                  "type": "script"
+                }
+              }
+            },
+            "meta": {
+              "name": "MenuItem_WOMaint"
+            },
+            "propConfig": {
+              "props.style.borderLeft": {
+                "binding": {
+                  "config": {
+                    "expression": "if({session.custom.activePage} \u003d \u0027womaint\u0027, \u00274px solid #E91E63\u0027, \u00274px solid transparent\u0027)"
+                  },
+                  "type": "expr"
+                }
+              }
+            },
+            "props": {
+              "alignItems": "center",
+              "direction": "column",
+              "justifyContent": "center",
+              "style": {
+                "cursor": "pointer",
+                "minHeight": "50px",
+                "paddingBottom": "6px",
+                "paddingTop": "6px"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "Icon"
+                },
+                "position": {
+                  "basis": 19
+                },
+                "props": {
+                  "color": "#9C27B0",
+                  "path": "material/flash_on",
+                  "style": {
+                    "fontSize": 21,
+                    "marginBottom": "4px"
+                  }
+                },
+                "type": "ia.display.icon"
+              },
+              {
+                "meta": {
+                  "name": "Label"
+                },
+                "props": {
+                  "style": {
+                    "color": "#F3EEE7",
+                    "fontSize": "7px",
+                    "textAlign": "center"
+                  },
+                  "text": "WO Wizard"
+                },
+                "type": "ia.display.label"
+              }
+            ],
+            "events": {
+              "dom": {
+                "onClick": {
+                  "config": {
+                    "script": "\tsystem.perspective.sendMessage(\u0027debug-log\u0027, {\u0027source\u0027: \u0027SideMenu\u0027, \u0027message\u0027: \u0027WO Wizard -\u003e CreateWO_popup\u0027}, scope\u003d\u0027session\u0027)\n\tsystem.perspective.openPopup(\u0027CreateWO_popup\u0027, \u0027Components/Workmate/Popups/CreateWO_popup\u0027, params\u003d{}, title\u003du\u0027\u0027, showCloseIcon\u003dFalse, draggable\u003dFalse, resizable\u003dFalse, modal\u003dTrue, overlayDismiss\u003dFalse)"
+                  },
+                  "scope": "G",
+                  "type": "script"
+                }
+              }
+            },
+            "meta": {
+              "name": "MenuItem_WOWizard"
+            },
+            "propConfig": {
+              "props.style.borderLeft": {
+                "binding": {
+                  "config": {
+                    "expression": "if({session.custom.activePage} \u003d \u0027wowizard\u0027, \u00274px solid #E91E63\u0027, \u00274px solid transparent\u0027)"
+                  },
+                  "type": "expr"
+                }
+              }
+            },
+            "props": {
+              "alignItems": "center",
+              "direction": "column",
+              "justifyContent": "center",
+              "style": {
+                "cursor": "pointer",
+                "minHeight": "50px",
+                "paddingBottom": "6px",
+                "paddingTop": "6px"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "Icon"
+                },
+                "position": {
+                  "basis": 19
+                },
+                "props": {
+                  "color": "#9C27B0",
+                  "path": "material/handyman",
+                  "style": {
+                    "fontSize": 21,
+                    "marginBottom": "4px"
+                  }
+                },
+                "type": "ia.display.icon"
+              },
+              {
+                "meta": {
+                  "name": "Label"
+                },
+                "props": {
+                  "style": {
+                    "color": "#F3EEE7",
+                    "fontSize": "7px",
+                    "textAlign": "center"
+                  },
+                  "text": "PM Wizard"
+                },
+                "type": "ia.display.label"
+              }
+            ],
+            "events": {
+              "dom": {
+                "onClick": {
+                  "config": {
+                    "script": ""
+                  },
+                  "scope": "G",
+                  "type": "script"
+                }
+              }
+            },
+            "meta": {
+              "name": "MenuItem_PMWizard"
+            },
+            "propConfig": {
+              "props.style.borderLeft": {
+                "binding": {
+                  "config": {
+                    "expression": "if({session.custom.activePage} \u003d \u0027pmwizard\u0027, \u00274px solid #E91E63\u0027, \u00274px solid transparent\u0027)"
+                  },
+                  "type": "expr"
+                }
+              }
+            },
+            "props": {
+              "alignItems": "center",
+              "direction": "column",
+              "justifyContent": "center",
+              "style": {
+                "cursor": "pointer",
+                "minHeight": "50px",
+                "paddingBottom": "6px",
+                "paddingTop": "6px"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "Icon"
+                },
+                "position": {
+                  "basis": 19
+                },
+                "props": {
+                  "color": "#4CAF50",
+                  "path": "material/dashboard",
+                  "style": {
+                    "fontSize": 21,
+                    "marginBottom": "4px"
+                  }
+                },
+                "type": "ia.display.icon"
+              },
+              {
+                "meta": {
+                  "name": "Label"
+                },
+                "props": {
+                  "style": {
+                    "color": "#F3EEE7",
+                    "fontSize": "7px",
+                    "textAlign": "center"
+                  },
+                  "text": "VisualX"
+                },
+                "type": "ia.display.label"
+              }
+            ],
+            "events": {
+              "dom": {
+                "onClick": {
+                  "config": {
+                    "script": "\tsystem.perspective.sendMessage(\u0027nav-active\u0027, {\u0027page\u0027: \u0027visualx\u0027}, scope\u003d\u0027session\u0027)\n\tsystem.perspective.navigate(\u0027/Workmate/VisualX/VisualX\u0027)"
+                  },
+                  "scope": "G",
+                  "type": "script"
+                }
+              }
+            },
+            "meta": {
+              "name": "MenuItem_VisualX"
+            },
+            "propConfig": {
+              "position.display": {
+                "binding": {
+                  "config": {
+                    "expression": "runScript(\u0027workmate.security.allowed\u0027, 0, {session.custom.wmAccessLevel}, {session.custom.wmMenuRights}, \u0027visualx\u0027)"
+                  },
+                  "type": "expr"
+                }
+              },
+              "props.style.borderLeft": {
+                "binding": {
+                  "config": {
+                    "expression": "if({session.custom.activePage} \u003d \u0027visualx\u0027, \u00274px solid #E91E63\u0027, \u00274px solid transparent\u0027)"
+                  },
+                  "type": "expr"
+                }
+              }
+            },
+            "props": {
+              "alignItems": "center",
+              "direction": "column",
+              "justifyContent": "center",
+              "style": {
+                "cursor": "pointer",
+                "minHeight": "50px",
+                "paddingBottom": "6px",
+                "paddingTop": "6px"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "Icon"
+                },
+                "position": {
+                  "basis": 19
+                },
+                "props": {
+                  "color": "#DEBF7A",
+                  "path": "material/insights",
+                  "style": {
+                    "fontSize": 21,
+                    "marginBottom": "4px"
+                  }
+                },
+                "type": "ia.display.icon"
+              },
+              {
+                "meta": {
+                  "name": "Label"
+                },
+                "props": {
+                  "style": {
+                    "color": "#F3EEE7",
+                    "fontSize": "7px",
+                    "textAlign": "center"
+                  },
+                  "text": "Insights"
+                },
+                "type": "ia.display.label"
+              }
+            ],
+            "events": {
+              "dom": {
+                "onClick": {
+                  "config": {
+                    "script": "\tsystem.perspective.sendMessage(\u0027nav-active\u0027, {\u0027page\u0027: \u0027insights\u0027}, scope\u003d\u0027session\u0027)\n\tsystem.perspective.navigate(\u0027/insights\u0027)"
+                  },
+                  "scope": "G",
+                  "type": "script"
+                }
+              }
+            },
+            "meta": {
+              "name": "MenuItem_Insights"
+            },
+            "propConfig": {
+              "props.style.borderLeft": {
+                "binding": {
+                  "config": {
+                    "expression": "if({session.custom.activePage} \u003d \u0027insights\u0027, \u00274px solid #DEBF7A\u0027, \u00274px solid transparent\u0027)"
+                  },
+                  "type": "expr"
+                }
+              }
+            },
+            "props": {
+              "alignItems": "center",
+              "direction": "column",
+              "justifyContent": "center",
+              "style": {
+                "cursor": "pointer",
+                "minHeight": "50px",
+                "paddingBottom": "6px",
+                "paddingTop": "6px"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "Icon"
+                },
+                "position": {
+                  "basis": 19
+                },
+                "props": {
+                  "color": "#00BCD4",
+                  "path": "material/local_shipping",
+                  "style": {
+                    "fontSize": 21,
+                    "marginBottom": "4px"
+                  }
+                },
+                "type": "ia.display.icon"
+              },
+              {
+                "meta": {
+                  "name": "Label"
+                },
+                "props": {
+                  "style": {
+                    "color": "#F3EEE7",
+                    "fontSize": "7px",
+                    "textAlign": "center"
+                  },
+                  "text": "Supplier"
+                },
+                "type": "ia.display.label"
+              }
+            ],
+            "events": {
+              "dom": {
+                "onClick": {
+                  "config": {
+                    "script": "\tsystem.perspective.sendMessage(\u0027nav-active\u0027, {\u0027page\u0027: \u0027supplier\u0027}, scope\u003d\u0027session\u0027)\n\tsystem.perspective.navigate(\u0027/supplier\u0027)"
+                  },
+                  "scope": "G",
+                  "type": "script"
+                }
+              }
+            },
+            "meta": {
+              "name": "MenuItem_Supplier"
+            },
+            "propConfig": {
+              "props.style.borderLeft": {
+                "binding": {
+                  "config": {
+                    "expression": "if({session.custom.activePage} \u003d \u0027supplier\u0027, \u00274px solid #E91E63\u0027, \u00274px solid transparent\u0027)"
+                  },
+                  "type": "expr"
+                }
+              }
+            },
+            "props": {
+              "alignItems": "center",
+              "direction": "column",
+              "justifyContent": "center",
+              "style": {
+                "cursor": "pointer",
+                "minHeight": "50px",
+                "paddingBottom": "6px",
+                "paddingTop": "6px"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "Icon"
+                },
+                "position": {
+                  "basis": 19
+                },
+                "props": {
+                  "color": "#009688",
+                  "path": "material/settings",
+                  "style": {
+                    "fontSize": 21,
+                    "marginBottom": "4px"
+                  }
+                },
+                "type": "ia.display.icon"
+              },
+              {
+                "meta": {
+                  "name": "Label"
+                },
+                "props": {
+                  "style": {
+                    "color": "#F3EEE7",
+                    "fontSize": "7px",
+                    "textAlign": "center"
+                  },
+                  "text": "Parts"
+                },
+                "type": "ia.display.label"
+              }
+            ],
+            "events": {
+              "dom": {
+                "onClick": {
+                  "config": {
+                    "script": "\tsystem.perspective.sendMessage(\u0027nav-active\u0027, {\u0027page\u0027: \u0027parts\u0027}, scope\u003d\u0027session\u0027)\n\tsystem.perspective.navigate(\u0027/Workmate/Parts/PartSetup\u0027)"
+                  },
+                  "scope": "G",
+                  "type": "script"
+                }
+              }
+            },
+            "meta": {
+              "name": "MenuItem_Parts"
+            },
+            "propConfig": {
+              "props.style.borderLeft": {
+                "binding": {
+                  "config": {
+                    "expression": "if({session.custom.activePage} \u003d \u0027parts\u0027, \u00274px solid #E91E63\u0027, \u00274px solid transparent\u0027)"
+                  },
+                  "type": "expr"
+                }
+              }
+            },
+            "props": {
+              "alignItems": "center",
+              "direction": "column",
+              "justifyContent": "center",
+              "style": {
+                "cursor": "pointer",
+                "minHeight": "50px",
+                "paddingBottom": "6px",
+                "paddingTop": "6px"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "Icon"
+                },
+                "position": {
+                  "basis": 19
+                },
+                "props": {
+                  "color": "#0B5ED7",
+                  "path": "material/featured_play_list",
+                  "style": {
+                    "fontSize": 21,
+                    "marginBottom": "4px"
+                  }
+                },
+                "type": "ia.display.icon"
+              },
+              {
+                "meta": {
+                  "name": "Label"
+                },
+                "props": {
+                  "style": {
+                    "color": "#F3EEE7",
+                    "fontSize": "7px",
+                    "textAlign": "center"
+                  },
+                  "text": "PO List"
+                },
+                "type": "ia.display.label"
+              }
+            ],
+            "events": {
+              "dom": {
+                "onClick": {
+                  "config": {
+                    "script": "\tsystem.perspective.sendMessage(\u0027nav-active\u0027, {\u0027page\u0027: \u0027purchaseorder\u0027}, scope\u003d\u0027session\u0027)\n\tsystem.perspective.navigate(\u0027/purchaseorder\u0027)"
+                  },
+                  "scope": "G",
+                  "type": "script"
+                }
+              }
+            },
+            "meta": {
+              "name": "MenuItem_POList"
+            },
+            "propConfig": {
+              "props.style.borderLeft": {
+                "binding": {
+                  "config": {
+                    "expression": "if({session.custom.activePage} \u003d \u0027purchaseorder\u0027, \u00274px solid #E91E63\u0027, \u00274px solid transparent\u0027)"
+                  },
+                  "type": "expr"
+                }
+              }
+            },
+            "props": {
+              "alignItems": "center",
+              "direction": "column",
+              "justifyContent": "center",
+              "style": {
+                "cursor": "pointer",
+                "minHeight": "50px",
+                "paddingBottom": "6px",
+                "paddingTop": "6px"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "Icon"
+                },
+                "position": {
+                  "basis": 19
+                },
+                "props": {
+                  "color": "#FFC107",
+                  "path": "material/receipt_long",
+                  "style": {
+                    "fontSize": 21,
+                    "marginBottom": "4px"
+                  }
+                },
+                "type": "ia.display.icon"
+              },
+              {
+                "meta": {
+                  "name": "Label"
+                },
+                "props": {
+                  "style": {
+                    "color": "#F3EEE7",
+                    "fontSize": "7px",
+                    "textAlign": "center"
+                  },
+                  "text": "Invoice"
+                },
+                "type": "ia.display.label"
+              }
+            ],
+            "events": {
+              "dom": {
+                "onClick": {
+                  "config": {
+                    "script": "\tsystem.perspective.sendMessage(\u0027nav-active\u0027, {\u0027page\u0027: \u0027invoicemaint\u0027}, scope\u003d\u0027session\u0027)\n\tsystem.perspective.navigate(\u0027/InvoiceMaintenance/InvoiceMaint\u0027)"
+                  },
+                  "scope": "G",
+                  "type": "script"
+                }
+              }
+            },
+            "meta": {
+              "name": "MenuItem_Invoice"
+            },
+            "propConfig": {
+              "props.style.borderLeft": {
+                "binding": {
+                  "config": {
+                    "expression": "if({session.custom.activePage} \u003d \u0027invoicemaint\u0027 || {session.custom.activePage} \u003d \u0027invoicex\u0027, \u00274px solid #E91E63\u0027, \u00274px solid transparent\u0027)"
+                  },
+                  "type": "expr"
+                }
+              }
+            },
+            "props": {
+              "alignItems": "center",
+              "direction": "column",
+              "justifyContent": "center",
+              "style": {
+                "cursor": "pointer",
+                "minHeight": "50px",
+                "paddingBottom": "6px",
+                "paddingTop": "6px"
+              }
+            },
+            "type": "ia.container.flex"
+          }
+        ],
+        "meta": {
+          "name": "NavContainer"
+        },
+        "position": {
+          "grow": 1
+        },
+        "props": {
+          "direction": "column",
+          "style": {
+            "backgroundColor": "#242E30",
+            "paddingBottom": "8px",
+            "paddingTop": "8px"
+          }
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "children": [
+          {
+            "meta": {
+              "name": "Divider2"
+            },
+            "props": {
+              "style": {
+                "borderBottom": "1px solid #333333",
+                "marginBottom": "6px",
+                "marginLeft": "10px",
+                "marginRight": "10px",
+                "marginTop": "6px"
+              }
+            },
+            "type": "ia.display.label"
+          },
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "Icon"
+                },
+                "position": {
+                  "basis": 19
+                },
+                "props": {
+                  "color": "#AAAAAA",
+                  "path": "material/print",
+                  "style": {
+                    "fontSize": 21,
+                    "marginBottom": "4px"
+                  }
+                },
+                "type": "ia.display.icon"
+              },
+              {
+                "meta": {
+                  "name": "Label"
+                },
+                "props": {
+                  "style": {
+                    "color": "#F3EEE7",
+                    "fontSize": "7px",
+                    "textAlign": "center"
+                  },
+                  "text": "Print"
+                },
+                "type": "ia.display.label"
+              }
+            ],
+            "events": {
+              "dom": {
+                "onClick": {
+                  "config": {
+                    "script": "\t# SideMenu v4.7 — context-aware Print dispatcher\n\timport sys\n\ttry:\n\t\tpage \u003d \u0027\u0027\n\t\ttry:\n\t\t\tpage \u003d str(self.view.custom.activePage or \u0027\u0027).strip().lower()\n\t\texcept:\n\t\t\tpage \u003d \u0027\u0027\n\t\tsystem.perspective.sendMessage(\u0027debug-log\u0027, {\u0027source\u0027:\u0027SideMenu\u0027,\u0027message\u0027:\u0027Print clicked, activePage\u003d\u0027 + repr(page)}, scope\u003d\u0027session\u0027)\n\t\t# Dispatch by current page\n\t\tif page \u003d\u003d \u0027purchaseorder\u0027:\n\t\t\tsystem.perspective.openPopup(\u0027POPrintPopup\u0027,\n\t\t\t\t\u0027Components/Workmate/Popups/POPrintPopup\u0027,\n\t\t\t\tparams\u003d{},\n\t\t\t\ttitle\u003d\u0027\u0027,\n\t\t\t\tposition\u003d{\u0027width\u0027: 1600, \u0027height\u0027: 720},\n\t\t\t\tshowCloseIcon\u003dFalse,\n\t\t\t\tdraggable\u003dFalse,\n\t\t\t\tresizable\u003dFalse,\n\t\t\t\tmodal\u003dTrue,\n\t\t\t\toverlayDismiss\u003dFalse)\n\t\telif page in (\u0027workorder\u0027,\u0027wo\u0027,\u0027womaint\u0027,\u0027workorders\u0027):\n\t\t\t# v4.18: WOPrintPopup wired (board #9) - mirrors the PO branch.\n\t\t\tsystem.perspective.openPopup(\u0027WOPrintPopup\u0027,\n\t\t\t\t\u0027Components/Workmate/Popups/WOPrintPopup\u0027,\n\t\t\t\tparams\u003d{},\n\t\t\t\ttitle\u003d\u0027\u0027,\n\t\t\t\tposition\u003d{\u0027width\u0027: 1150, \u0027height\u0027: 680},\n\t\t\t\tshowCloseIcon\u003dFalse,\n\t\t\t\tdraggable\u003dFalse,\n\t\t\t\tresizable\u003dFalse,\n\t\t\t\tmodal\u003dTrue,\n\t\t\t\toverlayDismiss\u003dFalse)\n\t\telse:\n\t\t\t# Anywhere else: keep the old behaviour (browser print of current page)\n\t\t\tsystem.perspective.print()\n\texcept:\n\t\tsystem.perspective.sendMessage(\u0027debug-log\u0027,\n\t\t\t{\u0027source\u0027:\u0027SideMenu\u0027,\u0027message\u0027:\u0027Print dispatch error: \u0027 + str(sys.exc_info()[1]),\u0027level\u0027:\u0027error\u0027},\n\t\t\tscope\u003d\u0027session\u0027)\n"
+                  },
+                  "scope": "G",
+                  "type": "script"
+                }
+              }
+            },
+            "meta": {
+              "name": "MenuItem_Print"
+            },
+            "props": {
+              "alignItems": "center",
+              "direction": "column",
+              "justifyContent": "center",
+              "style": {
+                "borderLeft": "3px solid transparent",
+                "cursor": "pointer",
+                "minHeight": "50px",
+                "paddingBottom": "6px",
+                "paddingTop": "6px"
+              }
+            },
+            "type": "ia.container.flex"
+          }
+        ],
+        "meta": {
+          "name": "BottomContainer"
+        },
+        "props": {
+          "direction": "column",
+          "style": {
+            "backgroundColor": "#242E30",
+            "paddingBottom": "8px"
+          }
+        },
+        "type": "ia.container.flex"
+      }
+    ],
+    "custom": {
+      "activePage": ""
+    },
+    "events": {
+      "system": {
+        "onStartup": {
+          "config": {
+            "script": "\turl \u003d str(self.page.props.primaryView or \u0027\u0027)\n\t# v4.14: the canonical active page is session.custom.activePage, kept\n\t# current by HeaderToolbar on every navigation. Seed from it first so a\n\t# docked SideMenu that mounts after a header nav still highlights right;\n\t# fall back to the primaryView path map for first paint.\n\ttry:\n\t\tsessKey \u003d str(self.session.custom.activePage or \u0027\u0027)\n\texcept:\n\t\tsessKey \u003d \u0027\u0027\n\tif sessKey:\n\t\tself.view.custom.activePage \u003d sessKey\n\t\treturn\n\t\n\t\n\t# Map primary view path to menu key\n\tpageMap \u003d {\n\t\t\u0027Workmate/Home\u0027: \u0027home\u0027,\n\t\t\u0027Workmate/Explorer\u0027: \u0027explorer\u0027,\n\t\t\u0027Workmate/LocationSetup\u0027: \u0027explorer\u0027,\n\t\t\u0027Workmate/AssetList\u0027: \u0027assets\u0027,\n\t\t\u0027Workmate/Labour\u0027: \u0027labour\u0027,\n\t\t\u0027Workmate/WOMaster\u0027: \u0027womaster\u0027,\n\t\t\u0027Workmate/WOMaint\u0027: \u0027womaint\u0027,\n\t\t\u0027Workmate/WOWizard\u0027: \u0027wowizard\u0027,\n\t\t\u0027Workmate/PMWizard\u0027: \u0027pmwizard\u0027,\n\t\t\u0027Workmate/Visual\u0027: \u0027visual\u0027,\n\t\t\u0027Workmate/Supplier\u0027: \u0027supplier\u0027,\n\t\t\u0027Workmate/Parts\u0027: \u0027parts\u0027,\n\t\t\u0027Workmate/PurchaseOrder\u0027: \u0027purchaseorder\u0027,\n\t\t\u0027Workmate/NewPO\u0027: \u0027newpo\u0027,\n\t\t\u0027Workmate/Procurex\u0027: \u0027procurex\u0027,\n\t\t\u0027Workmate/Invoice\u0027: \u0027invoice\u0027,\n\t\t\u0027Workmate/Actions/ActionMaint\u0027: \u0027actions\u0027\n\t}\n\t\n\tfor path, key in pageMap.items():\n\t\tif path.lower() in url.lower():\n\t\t\tself.view.custom.activePage \u003d key\n\t\t\treturn\n\t\n\tself.view.custom.activePage \u003d \u0027\u0027"
+          },
+          "scope": "G",
+          "type": "script"
+        }
+      }
+    },
+    "meta": {
+      "name": "SideMenu_v4_20"
+    },
+    "props": {
+      "direction": "column",
+      "style": {
+        "maxWidth": "50px",
+        "minWidth": "50px",
+        "width": "50px"
+      }
+    },
+    "scripts": {
+      "customMethods": null,
+      "extensionFunctions": null,
+      "messageHandlers": [
+        {
+          "messageType": "nav-active",
+          "pageScope": false,
+          "script": "\t# v4.20: indication now derives from page.props.path via the\n\t# HeaderToolbar v16.43 pathKey watcher -\u003e session.custom.activePage,\n\t# which every rail item binds to directly. Announcements no longer\n\t# drive anything here; handler kept as an inert legacy endpoint.\n\tpass\n",
+          "sessionScope": true,
+          "viewScope": false
+        }
+      ]
+    },
+    "type": "ia.container.flex"
+  }
+}

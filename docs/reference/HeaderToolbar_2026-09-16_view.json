@@ -1,0 +1,1443 @@
+{
+  "custom": {
+    "activeMenu": "",
+    "btnCancelEnabled": false,
+    "btnDeleteEnabled": true,
+    "btnDeleteLineEnabled": false,
+    "btnEditEnabled": true,
+    "btnFindEnabled": true,
+    "btnFirstEnabled": true,
+    "btnInsertLineEnabled": false,
+    "btnLastEnabled": true,
+    "btnNewEnabled": true,
+    "btnNextEnabled": true,
+    "btnPreviousEnabled": true,
+    "btnPrintEnabled": true,
+    "btnSaveEnabled": false,
+    "debugLog": "HeaderToolbar initialized...\n",
+    "editMode": false,
+    "isHistoryTab": false
+  },
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 50,
+      "width": 1920
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tsystem.perspective.navigate(\u0027/Hub\u0027)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "WorkmateLogo"
+        },
+        "position": {
+          "shrink": 0
+        },
+        "propConfig": {
+          "position.display": {
+            "binding": {
+              "config": {
+                "expression": "{session.custom.wmBrandMode} !\u003d \u0027AZZTEC\u0027"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "fit": {
+            "height": 48,
+            "width": 48
+          },
+          "source": "/system/images/Workmate_Logo_48_Rev.png",
+          "style": {
+            "cursor": "pointer",
+            "height": "48px",
+            "marginRight": "10px",
+            "objectFit": "contain",
+            "width": "48px"
+          }
+        },
+        "type": "ia.display.image"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tsystem.perspective.navigate(\u0027/Hub\u0027)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "AzztecLogo"
+        },
+        "position": {
+          "shrink": 0
+        },
+        "propConfig": {
+          "position.display": {
+            "binding": {
+              "config": {
+                "expression": "{session.custom.wmBrandMode} \u003d \u0027AZZTEC\u0027"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "fit": {
+            "height": 48,
+            "mode": "fill",
+            "width": 48
+          },
+          "source": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDkzMi43IDkzMi43Ij4KPCEtLSBBenp0ZWNfTG9nb192MV8xXzAgfCB2ZWN0b3IgZnJvbSAzMDBYMzAwX0F6enRlY19sb2dvLnBkZiAoQ29yZWxEUkFXIDIwMTgpOyByaW5nIG1hZGUgcm91bmQgKHggMS4wODUzKSwgbWV0YWxsaWMgZ29sZCB8IEFkcmlhYW4gfCAyMDI2LTA5LTE2IC0tPgo8ZGVmcz4KPGxpbmVhckdyYWRpZW50IGlkPSJnb2xkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAiIHkxPSI1MS4zIiB4Mj0iMCIgeTI9Ijg3MC40Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGRkY4RTEiLz48c3RvcCBvZmZzZXQ9IjAuMjYiIHN0b3AtY29sb3I9IiNGRkVGQjgiLz48c3RvcCBvZmZzZXQ9IjAuNDciIHN0b3AtY29sb3I9IiNGRkQ5NzAiLz48c3RvcCBvZmZzZXQ9IjAuNTEiIHN0b3AtY29sb3I9IiNEMTlBMzQiLz48c3RvcCBvZmZzZXQ9IjAuNzIiIHN0b3AtY29sb3I9IiNCNzg0MjIiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNGRkU2QTAiLz48L2xpbmVhckdyYWRpZW50Pgo8ZmlsdGVyIGlkPSJnbG93IiB4PSItMTAlIiB5PSItMTAlIiB3aWR0aD0iMTIwJSIgaGVpZ2h0PSIxMjAlIj48ZmVHYXVzc2lhbkJsdXIgaW49IlNvdXJjZUFscGhhIiBzdGREZXZpYXRpb249IjkiIHJlc3VsdD0iYiIvPjxmZUZsb29kIGZsb29kLWNvbG9yPSIjRkZDRjVBIiBmbG9vZC1vcGFjaXR5PSIwLjMiLz48ZmVDb21wb3NpdGUgaW4yPSJiIiBvcGVyYXRvcj0iaW4iIHJlc3VsdD0iZyIvPjxmZU1lcmdlPjxmZU1lcmdlTm9kZSBpbj0iZyIvPjxmZU1lcmdlTm9kZSBpbj0iU291cmNlR3JhcGhpYyIvPjwvZmVNZXJnZT48L2ZpbHRlcj4KPGcgaWQ9ImF6dCIgZmlsbC1ydWxlPSJldmVub2RkIj4KPHBhdGggZD0iTTUzMSwyMTcuMUw1MzEsMjM1LjhDNTM1LjQsMjM4LjcgNTM4LjQsMjQzLjYgNTM4LjQsMjQ5QzUzOC40LDI1Ny45IDUzMC41LDI2NS4yIDUyMC44LDI2NS4yQzUxMS4xLDI2NS4yIDUwMy4yLDI1Ny45IDUwMy4yLDI0OUM1MDMuMiwyNDMuMyA1MDYuNSwyMzguMiA1MTEuMywyMzQuOUM1MTEuMywyMzAgNTExLjMsMjI1LjEgNTExLjMsMjIwLjNDNTEwLjgsMjE1LjEgNTA4LjQsMjEzIDUwMi45LDIxMS4zTDQ1NC45LDE5NC4zQzQ0NC44LDE5MS4xIDQ0MC43LDE4MS4zIDQ0MC43LDE2Ny43TDQ0MC43LDc0LjVDMjUwLjIsODIuNSAxMDkuOSwyMTkuNyA3Ni44LDQwMi40TDUyLjcsNDAyLjRDODcuMywxOTQuOSAyNjYuMSw1MC42IDQ1MS4yLDUxLjVDNjUzLjksNTAuOCA4MzIuOSwxODUuNCA4NjAuOCw0MDAuOUw4MDguNiw0MDAuOUM3ODMuMiw0MDIuMiA3NjcuNyw0MjEuOSA3NjYuOSw0MzUuN0w3NjYuOCw0NzguOUM3NjguMSw0OTYuMyA3ODQuMiw1MTEuMyA4MDQuNiw1MTEuMkw4NjAsNTExLjJMODYwLDUzOC42TDgwOS40LDUzOC42Qzc3MC40LDUzNy43IDc0MS44LDUwOS40IDc0Miw0ODguMkw3NDIsNDMwLjVDNzQyLjgsNDA3LjcgNzcxLjUsMzc5LjMgNzk5LjgsMzc4LjdMODMxLjksMzc4LjdDNzk1LjksMTkwLjUgNjIxLjQsNjguMSA0NjIuMiw3NC41TDQ2Mi4yLDE2My45QzQ2MS43LDE3MyA0NjIuNCwxNzUuMSA0NjguMywxNzcuOEM0ODIuOCwxODIuOCA0OTkuNiwxODkuOCA1MTYuNiwxOTYuN0M1MjUuMywyMDAuNyA1MzEuMSwyMDguNCA1MzEsMjE3LjFaTTUyMC43LDI0MC44QzUyNS43LDI0MC44IDUyOS44LDI0NC41IDUyOS44LDI0OS4xQzUyOS44LDI1My42IDUyNS43LDI1Ny40IDUyMC43LDI1Ny40QzUxNS44LDI1Ny40IDUxMS43LDI1My42IDUxMS43LDI0OS4xQzUxMS43LDI0NC41IDUxNS44LDI0MC44IDUyMC43LDI0MC44Ii8+CjxwYXRoIGQ9Ik03MzguNywzMTYuN0w3NTguNSwzMTYuN0M3NjEuNywzMTIuMiA3NjcuMiwzMDkuMyA3NzMuNSwzMDkuM0M3ODMuNSwzMDkuMyA3OTEuNiwzMTYuNyA3OTEuNiwzMjUuOUM3OTEuNiwzMzUuMSA3ODMuNSwzNDIuNSA3NzMuNSwzNDIuNUM3NjcuMSwzNDIuNSA3NjEuNSwzMzkuNyA3NTguMywzMzVMNjczLjMsMzM0LjlDNjYxLjcsMzM0LjkgNjUzLDMyMy42IDY1Mi45LDMxMi44TDY1Mi45LDMwNC40QzY1Mi44LDMwMSA2NTEuNCwyOTguOSA2NDYuOSwyOTguOEw1ODUuMSwyOTguOEM1ODAuOCwyOTkuMSA1NzkuMSwzMDEuOSA1NzksMzA3LjJMNTc5LDMxMi4zQzU4My42LDMxNS4zIDU4Ni43LDMyMC4zIDU4Ni43LDMyNS45QzU4Ni43LDMzNS4xIDU3OC42LDM0Mi41IDU2OC42LDM0Mi41QzU1OC43LDM0Mi41IDU1MC42LDMzNS4xIDU1MC42LDMyNS45QzU1MC42LDMxOS43IDU1NC4zLDMxNC4zIDU1OS43LDMxMS41TDU1OS43LDI5OS44QzU1OS44LDI5MC44IDU2OC4zLDI3OS42IDU4MC42LDI3OS4zTDYxNi44LDI3OS4zTDY1Ni4yLDI3OS4zQzY2NS44LDI3OS44IDY3MiwyODguOCA2NzIuMSwyOTYuNEw2NzIuMSwzMDguN0M2NzIuMiwzMTIuNiA2NzYuNSwzMTYuNyA2ODAsMzE2LjhMNzEzLjgsMzE2LjhMNzEzLjgsMjc2LjZMNzEzLjgsMjYxLjdDNzEzLjcsMjU4LjMgNzEyLjksMjU1LjEgNzEwLjQsMjUxLjNMNjk4LDIzNS4xTDYyOC41LDIzNS4xQzYxOC42LDIzNC45IDYxMCwyMjYgNjA5LjcsMjE4TDYwOS43LDE3Ni45QzYwOS43LDE3Mi44IDYwNy43LDE2OS4yIDYwNC4xLDE2N0M1ODEsMTUzLjcgNTU5LjEsMTQ2IDUzNy42LDE0MC4yQzUzNC40LDE0NC42IDUyOC45LDE0Ny42IDUyMi42LDE0Ny42QzUxMi42LDE0Ny42IDUwNC42LDE0MC4xIDUwNC42LDEzMUM1MDQuNiwxMjEuOCA1MTIuNiwxMTQuMyA1MjIuNiwxMTQuM0M1MjguNiwxMTQuMyA1MzQsMTE3LjEgNTM3LjIsMTIxLjJDNTYzLDEyNy4xIDU4OC44LDEzNy40IDYxNC41LDE1MC45QzYyMy45LDE1Ni4yIDYyOS40LDE2Mi4zIDYyOS40LDE3MC41TDYyOS40LDIwNy4yQzYyOS40LDIxMy40IDYzMiwyMTYuNiA2MzguMywyMTdMNzA1LjcsMjE3TDczMC4zLDI0OC4yQzczMi42LDI1MSA3MzQuMywyNTQuNCA3MzQuMywyNTcuN0w3MzQuMywyNzEuNkw3MzQuMywzMTEuNEM3MzQuNCwzMTQuMyA3MzYuMiwzMTYuNiA3MzguNywzMTYuN1pNNTIyLjYsMTIzLjFDNTI3LjMsMTIzLjEgNTMxLjEsMTI2LjYgNTMxLjEsMTMxQzUzMS4xLDEzNS4zIDUyNy4zLDEzOC44IDUyMi42LDEzOC44QzUxNy45LDEzOC44IDUxNC4xLDEzNS4zIDUxNC4xLDEzMUM1MTQuMSwxMjYuNiA1MTcuOSwxMjMuMSA1MjIuNiwxMjMuMVpNNTY4LjYsMzE4QzU3My4zLDMxOCA1NzcuMiwzMjEuNiA1NzcuMiwzMjUuOUM1NzcuMiwzMzAuMyA1NzMuMywzMzMuOCA1NjguNiwzMzMuOEM1NjMuOSwzMzMuOCA1NjAuMSwzMzAuMyA1NjAuMSwzMjUuOUM1NjAuMSwzMjEuNiA1NjMuOSwzMTggNTY4LjYsMzE4Wk03NzMuNSwzMThDNzc4LjMsMzE4IDc4Mi4xLDMyMS42IDc4Mi4xLDMyNS45Qzc4Mi4xLDMzMC4zIDc3OC4zLDMzMy44IDc3My41LDMzMy44Qzc2OC44LDMzMy44IDc2NSwzMzAuMyA3NjUsMzI1LjlDNzY1LDMyMS42IDc2OC44LDMxOCA3NzMuNSwzMTgiLz4KPHBhdGggZD0iTTM3My4xLDI2My4xTDM3My4xLDE0OS4yQzM2OS4xLDE0Ny45IDM2NS44LDE0NS4zIDM2My44LDE0Mi4xQzMyNCwxNTcuNSAyOTIuNSwxNzYuNSAyNjYuNCwxOTcuN0MyNjMuMiwyMDEuMSAyNjEsMjAzLjkgMjYxLjMsMjA5LjhMMjYxLjMsMjI0LjVMMzA3LDIyNC41QzMxMC4zLDIyMC45IDMxNS4zLDIxOC43IDMyMC44LDIxOC43QzMzMC43LDIxOC43IDMzOC44LDIyNi4xIDMzOC44LDIzNS4zQzMzOC44LDI0MC40IDMzNi4zLDI0NSAzMzIuNCwyNDhMMzMyLjQsMzAxLjFDMzMxLjgsMzI0LjUgMzI4LjksMzMzLjkgMzA1LjMsMzM2LjFMMTYyLDMzNkMxNTguNSwzMzkuOSAxNTMuMywzNDIuNSAxNDcuMywzNDIuNUMxMzcuNCwzNDIuNSAxMjkuMywzMzUuMSAxMjkuMywzMjUuOUMxMjkuMywzMTYuNyAxMzcuNCwzMDkuMyAxNDcuMywzMDkuM0MxNTMuOCwzMDkuMyAxNTkuNCwzMTIuNCAxNjIuMywzMTYuOUwzMDEuNSwzMTYuNkMzMDcuNiwzMTYuMyAzMTEuOSwzMTMgMzEyLjMsMzA3LjFMMzEyLjMsMjUwQzMwOS4zLDI0OC41IDMwNi44LDI0Ni4yIDMwNS4xLDI0My41TDI2MS4zLDI0My41TDI2MS4zLDI1OC4xQzI2MS4xLDI2NS4yIDI1My4zLDI3My41IDI0My40LDI3NC4xTDE5NS4xLDI3NEMxOTEuOSwyNzguNyAxODYuMiwyODEuOCAxNzkuOCwyODEuOEMxNjkuOCwyODEuOCAxNjEuOCwyNzQuNCAxNjEuOCwyNjUuMkMxNjEuOCwyNTYgMTY5LjgsMjQ4LjYgMTc5LjgsMjQ4LjZDMTg2LjIsMjQ4LjYgMTkxLjksMjUxLjcgMTk1LDI1Ni4xTDIzMywyNTUuOEMyMzcuNSwyNTUuNCAyNDEuNCwyNTIuNSAyNDEuMiwyNDlMMjQxLjIsMjA0LjNDMjQxLjQsMTk4LjEgMjQ0LjEsMTkyLjkgMjQ5LDE4OC4zQzI4Mi42LDE2MC45IDMyMS4xLDEzOS45IDM2NS42LDEyMi41QzM2OC45LDExOS4xIDM3My43LDExNi45IDM3OS4xLDExNi45QzM4OS4xLDExNi45IDM5Ny4yLDEyNC4zIDM5Ny4yLDEzMy41QzM5Ny4yLDEzNi45IDM5Ni4xLDE0MCAzOTQuMiwxNDIuN0wzOTQuMiwyNTMuNUMzOTQuMiwyNjEgMzk2LjUsMjY1LjcgNDA0LjQsMjY1LjlMNDUyLjIsMjY1LjlDNDYxLjMsMjY2LjMgNDY5LjEsMjczLjggNDY5LjIsMjgxLjJMNDY5LjQsMzEyLjVDNDczLjksMzE1LjUgNDc2LjgsMzIwLjQgNDc2LjgsMzI1LjlDNDc2LjgsMzM1LjEgNDY4LjcsMzQyLjUgNDU4LjgsMzQyLjVDNDQ4LjgsMzQyLjUgNDQwLjgsMzM1LjEgNDQwLjgsMzI1LjlDNDQwLjgsMzIwLjQgNDQzLjYsMzE1LjYgNDQ4LjEsMzEyLjZMNDQ4LjEsMjkxLjVDNDQ4LjEsMjg4LjIgNDQ4LjQsMjg0LjcgNDQzLjcsMjg0LjhMMzk1LjksMjg0LjhDMzgyLjEsMjg0LjggMzczLjIsMjc3LjQgMzczLjEsMjYzLjFaTTM3OS4xLDEyNS42QzM4My44LDEyNS42IDM4Ny43LDEyOS4xIDM4Ny43LDEzMy41QzM4Ny43LDEzNy44IDM4My44LDE0MS40IDM3OS4xLDE0MS40QzM3NC40LDE0MS40IDM3MC42LDEzNy44IDM3MC42LDEzMy41QzM3MC42LDEyOS4xIDM3NC40LDEyNS42IDM3OS4xLDEyNS42Wk0zMjAuOCwyMjcuNEMzMjUuNSwyMjcuNCAzMjkuMywyMzAuOSAzMjkuMywyMzUuM0MzMjkuMywyMzkuNiAzMjUuNSwyNDMuMiAzMjAuOCwyNDMuMkMzMTYsMjQzLjIgMzEyLjIsMjM5LjYgMzEyLjIsMjM1LjNDMzEyLjIsMjMwLjkgMzE2LDIyNy40IDMyMC44LDIyNy40Wk0xNzkuOCwyNTcuM0MxODQuNSwyNTcuMyAxODguMywyNjAuOSAxODguMywyNjUuMkMxODguMywyNjkuNiAxODQuNSwyNzMuMSAxNzkuOCwyNzMuMUMxNzUuMSwyNzMuMSAxNzEuMiwyNjkuNiAxNzEuMiwyNjUuMkMxNzEuMiwyNjAuOSAxNzUuMSwyNTcuMyAxNzkuOCwyNTcuM1pNMTQ3LjMsMzE4QzE1Mi4xLDMxOCAxNTUuOSwzMjEuNiAxNTUuOSwzMjUuOUMxNTUuOSwzMzAuMyAxNTIuMSwzMzMuOCAxNDcuMywzMzMuOEMxNDIuNiwzMzMuOCAxMzguOCwzMzAuMyAxMzguOCwzMjUuOUMxMzguOCwzMjEuNiAxNDIuNiwzMTggMTQ3LjMsMzE4Wk00NTguOCwzMThDNDYzLjUsMzE4IDQ2Ny4zLDMyMS42IDQ2Ny4zLDMyNS45QzQ2Ny4zLDMzMC4zIDQ2My41LDMzMy44IDQ1OC44LDMzMy44QzQ1NC4xLDMzMy44IDQ1MC4yLDMzMC4zIDQ1MC4yLDMyNS45QzQ1MC4yLDMyMS42IDQ1NC4xLDMxOCA0NTguOCwzMTgiLz4KPHBhdGggZD0iTTUxNiw3MDEuOEw1MTUuOSw3ODcuOUM1MTYuNCw4MDEuOCA1MjcuOCw4MDYuNyA1NDAuMiw4MDMuNUw1NzAuMiw3OTEuMkM1NzMuNCw3OTYuMSA1NzkuMSw3OTkuMyA1ODUuNyw3OTkuM0M1OTUuNyw3OTkuMyA2MDMuNyw3OTEuOSA2MDMuNyw3ODIuN0M2MDMuNyw3NzMuNSA1OTYuMSw3NjUuNCA1ODYuMSw3NjUuNEM1ODMuMyw3NjUuNCA1ODAuOSw3NjUuNiA1NzcuOSw3NjYuNEM1NjcuOSw3NzAuMiA1NTIuMiw3NzkgNTQ1LjcsNzgwLjNDNTQxLjcsNzgxLjQgNTM2LjksNzc5LjEgNTM2LjksNzczLjFMNTM2LjksNjkzLjdMNTM2LjksNjQyLjZDNTM2LjEsNjMzLjYgNTI4LDYyNS4yIDUxNy44LDYyNUw0NzguOSw2MjVDNDczLjQsNjI0LjcgNDY4LjksNjIwLjIgNDY5LjQsNjE1LjNMNDY5LjQsNjA2LjVDNDc0LjksNjAzLjYgNDc4LjcsNTk3LjggNDc4LjcsNTkxLjNDNDc4LjcsNTgxLjcgNDcwLjYsNTczLjkgNDYwLjYsNTczLjlDNDUwLjcsNTczLjkgNDQyLjYsNTgxLjcgNDQyLjYsNTkxLjNDNDQyLjYsNTk3LjEgNDQ1LjUsNjAyLjIgNDUwLDYwNS40TDQ1MCw2MjIuNUM0NTAuNSw2MzUuMiA0NjEsNjQzLjkgNDcwLjksNjQ0LjNMNTA1LjksNjQ0LjNDNTEzLjgsNjQ0LjggNTE1LjgsNjUwIDUxNiw2NTQuN1pNNDYwLjYsNTgyLjZDNDY1LjQsNTgyLjYgNDY5LjIsNTg2LjIgNDY5LjIsNTkwLjVDNDY5LjIsNTk0LjkgNDY1LjQsNTk4LjQgNDYwLjYsNTk4LjRDNDU1LjksNTk4LjQgNDUyLjEsNTk0LjkgNDUyLjEsNTkwLjVDNDUyLjEsNTg2LjIgNDU1LjksNTgyLjYgNDYwLjYsNTgyLjZaTTU4NS43LDc3NC44QzU5MC40LDc3NC44IDU5NC4zLDc3OC4zIDU5NC4zLDc4Mi43QzU5NC4zLDc4NyA1OTAuNCw3OTAuNiA1ODUuNyw3OTAuNkM1ODEsNzkwLjYgNTc3LjIsNzg3IDU3Ny4yLDc4Mi43QzU3Ny4yLDc3OC4zIDU4MSw3NzQuOCA1ODUuNyw3NzQuOCIvPgo8cGF0aCBkPSJNNzgyLjcsNTczLjFDNzg3LjQsNTczLjEgNzkxLjIsNTc2LjYgNzkxLjIsNTgxQzc5MS4yLDU4NS4zIDc4Ny40LDU4OC44IDc4Mi43LDU4OC44Qzc3OCw1ODguOCA3NzQuMSw1ODUuMyA3NzQuMSw1ODFDNzc0LjEsNTc2LjYgNzc4LDU3My4xIDc4Mi43LDU3My4xWk02OTguNSw1OTYuNUw3NzYuMyw1OTYuNUM3NzguMyw1OTcuMiA3ODAuNCw1OTcuNiA3ODIuNyw1OTcuNkM3OTIuNiw1OTcuNiA4MDAuNyw1OTAuMSA4MDAuNyw1ODFDODAwLjcsNTcxLjggNzkyLjYsNTY0LjMgNzgyLjcsNTY0LjNDNzc0LjUsNTY0LjMgNzY3LjYsNTY5LjQgNzY1LjQsNTc2LjJMNjkxLjYsNTc2LjJDNjc4LDU3Ni42IDY2Ni43LDU4Ni40IDY2Ni4zLDU5N0w2NjYuMyw2MzIuNkM2NjYuNyw2NDMgNjc1LjMsNjQ5LjYgNjg2LjcsNjUwLjRMNzIwLjQsNjUwLjRDNzIzLDY1Ni41IDcyOS41LDY2MC45IDczNy4xLDY2MC45Qzc0Ny4xLDY2MC45IDc1NS4yLDY1My40IDc1NS4yLDY0NC4zQzc1NS4yLDYzNS4xIDc0Ny4xLDYyNy43IDczNy4xLDYyNy43QzczMi4xLDYyNy43IDcyNy41LDYyOS42IDcyNC4zLDYzMi42TDY5NC41LDYzMi42QzY4Ny44LDYzMi42IDY4NS45LDYyOS4yIDY4Niw2MjUuMUw2ODYsNjA3LjFDNjg2LjEsNjAwLjkgNjkxLjYsNTk2LjUgNjk4LjUsNTk2LjVaTTczNy4xLDYzNi40Qzc0MS45LDYzNi40IDc0NS43LDYzOS45IDc0NS43LDY0NC4zQzc0NS43LDY0OC42IDc0MS45LDY1Mi4yIDczNy4xLDY1Mi4yQzczMi40LDY1Mi4yIDcyOC42LDY0OC42IDcyOC42LDY0NC4zQzcyOC42LDYzOS45IDczMi40LDYzNi40IDczNy4xLDYzNi40Ii8+CjxwYXRoIGQ9Ik00NTkuMSw3OTQuN0M0NjMuOCw3OTQuNyA0NjcuNiw3OTguMiA0NjcuNiw4MDIuNkM0NjcuNiw4MDYuOSA0NjMuOCw4MTAuNSA0NTkuMSw4MTAuNUM0NTQuMyw4MTAuNSA0NTAuNSw4MDYuOSA0NTAuNSw4MDIuNkM0NTAuNSw3OTguMiA0NTQuMyw3OTQuNyA0NTkuMSw3OTQuN1pNMTY5LjQsNTcxLjZDMTc0LjEsNTcxLjYgMTc3LjksNTc1LjEgMTc3LjksNTc5LjVDMTc3LjksNTgzLjggMTc0LjEsNTg3LjQgMTY5LjQsNTg3LjRDMTY0LjcsNTg3LjQgMTYwLjgsNTgzLjggMTYwLjgsNTc5LjVDMTYwLjgsNTc1LjEgMTY0LjcsNTcxLjYgMTY5LjQsNTcxLjZaTTU4Ni44LDM3OC42QzU5OS44LDM3OC43IDYwNi4zLDM4OC45IDYwNi41LDQwMi45TDU2NC42LDQwMi45TDU2NC42LDU2Ny4xQzU2NC44LDU3MiA1NjcuNyw1NzYgNTczLjMsNTc2LjVMNTk1LjgsNTc2LjVDNjA1LjksNTc3LjggNjEzLjIsNTg0LjQgNjE0LDU5NUw2MTQsNjcxLjdDNjE0LjMsNjc2LjkgNjE3LjUsNjgxLjMgNjIyLjIsNjgyTDY4MS4yLDY4MkM2ODQuNSw2NzguMyA2ODkuNSw2NzUuOSA2OTUuMiw2NzUuOUM3MDUuMSw2NzUuOSA3MTMuMiw2ODMuMyA3MTMuMiw2OTIuNUM3MTMuMiw2OTkuOCA3MDguMiw3MDUuOSA3MDEuMSw3MDguMkw2NTEuOSw3NTQuNEM2NDkuNCw3NTYuNyA2NDkuMSw3NjAuMSA2NDkuNSw3NjMuM0w2NDkuNSw3OTguM0M3MzUuNSw3NDkuNiA4MDUuOCw2NjcuNyA4MzMuOCw1NjEuNEw4NTcuOSw1NjEuM0M4MTMuMSw3NTAuMiA2NDEuNCw4NzIuNCA0NTEuMiw4NzEuN0MyODksODcxLjIgMTEwLjEsNzQzLjQgNjAuNCw1NjNMMTY5LjQsNTYyLjlDMTc5LjMsNTYyLjkgMTg3LjQsNTcwLjMgMTg3LjQsNTc5LjVDMTg3LjQsNTg4LjcgMTc5LjMsNTk2LjEgMTY5LjQsNTk2LjFDMTYxLDU5Ni4xIDE1My45LDU5MC44IDE1MS45LDU4My42TDkzLDU4My42QzE0NS4zLDcyOC41IDI4OS41LDg0MS4yIDQ0Ni44LDg0OC43TDQ0Ni44LDgxNC43QzQ0My4zLDgxMS43IDQ0MSw4MDcuNCA0NDEsODAyLjZDNDQxLDc5My40IDQ0OS4xLDc4NiA0NTkuMSw3ODZDNDY5LDc4NiA0NzcuMSw3OTMuNCA0NzcuMSw4MDIuNkM0NzcuMSw4MDguNiA0NzMuNiw4MTMuOSA0NjguMyw4MTdMNDY4LjMsODQ4LjdDNTIyLjgsODQ3LjkgNTc3LjksODM0LjIgNjI4LjUsODA5LjNMNjI4LjUsNzU0LjhDNjI4LjIsNzUwLjIgNjMwLjUsNzQ2IDYzNC44LDc0Mi4zTDY4MCw3MDEuOEw2MTIuNyw3MDEuOEM2MDIuNyw3MDAuNiA1OTMuMSw2OTEgNTkyLjcsNjc5LjdMNTkyLjcsNjA1LjdDNTkyLjMsNjAwLjggNTkwLjMsNTk2LjQgNTg0LjQsNTk1LjlMNTU5LDU5NS45QzU0Niw1OTQuNyA1MzguNiw1ODUuNSA1MzgsNTc1LjFMNTM4LDQwMi45TDQ5NCw0MDIuOUM0OTQuMiwzODkuNCA1MDMuNCwzNzkgNTE3LjcsMzc4LjZaTTY5NS4yLDY4NC42QzY5OS45LDY4NC42IDcwMy43LDY4OC4xIDcwMy43LDY5Mi41QzcwMy43LDY5Ni45IDY5OS45LDcwMC40IDY5NS4yLDcwMC40QzY5MC41LDcwMC40IDY4Ni42LDY5Ni45IDY4Ni42LDY5Mi41QzY4Ni42LDY4OC4xIDY5MC41LDY4NC42IDY5NS4yLDY4NC42Ii8+CjxwYXRoIGQ9Ik0zMzYuOSw3ODguOEwzNzguNyw4MDEuOEMzODEuNyw4MDcuMSAzODcuOCw4MTAuNyAzOTQuNyw4MTAuN0M0MDQuNyw4MTAuNyA0MTIuOCw4MDMuMyA0MTIuOCw3OTQuMUM0MTIuOCw3ODQuOSA0MDQuNyw3NzcuNSAzOTQuNyw3NzcuNUMzOTEsNzc3LjUgMzg3LjYsNzc4LjUgMzg0LjcsNzgwLjNMMzUwLjgsNzY5LjZDMzQ1LjIsNzY3LjcgMzQyLjgsNzY1LjIgMzQyLjQsNzU5LjhMMzQyLjQsNjQ4LjVDMzQyLjUsNjM3LjUgMzM2LjgsNjMxLjcgMzI2LjksNjI5LjlMMjAzLjQsNjMwLjFDMjAwLjIsNjI3LjYgMTk2LjIsNjI2LjIgMTkxLjgsNjI2LjJDMTgxLjgsNjI2LjIgMTczLjcsNjMzLjYgMTczLjcsNjQyLjhDMTcyLjUsNjYzLjYgMjMwLjUsNzE5IDI2MS4yLDc0OC4xQzI2MS4yLDc1Ny4zIDI2OS4zLDc2NC43IDI3OS4zLDc2NC43QzI4OS4yLDc2NC43IDI5Ny4zLDc1Ny4zIDI5Ny4zLDc0OC4xQzI5Ny4zLDczOC45IDI4OS4yLDczMS41IDI3OS4zLDczMS41QzI3Ny42LDczMS41IDI3Niw3MzEuNyAyNzQuNSw3MzIuMUMyNDUuNyw3MDguOCAyMjIuNiw2ODQuNCAyMDIuNCw2NTcuNUMyMDUuMiw2NTUuOCAyMDYuOSw2NTIuMyAyMDguMyw2NDkuNUwzMTMuNiw2NDkuNUMzMTguNiw2NDkuNyAzMjAuNSw2NTIuOSAzMjAuNCw2NTguNUwzMjAuNCw3NjguMkMzMjAuNyw3NzcuOCAzMjcuOCw3ODUuMiAzMzYuOSw3ODguOFpNMzk0LjcsNzg2LjJDMzk5LjQsNzg2LjIgNDAzLjMsNzg5LjggNDAzLjMsNzk0LjFDNDAzLjMsNzk4LjUgMzk5LjQsODAyIDM5NC43LDgwMkMzOTAsODAyIDM4Ni4yLDc5OC41IDM4Ni4yLDc5NC4xQzM4Ni4yLDc4OS44IDM5MCw3ODYuMiAzOTQuNyw3ODYuMlpNMjc5LjMsNzQwLjJDMjg0LDc0MC4yIDI4Ny44LDc0My43IDI4Ny44LDc0OC4xQzI4Ny44LDc1Mi40IDI4NCw3NTYgMjc5LjMsNzU2QzI3NC41LDc1NiAyNzAuNyw3NTIuNCAyNzAuNyw3NDguMUMyNzAuNyw3NDMuNyAyNzQuNSw3NDAuMiAyNzkuMyw3NDAuMlpNMTkxLjgsNjM0LjlDMTk2LjUsNjM0LjkgMjAwLjMsNjM4LjUgMjAwLjMsNjQyLjhDMjAwLjMsNjQ3LjIgMTk2LjUsNjUwLjcgMTkxLjgsNjUwLjdDMTg3LDY1MC43IDE4My4yLDY0Ny4yIDE4My4yLDY0Mi44QzE4My4yLDYzOC41IDE4Nyw2MzQuOSAxOTEuOCw2MzQuOSIvPgo8cGF0aCBkPSJNMTUwLjMsNDc4LjlDMTYyLjQsNDc4LjkgMTcyLjIsNDg4IDE3Mi4yLDQ5OS4xQzE3Mi4yLDUxMC4zIDE2Mi40LDUxOS4zIDE1MC4zLDUxOS4zQzEzOC4yLDUxOS4zIDEyOC40LDUxMC4zIDEyOC40LDQ5OS4xQzEyOC40LDQ4OCAxMzguMiw0NzguOSAxNTAuMyw0NzguOVpNMTUwLjMsNDg5LjlDMTU1LjgsNDg5LjkgMTYwLjMsNDk0IDE2MC4zLDQ5OS4xQzE2MC4zLDUwNC4yIDE1NS44LDUwOC40IDE1MC4zLDUwOC40QzE0NC43LDUwOC40IDE0MC4yLDUwNC4yIDE0MC4yLDQ5OS4xQzE0MC4yLDQ5NCAxNDQuNyw0ODkuOSAxNTAuMyw0ODkuOSIvPgo8cGF0aCBkPSJNNjUxLjMsNDQyLjRMNjUxLjMsNDIyLjhMNjUxLjMsNDA2LjFDNjUxLjIsNDA0LjQgNjUyLjQsNDAzIDY1NS4zLDQwMi45TDY4MS44LDQwMi45TDcyMy43LDQwMi45QzcyMy41LDM4OC45IDcxNy4xLDM3OC43IDcwNCwzNzguNkw2NTEuMSwzNzguNkM2NDIuNywzNzguNiA2MjUuNCwzOTAuNSA2MjUuMiw0MDIuOUw2MjUuMiw0MzAuM0w2MjUuMiw0ODYuN0w2MjUuMiw1MTQuMkM2MjUuNCw1MjYuNSA2NDIuNyw1MzguNSA2NTEuMSw1MzguNUw3MDQsNTM4LjVDNzE3LjEsNTM4LjQgNzIzLjUsNTI4LjIgNzIzLjcsNTE0LjJMNjgxLjgsNTE0LjJMNjU2LjQsNTE0LjJDNjUzLjQsNTE0LjEgNjUxLjIsNTExLjMgNjUxLjMsNTA5LjdMNjUxLjMsNDkyLjlMNjUxLjMsNDY4LjhDNjUxLjIsNDY3LjIgNjUyLDQ2NS42IDY1NC42LDQ2NS42TDcxNS41LDQ2NS42TDcxNS41LDQ1MEM3MTUuNCw0NDYuMyA3MTIuNCw0NDIuNCA3MDcuMiw0NDIuNFoiLz4KPHBhdGggZD0iTTQ1MS4zLDQwMi45TDM3NC4yLDUxMy41QzM2OSw1MjMuMSAzNzguMSw1MzcgMzg5LjgsNTM2LjlMNDY5LjYsNTM2LjlDNDg5LjIsNTM2LjIgNDg0LjksNTEzIDQ3NS44LDUxM0w0MDIuNiw1MTNMNDEzLDQ5OC4xQzQyNy45LDQ3Ny4zIDQ0Mi43LDQ1Ni41IDQ1Ny41LDQzNS43QzQ2NS4zLDQyNS4xIDQ3NS45LDQxMS4yIDQ3OS41LDQwMi45QzQ4My4yLDM4OS41IDQ3NC41LDM3OC43IDQ1OS44LDM3OC42TDM5Ni4xLDM3OC42QzM4NS44LDM3OC42IDM3MC4zLDM4NS44IDM3MC4yLDQwMi45WiIvPgo8cGF0aCBkPSJNMzI1LjcsNDAyLjlMMjQ4LjcsNTEzLjVDMjQzLjQsNTIzLjEgMjUyLjYsNTM3IDI2NC4zLDUzNi45TDM0NC4xLDUzNi45QzM2My43LDUzNi4yIDM1OS4zLDUxMyAzNTAuMyw1MTNMMjc3LjEsNTEzTDI4Ny41LDQ5OC4xQzMwMi4zLDQ3Ny4zIDMxNy4yLDQ1Ni41IDMzMiw0MzUuN0MzMzkuOCw0MjUuMSAzNTAuNCw0MTEuMiAzNTQsNDAyLjlDMzU3LjcsMzg5LjUgMzQ5LDM3OC43IDMzNC4zLDM3OC42TDI3MC42LDM3OC42QzI2MC4zLDM3OC42IDI0NC44LDM4NS44IDI0NC43LDQwMi45WiIvPgo8cGF0aCBkPSJNNDA5LjIsNzIyLjJDMzk4LjIsNzIxLjggMzg3LjgsNzEzLjQgMzg3LjUsNzAzLjVMMzg3LjUsNjA3LjNDMzg2LjYsNjAxLjIgMzg0LjcsNTk4LjQgMzc4LDU5OC4yTDI3Mi43LDU5OC4yQzI0OC43LDU5Ny40IDIzMS43LDU4Ny42IDIyMS44LDU2OUwxNDkuMiw0MDguNkw5Mi43LDUzOC4zTDY2LjIsNTM4LjNDODYuMiw0ODkuMyAxMDYuMSw0NDEuNyAxMjYsMzk4QzEzNS40LDM3NC41IDE2MS4xLDM3MS40IDE3Mi44LDM5My40TDIyNS4zLDUxMi42TDI0My44LDU1Ni43QzI0OS41LDU2Ny45IDI1Ny41LDU3NS41IDI3Mi4zLDU3Ni44TDM4Ni44LDU3Ni44QzQwMS4yLDU3Ny40IDQwOC41LDU4NS40IDQwOC43LDYwMS4yTDQwOC43LDY5NC4zQzQwOC43LDY5OS44IDQxMC42LDcwMy40IDQxOC4xLDcwMy45TDQ1Ni43LDcwMy45QzQ2Ni42LDcwMy45IDQ3NC43LDcxMS4zIDQ3NC43LDcyMC41QzQ3NC43LDcyOS43IDQ2Ni42LDczNy4xIDQ1Ni43LDczNy4xQzQ0Ny4zLDczNy4xIDQzOS42LDczMC42IDQzOC43LDcyMi4yWk00NTYuNyw3MTIuNkM0NjEuNCw3MTIuNiA0NjUuMiw3MTYuMSA0NjUuMiw3MjAuNUM0NjUuMiw3MjQuOCA0NjEuNCw3MjguNCA0NTYuNyw3MjguNEM0NTEuOSw3MjguNCA0NDguMSw3MjQuOCA0NDguMSw3MjAuNUM0NDguMSw3MTYuMSA0NTEuOSw3MTIuNiA0NTYuNyw3MTIuNiIvPgo8L2c+CjwvZGVmcz4KPGcgZmlsdGVyPSJ1cmwoI2dsb3cpIj4KPHVzZSB4bGluazpocmVmPSIjYXp0IiBmaWxsPSIjMkUxRTA1IiBzdHJva2U9IiMyRTFFMDUiIHN0cm9rZS13aWR0aD0iNyIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTEgMTEpIi8+Cjx1c2UgeGxpbms6aHJlZj0iI2F6dCIgZmlsbD0idXJsKCNnb2xkKSIgc3Ryb2tlPSJ1cmwoI2dvbGQpIiBzdHJva2Utd2lkdGg9IjciIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9nPgo8L3N2Zz4K",
+          "style": {
+            "cursor": "pointer",
+            "height": "48px",
+            "marginRight": "10px",
+            "objectFit": "fill",
+            "width": "48px"
+          }
+        },
+        "type": "ia.display.image"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "lblAMMS_MMS"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "props": {
+                  "style": {
+                    "color": "#9AA3A7",
+                    "fontSize": "8px",
+                    "fontWeight": "700",
+                    "letterSpacing": "1px",
+                    "lineHeight": "10px",
+                    "textAlign": "center",
+                    "transform": "rotate(180deg)",
+                    "whiteSpace": "nowrap",
+                    "writingMode": "vertical-rl"
+                  },
+                  "text": "MMS"
+                },
+                "type": "ia.display.label"
+              },
+              {
+                "meta": {
+                  "name": "lblAMMS_A"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "props": {
+                  "style": {
+                    "classes": "wm-brand-a-glow",
+                    "color": "#9AA3A7",
+                    "fontSize": "8px",
+                    "fontWeight": "800",
+                    "letterSpacing": "1px",
+                    "lineHeight": "10px",
+                    "textAlign": "center",
+                    "transform": "rotate(180deg)",
+                    "whiteSpace": "nowrap",
+                    "writingMode": "vertical-rl"
+                  },
+                  "text": "A"
+                },
+                "type": "ia.display.label"
+              }
+            ],
+            "meta": {
+              "name": "AMMSSpine"
+            },
+            "position": {
+              "basis": "12px",
+              "shrink": 0
+            },
+            "propConfig": {
+              "position.display": {
+                "binding": {
+                  "config": {
+                    "expression": "{session.custom.wmBrandMode} !\u003d \u0027AZZTEC\u0027"
+                  },
+                  "type": "expr"
+                }
+              }
+            },
+            "props": {
+              "alignItems": "center",
+              "direction": "column",
+              "justify": "center",
+              "style": {
+                "gap": "1px",
+                "maxWidth": "12px",
+                "minWidth": "12px",
+                "overflow": "hidden"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "meta": {
+              "name": "lblBrandName"
+            },
+            "position": {
+              "shrink": 0
+            },
+            "propConfig": {
+              "position.display": {
+                "binding": {
+                  "config": {
+                    "expression": "{session.custom.wmBrandMode} !\u003d \u0027AZZTEC\u0027"
+                  },
+                  "type": "expr"
+                }
+              }
+            },
+            "props": {
+              "style": {
+                "background": "linear-gradient(180deg, #FFFFFF 0%, #FFF3C9 30%, #F5D67E 48%, #B37F2A 51%, #96691F 72%, #F2D68C 100%)",
+                "backgroundClip": "text",
+                "color": "transparent",
+                "filter": "drop-shadow(0 2px 3px rgba(0,0,0,0.35))",
+                "fontSize": "26px",
+                "fontWeight": "700",
+                "letterSpacing": "0.8px",
+                "lineHeight": "28px",
+                "overflow": "visible",
+                "textShadow": "0 -1px 0 rgba(255,255,255,0.35), 0 1px 0 rgba(40,30,12,0.95), 0 2px 2px rgba(0,0,0,0.50), 0 4px 8px rgba(0,0,0,0.35), 0 0 14px rgba(235,196,82,0.30)",
+                "webkitBackgroundClip": "text",
+                "webkitTextFillColor": "transparent",
+                "whiteSpace": "nowrap"
+              },
+              "text": "Workmate"
+            },
+            "type": "ia.display.label"
+          },
+          {
+            "meta": {
+              "name": "lblBrandNameAzztec"
+            },
+            "position": {
+              "shrink": 0
+            },
+            "propConfig": {
+              "position.display": {
+                "binding": {
+                  "config": {
+                    "expression": "{session.custom.wmBrandMode} \u003d \u0027AZZTEC\u0027"
+                  },
+                  "type": "expr"
+                }
+              }
+            },
+            "props": {
+              "style": {
+                "background": "linear-gradient(180deg, #FFFFFF 0%, #FFF7D6 26%, #FFE08A 47%, #C8912F 51%, #A87718 70%, #FFE9A8 100%)",
+                "backgroundClip": "text",
+                "classes": "wm-brand-azztec-gold",
+                "color": "transparent",
+                "filter": "drop-shadow(0 2px 3px rgba(0,0,0,0.35))",
+                "fontSize": "26px",
+                "fontWeight": "700",
+                "letterSpacing": "0.8px",
+                "lineHeight": "28px",
+                "overflow": "visible",
+                "textShadow": "0 -1px 0 rgba(255,255,255,0.35), 0 1px 0 rgba(40,30,12,0.95), 0 2px 2px rgba(0,0,0,0.50), 0 4px 8px rgba(0,0,0,0.35), 0 0 14px rgba(235,196,82,0.30)",
+                "webkitBackgroundClip": "text",
+                "webkitTextFillColor": "transparent",
+                "whiteSpace": "nowrap"
+              },
+              "text": "Azztec"
+            },
+            "type": "ia.display.label"
+          }
+        ],
+        "meta": {
+          "name": "BrandBlock"
+        },
+        "position": {
+          "shrink": 0
+        },
+        "props": {
+          "alignItems": "center",
+          "style": {
+            "gap": "6px",
+            "marginLeft": "2px",
+            "marginRight": "14px",
+            "overflow": "hidden"
+          }
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tx \u003d event.clientX\n\ty \u003d event.clientY\n\tsystem.perspective.openPopup(id\u003d\u0027MenuApplication_Popup\u0027, view\u003d\u0027Workmate/Popups/MenuApplicationPopup\u0027, params\u003d{}, position\u003d{\u0027left\u0027: x - 10, \u0027top\u0027: y + 10}, showCloseIcon\u003dFalse, modal\u003dTrue, draggable\u003dFalse, resizable\u003dFalse, viewportBound\u003dTrue, overlayDismiss\u003dTrue)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "classes": "psc-menubar-item",
+          "name": "MenuApplication"
+        },
+        "propConfig": {
+          "props.style.borderBottom": {
+            "binding": {
+              "config": {
+                "expression": "if(indexOf(\u0027|asset|part|meter|locationsetup|supplier|team|maintenance|wizard|pmx|timesheet|planning|schedulex|visualx|resetpassword|\u0027, \u0027|\u0027 + {session.custom.activePage} + \u0027|\u0027) \u003e\u003d 0, \u00272px solid #EBC452\u0027, \u00272px solid transparent\u0027)"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "borderRadius": "3px",
+            "color": "#C0C8CA",
+            "cursor": "pointer",
+            "fontSize": "12px",
+            "fontWeight": "400",
+            "padding": "2px 8px"
+          },
+          "text": "Application"
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tx \u003d event.clientX\n\ty \u003d event.clientY\n\tsystem.perspective.openPopup(id\u003d\u0027MenuUtilities_Popup\u0027, view\u003d\u0027Workmate/Popups/MenuUtilitiesPopup\u0027, params\u003d{}, position\u003d{\u0027left\u0027: x - 10, \u0027top\u0027: y + 10}, showCloseIcon\u003dFalse, modal\u003dTrue, draggable\u003dFalse, resizable\u003dFalse, viewportBound\u003dTrue, overlayDismiss\u003dTrue)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "classes": "psc-menubar-item",
+          "name": "MenuUtilities"
+        },
+        "propConfig": {
+          "props.style.borderBottom": {
+            "binding": {
+              "config": {
+                "expression": "if(indexOf(\u0027|pmrelease|rebuildpmwo|archiveworkorders|assetarchive|partarchive|customformsetup|\u0027, \u0027|\u0027 + {session.custom.activePage} + \u0027|\u0027) \u003e\u003d 0, \u00272px solid #EBC452\u0027, \u00272px solid transparent\u0027)"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "borderRadius": "3px",
+            "color": "#C0C8CA",
+            "cursor": "pointer",
+            "fontSize": "12px",
+            "fontWeight": "400",
+            "padding": "2px 8px"
+          },
+          "text": "Utilities"
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tx \u003d event.clientX\n\ty \u003d event.clientY\n\tsystem.perspective.openPopup(id\u003d\u0027MenuSystem_Popup\u0027, view\u003d\u0027Workmate/Popups/MenuSystemPopup\u0027, params\u003d{}, position\u003d{\u0027left\u0027: x - 10, \u0027top\u0027: y + 10}, showCloseIcon\u003dFalse, modal\u003dTrue, draggable\u003dFalse, resizable\u003dFalse, viewportBound\u003dTrue, overlayDismiss\u003dTrue)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "classes": "psc-menubar-item",
+          "name": "MenuSystem"
+        },
+        "propConfig": {
+          "props.style.borderBottom": {
+            "binding": {
+              "config": {
+                "expression": "if(indexOf(\u0027|refcodesetup|usersettings|usermapping|systemsetup|useravailability|securitysetup|\u0027, \u0027|\u0027 + {session.custom.activePage} + \u0027|\u0027) \u003e\u003d 0, \u00272px solid #EBC452\u0027, \u00272px solid transparent\u0027)"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "borderRadius": "3px",
+            "color": "#C0C8CA",
+            "cursor": "pointer",
+            "fontSize": "12px",
+            "fontWeight": "400",
+            "padding": "2px 8px"
+          },
+          "text": "System"
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "SepMenuNav"
+        },
+        "position": {
+          "basis": "1px",
+          "shrink": 0
+        },
+        "props": {
+          "style": {
+            "borderLeft": "1px solid rgba(255,255,255,0.15)",
+            "height": "16px",
+            "marginLeft": "6px",
+            "marginRight": "6px"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "children": [
+          {
+            "meta": {
+              "name": "SchedulexIcon"
+            },
+            "position": {
+              "basis": 15,
+              "shrink": 0
+            },
+            "props": {
+              "color": "#9C27B0",
+              "path": "material/event_note",
+              "size": {
+                "height": 13,
+                "width": 13
+              },
+              "style": {
+                "fontSize": "14px",
+                "marginRight": "2px"
+              }
+            },
+            "type": "ia.display.icon"
+          },
+          {
+            "meta": {
+              "name": "SchedulexLabel"
+            },
+            "position": {
+              "basis": 55
+            },
+            "props": {
+              "style": {
+                "color": "#C0C8CA",
+                "fontSize": "12px",
+                "lineHeight": "1"
+              },
+              "text": "Schedulex"
+            },
+            "type": "ia.display.label"
+          }
+        ],
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tself.session.custom[\u0027activePage\u0027] \u003d \u0027schedulex\u0027\n\tself.session.custom.schedulexCriteria \u003d \u0027\u0027\n\tself.session.custom.schedulexReportName \u003d \u0027\u0027\n\tself.session.custom.schedulexViewDateMode \u003d \u0027\u0027\n\tself.session.custom.schedulexViewDateFrom \u003d \u0027\u0027\n\tself.session.custom.schedulexViewDateTo \u003d \u0027\u0027\n\tsystem.perspective.sendMessage(\u0027debug-log\u0027, {\u0027source\u0027: \u0027HeaderToolbar\u0027, \u0027message\u0027: \u0027Navigate: Schedulex (all)\u0027}, scope\u003d\u0027session\u0027)\n\tsystem.perspective.navigate(\u0027/schedulex\u0027)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "classes": "psc-toolbar-btn",
+          "name": "BtnSchedulex"
+        },
+        "propConfig": {
+          "props.style.borderBottom": {
+            "binding": {
+              "config": {
+                "expression": "if({session.custom.activePage} \u003d \u0027schedulex\u0027, \u00272px solid #9C27B0\u0027, \u00272px solid transparent\u0027)"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "alignItems": "center",
+          "style": {
+            "borderRadius": "3px",
+            "cursor": "pointer",
+            "padding": "1px 6px"
+          }
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "children": [
+          {
+            "meta": {
+              "name": "PlannexIcon"
+            },
+            "position": {
+              "basis": 15,
+              "shrink": 0
+            },
+            "props": {
+              "color": "#4CAF50",
+              "path": "material/event_available",
+              "size": {
+                "height": 13,
+                "width": 13
+              },
+              "style": {
+                "fontSize": "14px",
+                "marginRight": "2px"
+              }
+            },
+            "type": "ia.display.icon"
+          },
+          {
+            "meta": {
+              "name": "PlannexLabel"
+            },
+            "position": {
+              "basis": 55
+            },
+            "props": {
+              "style": {
+                "color": "#C0C8CA",
+                "fontSize": "12px",
+                "lineHeight": "1"
+              },
+              "text": "Plannex"
+            },
+            "type": "ia.display.label"
+          }
+        ],
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tself.session.custom[\u0027activePage\u0027] \u003d \u0027plannex\u0027\n\tsystem.perspective.sendMessage(\u0027debug-log\u0027, {\u0027source\u0027: \u0027HeaderToolbar\u0027, \u0027message\u0027: \u0027Navigate: Plannex (all)\u0027}, scope\u003d\u0027session\u0027)\n\tsystem.perspective.navigate(\u0027/Workmate/Plannex/Plannex\u0027)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "classes": "psc-toolbar-btn",
+          "name": "BtnPlannex"
+        },
+        "propConfig": {
+          "props.style.borderBottom": {
+            "binding": {
+              "config": {
+                "expression": "if({session.custom.activePage} \u003d \u0027plannex\u0027, \u00272px solid #4CAF50\u0027, \u00272px solid transparent\u0027)"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "alignItems": "center",
+          "style": {
+            "borderRadius": "3px",
+            "cursor": "pointer",
+            "padding": "1px 6px"
+          }
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "children": [
+          {
+            "meta": {
+              "name": "ProcurexIcon"
+            },
+            "position": {
+              "basis": 15,
+              "shrink": 0
+            },
+            "props": {
+              "color": "#795548",
+              "path": "material/shopping_cart",
+              "size": {
+                "height": 13,
+                "width": 13
+              },
+              "style": {
+                "fontSize": "14px",
+                "marginRight": "2px"
+              }
+            },
+            "type": "ia.display.icon"
+          },
+          {
+            "meta": {
+              "name": "ProcurexLabel"
+            },
+            "position": {
+              "basis": 50
+            },
+            "props": {
+              "style": {
+                "color": "#C0C8CA",
+                "fontSize": "12px",
+                "lineHeight": "1"
+              },
+              "text": "Procurex"
+            },
+            "type": "ia.display.label"
+          }
+        ],
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tself.session.custom[\u0027activePage\u0027] \u003d \u0027procurex\u0027\n\tself.session.custom.procurexCriteria \u003d \u0027\u0027\n\tself.session.custom.procurexReportName \u003d \u0027\u0027\n\tself.session.custom.procurexViewDateMode \u003d \u0027\u0027\n\tself.session.custom.procurexViewDateFrom \u003d \u0027\u0027\n\tself.session.custom.procurexViewDateTo \u003d \u0027\u0027\n\tsystem.perspective.sendMessage(\u0027debug-log\u0027, {\u0027source\u0027: \u0027HeaderToolbar\u0027, \u0027message\u0027: \u0027Navigate: Procurex (all)\u0027}, scope\u003d\u0027session\u0027)\n\tsystem.perspective.navigate(\u0027/procurex\u0027)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "classes": "psc-toolbar-btn",
+          "name": "BtnProcurex"
+        },
+        "propConfig": {
+          "props.style.borderBottom": {
+            "binding": {
+              "config": {
+                "expression": "if({session.custom.activePage} \u003d \u0027procurex\u0027, \u00272px solid #795548\u0027, \u00272px solid transparent\u0027)"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "alignItems": "center",
+          "style": {
+            "borderRadius": "3px",
+            "cursor": "pointer",
+            "padding": "1px 6px"
+          }
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "children": [
+          {
+            "meta": {
+              "name": "PMxIcon"
+            },
+            "position": {
+              "basis": 15,
+              "shrink": 0
+            },
+            "props": {
+              "color": "#607D8B",
+              "path": "material/build",
+              "size": {
+                "height": 13,
+                "width": 13
+              },
+              "style": {
+                "fontSize": "14px",
+                "marginRight": "2px"
+              }
+            },
+            "type": "ia.display.icon"
+          },
+          {
+            "meta": {
+              "name": "PMxLabel"
+            },
+            "position": {
+              "basis": 28
+            },
+            "props": {
+              "style": {
+                "color": "#C0C8CA",
+                "fontSize": "12px",
+                "lineHeight": "1"
+              },
+              "text": "PMx"
+            },
+            "type": "ia.display.label"
+          }
+        ],
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tself.session.custom[\u0027activePage\u0027] \u003d \u0027pmx\u0027\n\tsystem.perspective.sendMessage(\u0027debug-log\u0027, {\u0027source\u0027: \u0027HeaderToolbar\u0027, \u0027message\u0027: \u0027Navigate: PMx (masters)\u0027}, scope\u003d\u0027session\u0027)\n\tsystem.perspective.navigate(\u0027/Workmate/PMx/PMx\u0027)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "classes": "psc-toolbar-btn",
+          "name": "BtnPMx"
+        },
+        "propConfig": {
+          "props.style.borderBottom": {
+            "binding": {
+              "config": {
+                "expression": "if({session.custom.activePage} \u003d \u0027pmx\u0027, \u00272px solid #607D8B\u0027, \u00272px solid transparent\u0027)"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "alignItems": "center",
+          "style": {
+            "borderRadius": "3px",
+            "cursor": "pointer",
+            "padding": "1px 6px"
+          }
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "children": [
+          {
+            "meta": {
+              "name": "InvoicexIcon"
+            },
+            "position": {
+              "basis": 15,
+              "shrink": 0
+            },
+            "props": {
+              "color": "#00BCD4",
+              "path": "material/receipt",
+              "size": {
+                "height": 13,
+                "width": 13
+              },
+              "style": {
+                "fontSize": "14px",
+                "marginRight": "2px"
+              }
+            },
+            "type": "ia.display.icon"
+          },
+          {
+            "meta": {
+              "name": "InvoicexLabel"
+            },
+            "position": {
+              "basis": 48
+            },
+            "props": {
+              "style": {
+                "color": "#C0C8CA",
+                "fontSize": "12px",
+                "lineHeight": "1"
+              },
+              "text": "Invoicex"
+            },
+            "type": "ia.display.label"
+          }
+        ],
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": ""
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "classes": "psc-toolbar-btn",
+          "name": "BtnInvoicex"
+        },
+        "propConfig": {
+          "props.style.borderBottom": {
+            "binding": {
+              "config": {
+                "expression": "if({session.custom.activePage} \u003d \u0027invoicex\u0027, \u00272px solid #00BCD4\u0027, \u00272px solid transparent\u0027)"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "alignItems": "center",
+          "style": {
+            "borderRadius": "3px",
+            "cursor": "pointer",
+            "padding": "1px 6px"
+          }
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "children": [
+          {
+            "meta": {
+              "name": "MyReportsIcon"
+            },
+            "position": {
+              "basis": 15,
+              "shrink": 0
+            },
+            "props": {
+              "color": "#E91E63",
+              "path": "material/assessment",
+              "size": {
+                "height": 13,
+                "width": 13
+              },
+              "style": {
+                "fontSize": "14px",
+                "marginRight": "2px"
+              }
+            },
+            "type": "ia.display.icon"
+          },
+          {
+            "meta": {
+              "name": "MyReportsLabel"
+            },
+            "position": {
+              "basis": 45
+            },
+            "props": {
+              "style": {
+                "color": "#C0C8CA",
+                "fontSize": "12px",
+                "lineHeight": "1"
+              },
+              "text": "Reports"
+            },
+            "type": "ia.display.label"
+          }
+        ],
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "url": "/workmate/home?tab\u003d2"
+              },
+              "scope": "G",
+              "type": "navigation"
+            }
+          }
+        },
+        "meta": {
+          "classes": "psc-toolbar-btn",
+          "name": "BtnMyReports"
+        },
+        "props": {
+          "alignItems": "center",
+          "style": {
+            "borderRadius": "3px",
+            "cursor": "pointer",
+            "padding": "1px 6px"
+          }
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "meta": {
+          "name": "Spacer"
+        },
+        "position": {
+          "grow": 1
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "pillIcon"
+                },
+                "position": {
+                  "basis": "16px",
+                  "shrink": 0
+                },
+                "props": {
+                  "color": "#DEBF7A",
+                  "path": "material/search",
+                  "style": {
+                    "fontSize": 14
+                  }
+                },
+                "type": "ia.display.icon"
+              },
+              {
+                "meta": {
+                  "name": "pillLabel"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "props": {
+                  "style": {
+                    "color": "#E8E4DB",
+                    "fontSize": "11px",
+                    "fontWeight": "500",
+                    "letterSpacing": "0.3px",
+                    "whiteSpace": "nowrap"
+                  },
+                  "text": "Search parts"
+                },
+                "type": "ia.display.label"
+              }
+            ],
+            "events": {
+              "dom": {
+                "onClick": {
+                  "config": {
+                    "script": "\tsystem.perspective.sendMessage(\u0027debug-log\u0027, {\u0027message\u0027: \u0027[HeaderToolbar] VXSearchPill clicked\u0027}, scope\u003d\u0027session\u0027)\n\tsystem.perspective.openPopup(\u0027vxQuickSearch\u0027, \u0027Workmate/VisualX/VX_QuickSearch\u0027, showCloseIcon\u003dFalse, draggable\u003dFalse, resizable\u003dFalse, modal\u003dTrue, overlayDismiss\u003dFalse)\n"
+                  },
+                  "scope": "G",
+                  "type": "script"
+                }
+              }
+            },
+            "meta": {
+              "name": "VXSearchPill"
+            },
+            "propConfig": {
+              "position.display": {
+                "binding": {
+                  "config": {
+                    "expression": "runScript(\u0027workmate.security.allowed\u0027, 0, {session.custom.wmAccessLevel}, {session.custom.wmMenuRights}, \u0027visualx\u0027)"
+                  },
+                  "type": "expr"
+                }
+              }
+            },
+            "props": {
+              "alignItems": "center",
+              "justifyContent": "center",
+              "style": {
+                "backgroundColor": "rgba(255,255,255,0.10)",
+                "border": "1px solid rgba(255,255,255,0.22)",
+                "borderRadius": "13px",
+                "cursor": "pointer",
+                "gap": "6px",
+                "height": "26px",
+                "padding": "0px 12px",
+                "transition": "background-color 0.2s ease, border-color 0.2s ease"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "TipsIcon"
+                },
+                "props": {
+                  "color": "#FFFFFF",
+                  "path": "material/help_outline",
+                  "style": {
+                    "fontSize": "16px"
+                  }
+                },
+                "type": "ia.display.icon"
+              }
+            ],
+            "events": {
+              "dom": {
+                "onClick": {
+                  "config": {
+                    "script": "\tsystem.perspective.sendMessage(\u0027tips-toggle\u0027, {}, scope\u003d\u0027session\u0027)"
+                  },
+                  "scope": "G",
+                  "type": "script"
+                }
+              }
+            },
+            "meta": {
+              "name": "TipsToggle"
+            },
+            "propConfig": {
+              "props.style.backgroundColor": {
+                "binding": {
+                  "config": {
+                    "expression": "if({session.custom.showTips}, \u0027#00BCD4\u0027, \u0027#8E9EA3\u0027)"
+                  },
+                  "type": "expr"
+                }
+              },
+              "props.style.boxShadow": {
+                "binding": {
+                  "config": {
+                    "expression": "if({session.custom.showTips}, \u00270 0 6px 2px rgba(0,188,212,0.3)\u0027, \u0027none\u0027)"
+                  },
+                  "type": "expr"
+                }
+              }
+            },
+            "props": {
+              "alignItems": "center",
+              "justify": "center",
+              "style": {
+                "borderRadius": "50%",
+                "cursor": "pointer",
+                "height": "22px",
+                "marginRight": "4px",
+                "minWidth": "22px",
+                "transition": "background-color 0.2s ease, box-shadow 0.2s ease",
+                "width": "22px"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "events": {
+                          "dom": {
+                            "onClick": {
+                              "config": {
+                                "action": "Toggle",
+                                "type": "Page"
+                              },
+                              "scope": "C",
+                              "type": "fullscreen"
+                            }
+                          }
+                        },
+                        "meta": {
+                          "name": "fsBtn"
+                        },
+                        "position": {
+                          "height": 1,
+                          "width": 1
+                        },
+                        "props": {
+                          "image": {
+                            "height": 100,
+                            "icon": {
+                              "path": "material/fullscreen"
+                            },
+                            "position": "center",
+                            "width": 100
+                          },
+                          "primary": false,
+                          "style": {
+                            "backgroundColor": "#FFFFFF",
+                            "borderBottomLeftRadius": 5,
+                            "borderBottomRightRadius": 5,
+                            "borderColor": "#FFFFFF",
+                            "borderStyle": "solid",
+                            "borderTopLeftRadius": 5,
+                            "borderTopRightRadius": 5,
+                            "borderWidth": 1
+                          },
+                          "text": ""
+                        },
+                        "type": "ia.input.button"
+                      }
+                    ],
+                    "meta": {
+                      "name": "fsCoord"
+                    },
+                    "position": {
+                      "basis": "20px",
+                      "shrink": 0
+                    },
+                    "props": {
+                      "aspectRatio": "1:1",
+                      "mode": "percent",
+                      "style": {
+                        "margin": 5,
+                        "overflow": "visible"
+                      }
+                    },
+                    "type": "ia.container.coord"
+                  },
+                  {
+                    "children": [
+                      {
+                        "events": {
+                          "dom": {
+                            "onClick": {
+                              "config": {},
+                              "scope": "C",
+                              "type": "logout"
+                            }
+                          }
+                        },
+                        "meta": {
+                          "name": "logoutBtn"
+                        },
+                        "position": {
+                          "height": 1,
+                          "width": 1
+                        },
+                        "props": {
+                          "image": {
+                            "height": 14,
+                            "position": "center",
+                            "source": "/system/images/material_additional/logout_24dp_1F1F1F.svg",
+                            "width": 14
+                          },
+                          "primary": false,
+                          "style": {
+                            "backgroundColor": "#FFFFFF",
+                            "borderBottomLeftRadius": 5,
+                            "borderBottomRightRadius": 5,
+                            "borderColor": "#FFFFFF",
+                            "borderStyle": "solid",
+                            "borderTopLeftRadius": 5,
+                            "borderTopRightRadius": 5,
+                            "borderWidth": 1
+                          },
+                          "text": ""
+                        },
+                        "type": "ia.input.button"
+                      }
+                    ],
+                    "meta": {
+                      "name": "logoutCoord"
+                    },
+                    "position": {
+                      "basis": "20.0px",
+                      "shrink": 0
+                    },
+                    "props": {
+                      "aspectRatio": "1:1",
+                      "mode": "percent",
+                      "style": {
+                        "margin": 5,
+                        "overflow": "visible"
+                      }
+                    },
+                    "type": "ia.container.coord"
+                  },
+                  {
+                    "meta": {
+                      "name": "dateLabel"
+                    },
+                    "position": {
+                      "grow": 1
+                    },
+                    "propConfig": {
+                      "props.text": {
+                        "binding": {
+                          "config": {
+                            "expression": "dateFormat(now(), \"MMM d\") "
+                          },
+                          "type": "expr"
+                        }
+                      }
+                    },
+                    "props": {
+                      "textStyle": {
+                        "classes": "Text/SubHeader",
+                        "color": "#FFFFFF",
+                        "fontSize": "1.7vh",
+                        "paddingLeft": 5,
+                        "paddingRight": 5,
+                        "textAlign": "right"
+                      }
+                    },
+                    "type": "ia.display.label"
+                  }
+                ],
+                "meta": {
+                  "name": "topRow"
+                },
+                "position": {
+                  "basis": "28px"
+                },
+                "props": {
+                  "style": {
+                    "overflow": "visible"
+                  }
+                },
+                "type": "ia.container.flex"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "events": {
+                          "dom": {
+                            "onClick": {
+                              "config": {
+                                "page": "/DisplayUsers"
+                              },
+                              "scope": "C",
+                              "type": "nav"
+                            }
+                          }
+                        },
+                        "meta": {
+                          "name": "userBtn"
+                        },
+                        "position": {
+                          "height": 1,
+                          "width": 1
+                        },
+                        "propConfig": {
+                          "meta.visible": {
+                            "binding": {
+                              "config": {
+                                "expression": "hasRole(\"Administrator\", {session.props.auth.user.userName}, \"KPP\")"
+                              },
+                              "type": "expr"
+                            }
+                          }
+                        },
+                        "props": {
+                          "image": {
+                            "height": 100,
+                            "icon": {
+                              "path": "material/group"
+                            },
+                            "position": "center",
+                            "width": 100
+                          },
+                          "primary": false,
+                          "style": {
+                            "backgroundColor": "#FFFFFF",
+                            "borderBottomLeftRadius": 5,
+                            "borderBottomRightRadius": 5,
+                            "borderColor": "#FFFFFF",
+                            "borderStyle": "solid",
+                            "borderTopLeftRadius": 5,
+                            "borderTopRightRadius": 5,
+                            "borderWidth": 1
+                          },
+                          "text": ""
+                        },
+                        "type": "ia.input.button"
+                      }
+                    ],
+                    "meta": {
+                      "name": "userCoord"
+                    },
+                    "position": {
+                      "basis": "20px",
+                      "shrink": 0
+                    },
+                    "props": {
+                      "aspectRatio": "1:1",
+                      "mode": "percent",
+                      "style": {
+                        "margin": 5,
+                        "overflow": "visible"
+                      }
+                    },
+                    "type": "ia.container.coord"
+                  },
+                  {
+                    "meta": {
+                      "name": "timeLabel"
+                    },
+                    "position": {
+                      "grow": 1
+                    },
+                    "propConfig": {
+                      "props.text": {
+                        "binding": {
+                          "config": {
+                            "expression": "dateFormat(now(), \"HH:mm:ss\") "
+                          },
+                          "type": "expr"
+                        }
+                      }
+                    },
+                    "props": {
+                      "style": {
+                        "overflowWrap": "normal",
+                        "textOverflow": "clip"
+                      },
+                      "textStyle": {
+                        "classes": "Text/SubHeader",
+                        "color": "#FFFFFF",
+                        "fontSize": "1.7vh",
+                        "paddingLeft": 5,
+                        "paddingRight": 5,
+                        "textAlign": "right"
+                      }
+                    },
+                    "type": "ia.display.label"
+                  }
+                ],
+                "meta": {
+                  "name": "bottomRow"
+                },
+                "position": {
+                  "basis": "28px"
+                },
+                "props": {
+                  "style": {
+                    "overflow": "visible"
+                  }
+                },
+                "type": "ia.container.flex"
+              }
+            ],
+            "meta": {
+              "name": "ControlStack"
+            },
+            "position": {
+              "basis": "160px",
+              "shrink": 0
+            },
+            "props": {
+              "direction": "column",
+              "style": {
+                "height": "50px",
+                "marginLeft": "5px",
+                "marginRight": "5px",
+                "maxHeight": "50px",
+                "overflow": "hidden"
+              }
+            },
+            "type": "ia.container.flex"
+          }
+        ],
+        "meta": {
+          "name": "RightControls"
+        },
+        "position": {
+          "shrink": 0
+        },
+        "props": {
+          "alignItems": "center",
+          "style": {
+            "gap": "8px",
+            "paddingRight": "8px"
+          }
+        },
+        "type": "ia.container.flex"
+      }
+    ],
+    "events": {
+      "system": {
+        "onStartup": {
+          "config": {
+            "script": "\tif not self.session.custom.get(\u0027activePage\u0027, \u0027\u0027):\n\t\tself.session.custom[\u0027activePage\u0027] \u003d \u0027\u0027\n\ttry:\n\t\tusername \u003d self.session.props.auth.user.userName\n\t\tsystem.perspective.sendMessage(\u0027debug-log\u0027, {\u0027source\u0027: \u0027Tips\u0027, \u0027message\u0027: \u0027onStartup: loading prefs for \u0027 + str(username)}, scope\u003d\u0027session\u0027)\n\t\tresults \u003d system.db.runNamedQuery(\u0027Workmate/Tips/GetUserPrefs\u0027, {\u0027username\u0027: username})\n\t\tif results.rowCount \u003e 0:\n\t\t\tshowVal \u003d bool(results.getValueAt(0, \u0027ShowTips\u0027))\n\t\t\tdismVal \u003d str(results.getValueAt(0, \u0027DismissedTips\u0027) or \u0027\u0027)\n\t\t\tself.session.custom[\u0027showTips\u0027] \u003d showVal\n\t\t\tself.session.custom[\u0027dismissedTips\u0027] \u003d dismVal\n\t\t\tsystem.perspective.sendMessage(\u0027debug-log\u0027, {\u0027source\u0027: \u0027Tips\u0027, \u0027message\u0027: \u0027Loaded: showTips\u003d\u0027 + str(showVal) + \u0027, dismissed\u003d\u0027 + dismVal}, scope\u003d\u0027session\u0027)\n\t\telse:\n\t\t\tself.session.custom[\u0027showTips\u0027] \u003d True\n\t\t\tself.session.custom[\u0027dismissedTips\u0027] \u003d \u0027\u0027\n\t\t\tsystem.perspective.sendMessage(\u0027debug-log\u0027, {\u0027source\u0027: \u0027Tips\u0027, \u0027message\u0027: \u0027No prefs found, defaults set\u0027}, scope\u003d\u0027session\u0027)\n\texcept Exception as e:\n\t\tself.session.custom[\u0027showTips\u0027] \u003d True\n\t\tself.session.custom[\u0027dismissedTips\u0027] \u003d \u0027\u0027\n\t\tsystem.perspective.sendMessage(\u0027debug-log\u0027, {\u0027source\u0027: \u0027Tips\u0027, \u0027message\u0027: \u0027onStartup ERROR: \u0027 + str(e)}, scope\u003d\u0027session\u0027)\n\t# --- BRAND-B1: gateway-wide brand mode (v16.39) ---\n\t# Truth lives in System_Configuration; mirrored onto the session prop so\n\t# every brand binding subscribes reactively and the System popup can flip\n\t# it without this view being involved.\n\ttry:\n\t\tself.session.custom.wmBrandMode \u003d workmate.brand.get_mode()\n\texcept:\n\t\tself.session.custom.wmBrandMode \u003d \u0027WORKMATE\u0027\n\tsystem.perspective.sendMessage(\u0027debug-log\u0027, {\u0027source\u0027: \u0027Brand\u0027, \u0027message\u0027: \u0027Brand mode loaded: \u0027 + str(self.session.custom.wmBrandMode)}, scope\u003d\u0027session\u0027)"
+          },
+          "scope": "G",
+          "type": "script"
+        }
+      }
+    },
+    "meta": {
+      "name": "HeaderToolbar_v16_47"
+    },
+    "props": {
+      "alignItems": "center",
+      "style": {
+        "background": "linear-gradient(90deg, #242E30 0%, #242E30 55%, #003050 75%, #004063 100%)",
+        "maxHeight": "50px",
+        "minHeight": "50px",
+        "paddingLeft": "4px"
+      }
+    },
+    "scripts": {
+      "customMethods": null,
+      "extensionFunctions": null,
+      "messageHandlers": [
+        {
+          "messageType": "updateToolbarState",
+          "pageScope": false,
+          "script": "\t# Receive toolbar state updates from content views\n\tlogger \u003d system.util.getLogger(\u0027HeaderToolbar\u0027)\n\t\n\tstates \u003d payload.get(\u0027states\u0027, {})\n\t\n\tif \u0027new\u0027 in states:\n\t\tself.view.custom.btnNewEnabled \u003d states[\u0027new\u0027]\n\tif \u0027edit\u0027 in states:\n\t\tself.view.custom.btnEditEnabled \u003d states[\u0027edit\u0027]\n\tif \u0027save\u0027 in states:\n\t\tself.view.custom.btnSaveEnabled \u003d states[\u0027save\u0027]\n\tif \u0027cancel\u0027 in states:\n\t\tself.view.custom.btnCancelEnabled \u003d states[\u0027cancel\u0027]\n\tif \u0027delete\u0027 in states:\n\t\tself.view.custom.btnDeleteEnabled \u003d states[\u0027delete\u0027]\n\tif \u0027insertLine\u0027 in states:\n\t\tself.view.custom.btnInsertLineEnabled \u003d states[\u0027insertLine\u0027]\n\tif \u0027deleteLine\u0027 in states:\n\t\tself.view.custom.btnDeleteLineEnabled \u003d states[\u0027deleteLine\u0027]\n\tif \u0027print\u0027 in states:\n\t\tself.view.custom.btnPrintEnabled \u003d states[\u0027print\u0027]\n\tif \u0027find\u0027 in states:\n\t\tself.view.custom.btnFindEnabled \u003d states[\u0027find\u0027]\n\tif \u0027first\u0027 in states:\n\t\tself.view.custom.btnFirstEnabled \u003d states[\u0027first\u0027]\n\tif \u0027previous\u0027 in states:\n\t\tself.view.custom.btnPreviousEnabled \u003d states[\u0027previous\u0027]\n\tif \u0027next\u0027 in states:\n\t\tself.view.custom.btnNextEnabled \u003d states[\u0027next\u0027]\n\tif \u0027last\u0027 in states:\n\t\tself.view.custom.btnLastEnabled \u003d states[\u0027last\u0027]\n\t\n\t# Build summary of enabled buttons\n\tenabled \u003d [k for k, v in states.items() if v]\n\tdisabled \u003d [k for k, v in states.items() if not v]\n\tmsg \u003d \u0027Toolbar updated - Enabled: \u0027 + str(enabled)\n\tlogger.info(msg)\n\tsystem.perspective.sendMessage(\u0027debug-log\u0027, {\u0027source\u0027: \u0027Toolbar\u0027, \u0027message\u0027: msg}, scope\u003d\u0027session\u0027)",
+          "sessionScope": true,
+          "viewScope": false
+        },
+        {
+          "messageType": "set-history-tab",
+          "pageScope": false,
+          "script": "\t# Receive tab change notification\n\tisHistory \u003d payload.get(\u0027isHistoryTab\u0027, False)\n\tself.view.custom.isHistoryTab \u003d isHistory\n\tsystem.perspective.sendMessage(\u0027debug-log\u0027, {\u0027source\u0027: \u0027Toolbar\u0027, \u0027message\u0027: \u0027History tab mode: \u0027 + str(isHistory)}, scope\u003d\u0027session\u0027)",
+          "sessionScope": true,
+          "viewScope": false
+        },
+        {
+          "messageType": "tips-dismiss",
+          "pageScope": false,
+          "script": "\ttry:\n\t\ttipId \u003d payload.get(\u0027tipId\u0027, \u0027\u0027)\n\t\tsystem.perspective.sendMessage(\u0027debug-log\u0027, {\u0027source\u0027: \u0027Tips\u0027, \u0027message\u0027: \u0027tips-dismiss received, tipId\u003d\u0027 + str(tipId)}, scope\u003d\u0027session\u0027)\n\t\tif not tipId:\n\t\t\treturn\n\t\tdismissedStr \u003d self.session.custom.get(\u0027dismissedTips\u0027, \u0027\u0027)\n\t\tdismissed \u003d [t.strip() for t in str(dismissedStr).split(\u0027,\u0027) if t.strip()] if dismissedStr else []\n\t\tif tipId not in dismissed:\n\t\t\tdismissed.append(tipId)\n\t\t\tnewStr \u003d \u0027,\u0027.join(dismissed)\n\t\t\tself.session.custom[\u0027dismissedTips\u0027] \u003d newStr\n\t\t\tusername \u003d self.session.props.auth.user.userName\n\t\t\tsystem.db.runNamedQuery(\u0027Workmate/Tips/DismissTip\u0027, {\u0027username\u0027: username, \u0027tipId\u0027: tipId})\n\t\t\tsystem.perspective.sendMessage(\u0027debug-log\u0027, {\u0027source\u0027: \u0027Tips\u0027, \u0027message\u0027: \u0027Dismissed \u0027 + tipId + \u0027, total\u003d\u0027 + newStr}, scope\u003d\u0027session\u0027)\n\t\telse:\n\t\t\tsystem.perspective.sendMessage(\u0027debug-log\u0027, {\u0027source\u0027: \u0027Tips\u0027, \u0027message\u0027: tipId + \u0027 already dismissed\u0027}, scope\u003d\u0027session\u0027)\n\t\t# Broadcast refresh to all TipBadges\n\t\tsystem.perspective.sendMessage(\u0027tips-refresh\u0027, {}, scope\u003d\u0027session\u0027)\n\t\tsystem.perspective.sendMessage(\u0027debug-log\u0027, {\u0027source\u0027: \u0027Tips\u0027, \u0027message\u0027: \u0027tips-refresh broadcast sent\u0027}, scope\u003d\u0027session\u0027)\n\texcept Exception as e:\n\t\tsystem.perspective.sendMessage(\u0027debug-log\u0027, {\u0027source\u0027: \u0027Tips\u0027, \u0027message\u0027: \u0027tips-dismiss ERROR: \u0027 + str(e)}, scope\u003d\u0027session\u0027)",
+          "sessionScope": true,
+          "viewScope": false
+        },
+        {
+          "messageType": "tips-toggle",
+          "pageScope": false,
+          "script": "\ttry:\n\t\tcurrentShow \u003d self.session.custom.get(\u0027showTips\u0027, True)\n\t\tnewShow \u003d not currentShow\n\t\tself.session.custom[\u0027showTips\u0027] \u003d newShow\n\t\tusername \u003d self.session.props.auth.user.userName\n\t\tsystem.db.runNamedQuery(\u0027Workmate/Tips/SetShowTips\u0027, {\u0027username\u0027: username, \u0027showTips\u0027: newShow})\n\t\tsystem.perspective.sendMessage(\u0027debug-log\u0027, {\u0027source\u0027: \u0027Tips\u0027, \u0027message\u0027: \u0027tips-toggle: showTips\u003d\u0027 + str(newShow) + \u0027 for \u0027 + username}, scope\u003d\u0027session\u0027)\n\t\t# Broadcast refresh to all TipBadges\n\t\tsystem.perspective.sendMessage(\u0027tips-refresh\u0027, {}, scope\u003d\u0027session\u0027)\n\t\tsystem.perspective.sendMessage(\u0027debug-log\u0027, {\u0027source\u0027: \u0027Tips\u0027, \u0027message\u0027: \u0027tips-refresh broadcast sent\u0027}, scope\u003d\u0027session\u0027)\n\texcept Exception as e:\n\t\tsystem.perspective.sendMessage(\u0027debug-log\u0027, {\u0027source\u0027: \u0027Tips\u0027, \u0027message\u0027: \u0027tips-toggle ERROR: \u0027 + str(e)}, scope\u003d\u0027session\u0027)",
+          "sessionScope": true,
+          "viewScope": false
+        },
+        {
+          "messageType": "tips-reset",
+          "pageScope": false,
+          "script": "\ttry:\n\t\tself.session.custom[\u0027dismissedTips\u0027] \u003d \u0027\u0027\n\t\tself.session.custom[\u0027showTips\u0027] \u003d True\n\t\tusername \u003d self.session.props.auth.user.userName\n\t\tsystem.db.runNamedQuery(\u0027Workmate/Tips/ResetAllTips\u0027, {\u0027username\u0027: username})\n\t\tsystem.perspective.sendMessage(\u0027debug-log\u0027, {\u0027source\u0027: \u0027Tips\u0027, \u0027message\u0027: \u0027tips-reset for \u0027 + username}, scope\u003d\u0027session\u0027)\n\t\t# Broadcast refresh to all TipBadges\n\t\tsystem.perspective.sendMessage(\u0027tips-refresh\u0027, {}, scope\u003d\u0027session\u0027)\n\t\tsystem.perspective.sendMessage(\u0027debug-log\u0027, {\u0027source\u0027: \u0027Tips\u0027, \u0027message\u0027: \u0027tips-refresh broadcast sent\u0027}, scope\u003d\u0027session\u0027)\n\texcept Exception as e:\n\t\tsystem.perspective.sendMessage(\u0027debug-log\u0027, {\u0027source\u0027: \u0027Tips\u0027, \u0027message\u0027: \u0027tips-reset ERROR: \u0027 + str(e)}, scope\u003d\u0027session\u0027)",
+          "sessionScope": true,
+          "viewScope": false
+        },
+        {
+          "messageType": "nav-active",
+          "pageScope": false,
+          "script": "\t# Receive active page notification from content views\n\tpage \u003d payload.get(\u0027page\u0027, \u0027\u0027)\n\tself.session.custom[\u0027activePage\u0027] \u003d page\n\tsystem.perspective.sendMessage(\u0027debug-log\u0027, {\u0027source\u0027: \u0027HeaderToolbar\u0027, \u0027message\u0027: \u0027nav-active: \u0027 + str(page)}, scope\u003d\u0027session\u0027)",
+          "sessionScope": true,
+          "viewScope": false
+        },
+        {
+          "messageType": "wm-ai-ui-action",
+          "pageScope": true,
+          "script": "\t# S6 AI navigator bridge - the chat surface (workmate-ai, future)\n\t# sends ui_action payloads here with scope\u003d\u0027page\u0027 (page-local UI motion\n\t# - session scope fires once per open tab, verified 2026-08-12);\n\t# workmate.nav.execute is the single\n\t# allow-listed executor. Dark until workmate.nav.AI_NAV_ENABLED.\n\ttry:\n\t\tres \u003d workmate.nav.execute(self.session, payload)\n\t\tsystem.perspective.sendMessage(\u0027debug-log\u0027, {\u0027source\u0027: \u0027AINav\u0027, \u0027message\u0027: \u0027ui_action result: \u0027 + str(res)}, scope\u003d\u0027session\u0027)\n\texcept:\n\t\timport sys as _s\n\t\tsystem.util.getLogger(\u0027AINav\u0027).warn(\u0027[AINav] handler: \u0027 + str(_s.exc_info()[1]))\n",
+          "sessionScope": false,
+          "viewScope": false
+        }
+      ]
+    },
+    "type": "ia.container.flex"
+  }
+}

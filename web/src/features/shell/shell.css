@@ -1,0 +1,100 @@
+/*
+ * Azztec_SaaS_web_shell_css_v1_0_0.css  ->  web/src/features/shell/shell.css
+ * Version:  1.0.0   Date: 2026-09-16   Author: Adriaan
+ * Spec:     Azztec_SaaS_S1k_Shell_Chunk_Spec_v1_0_1.md s3.6 . OD-50, OD-51, OD-53
+ * Oracle:   HeaderToolbar v16.47 / SideMenu v4.20 props.style values (docs/reference/*_2026-09-16_view.json);
+ *           page-config cornerPriority top-bottom (the header spans the rail); the Text/SubHeader style
+ *           class (Verdana / bold - the view overrides its colour and size on the two clock labels).
+ *           The project stylesheet (v2.69, read 2026-09-16) defines no rule for psc-toolbar-btn,
+ *           psc-menubar-item, wm-brand-azztec-gold or wm-brand-a-glow, and no :hover for any of them,
+ *           so none is added here.
+ *
+ * Every selector is scoped under .wm-shell so the CTA page and Tailwind's preflight are untouched.
+ * Static values live here; the four bound styles (menu / module underline, rail border) are inline in
+ * the components because the oracle binds them. Font family: the planner's stack, pending the KT
+ * theme font (spec s2.6 E6 - "sort the font sizes later"). ASCII only.
+ *
+ * Unmapped Perspective props, ported as NOT applied (spec s2.4): meta.classes, justifyContent on
+ * VXSearchPill and every rail item, size / style.fontSize on the header glyphs. The screenshot
+ * comparison in the smoke is their check.
+ *
+ * Changelog:
+ *   1.0.0  Initial S1k.
+ */
+
+/* ---- the frame: 50px header over everything, 50px rail under it, the page in the rest */
+.wm-shell{height:100vh;display:grid;grid-template-rows:50px minmax(0,1fr);grid-template-columns:50px minmax(0,1fr);
+  grid-template-areas:"hdr hdr" "rail main";background:#24282C;color:#E7E4DC;
+  font:12px/1.35 "Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif}
+.wm-shell *{box-sizing:border-box}
+.wm-shell-main{grid-area:main;min-width:0;min-height:0;overflow:hidden;position:relative}
+.wm-shell .inert{cursor:default}
+
+/* ---- HeaderToolbar root: flex row, alignItems center, the gradient, 50px, paddingLeft 4px */
+.wm-shell .wm-hdr{grid-area:hdr;display:flex;align-items:center;min-height:50px;max-height:50px;padding-left:4px;
+  overflow:hidden;white-space:nowrap;
+  background:linear-gradient(90deg, #242E30 0%, #242E30 55%, #003050 75%, #004063 100%)}
+
+/* AzztecLogo: 48x48, objectFit fill, marginRight 10px (the oracle's cursor:pointer -> inert here, OD-51) */
+.wm-shell .wm-hdr .logo{flex:none;width:48px;height:48px;object-fit:fill;margin-right:10px;display:block}
+
+/* BrandBlock: shrink 0, alignItems center, gap 6px, marginLeft 2px, marginRight 14px, overflow hidden */
+.wm-shell .wm-hdr .brand{flex:none;display:flex;align-items:center;gap:6px;margin-left:2px;margin-right:14px;overflow:hidden}
+/* lblBrandNameAzztec: 26px/700, letterSpacing .8px, lineHeight 28px, the gold gradient clipped to the text,
+   the drop-shadow filter and the five-layer text shadow, exactly as the view carries them */
+.wm-shell .wm-hdr .wordmark{flex:none;font-size:26px;font-weight:700;letter-spacing:0.8px;line-height:28px;overflow:visible;white-space:nowrap;
+  background:linear-gradient(180deg, #FFFFFF 0%, #FFF7D6 26%, #FFE08A 47%, #C8912F 51%, #A87718 70%, #FFE9A8 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 2px 3px rgba(0,0,0,0.35));
+  text-shadow:0 -1px 0 rgba(255,255,255,0.35), 0 1px 0 rgba(40,30,12,0.95), 0 2px 2px rgba(0,0,0,0.50), 0 4px 8px rgba(0,0,0,0.35), 0 0 14px rgba(235,196,82,0.30)}
+
+/* MenuApplication / MenuUtilities / MenuSystem: 12px/400 #C0C8CA, padding 2px 8px, radius 3px; borderBottom is bound (inline) */
+.wm-shell .wm-hdr .menu{font-size:12px;font-weight:400;color:#C0C8CA;padding:2px 8px;border-radius:3px}
+
+/* SepMenuNav: basis 1px, a 16px tall hairline, margin 0 6px */
+.wm-shell .wm-hdr .sep{flex:0 0 1px;height:16px;border-left:1px solid rgba(255,255,255,0.15);margin-left:6px;margin-right:6px}
+
+/* BtnSchedulex .. BtnMyReports: flex row, alignItems center, padding 1px 6px, radius 3px; borderBottom is bound (inline) */
+.wm-shell .wm-hdr .mbtn{display:flex;align-items:center;padding:1px 6px;border-radius:3px}
+.wm-shell .wm-hdr .mbtn.live{cursor:pointer}
+.wm-shell .wm-hdr .mbtn .ico{flex:0 0 15px;margin-right:2px}
+.wm-shell .wm-hdr .mbtn .lbl{flex:0 0 auto;font-size:12px;line-height:1;color:#C0C8CA}
+
+/* Spacer: grow 1 */
+.wm-shell .wm-hdr .spacer{flex:1 1 auto}
+
+/* RightControls: shrink 0, alignItems center, gap 8px, paddingRight 8px */
+.wm-shell .wm-hdr .right{flex:none;display:flex;align-items:center;gap:8px;padding-right:8px}
+
+/* TipsToggle: a 22px circle, marginRight 4px; the bound colour/shadow in its no-prefs state (showTips true) */
+.wm-shell .wm-hdr .tips{display:flex;align-items:center;justify-content:center;width:22px;min-width:22px;height:22px;border-radius:50%;margin-right:4px;
+  transition:background-color 0.2s ease, box-shadow 0.2s ease}
+.wm-shell .wm-hdr .tips.on{background-color:#00BCD4;box-shadow:0 0 6px 2px rgba(0,188,212,0.3)}
+.wm-shell .wm-hdr .tips .ico{display:block}
+
+/* ControlStack: a 160px column, 50px tall, margin 0 5px, overflow hidden; two 28px-basis rows that share the 50px */
+.wm-shell .wm-hdr .stack{flex:0 0 160px;display:flex;flex-direction:column;height:50px;max-height:50px;margin-left:5px;margin-right:5px;overflow:hidden}
+.wm-shell .wm-hdr .row{flex:0 1 28px;min-height:0;display:flex;align-items:center;overflow:visible}
+/* fsCoord / logoutCoord: 20px square coord containers with a 5px margin; the button fills them */
+.wm-shell .wm-hdr .coord{flex:0 0 20px;width:20px;height:20px;margin:5px;overflow:visible;display:block}
+.wm-shell .wm-hdr .sq{display:flex;align-items:center;justify-content:center;width:100%;height:100%;padding:0;margin:0;
+  background-color:#FFFFFF;border:1px solid #FFFFFF;border-radius:5px;cursor:pointer;font:inherit}
+.wm-shell .wm-hdr .sq.inert{cursor:default}
+.wm-shell .wm-hdr .sq svg{display:block}
+/* dateLabel / timeLabel: grow 1, Text/SubHeader (Verdana, bold) with the view's colour and 1.7vh size, padding 0 5, right-aligned */
+.wm-shell .wm-hdr .clk{flex:1 1 auto;min-width:0;font-family:Verdana,Geneva,sans-serif;font-weight:700;font-size:1.7vh;color:#FFFFFF;
+  padding-left:5px;padding-right:5px;text-align:right;line-height:1;overflow-wrap:normal;text-overflow:clip}
+
+/* ---- SideMenu root: a 50px column */
+.wm-shell .wm-rail{grid-area:rail;display:flex;flex-direction:column;width:50px;min-width:50px;max-width:50px;overflow:hidden}
+/* NavContainer: grow 1, #242E30, padding 8px 0; BottomContainer: #242E30, paddingBottom 8px */
+.wm-shell .wm-rail .nav{flex:1 1 auto;display:flex;flex-direction:column;background-color:#242E30;padding-top:8px;padding-bottom:8px;overflow:hidden}
+.wm-shell .wm-rail .bottom{flex:none;display:flex;flex-direction:column;background-color:#242E30;padding-bottom:8px}
+/* MenuItem_*: column, alignItems center, minHeight 50px, padding 6px 0; borderLeft is bound (inline) */
+.wm-shell .wm-rail .item{flex:none;display:flex;flex-direction:column;align-items:center;min-height:50px;padding-top:6px;padding-bottom:6px;
+  width:100%;background:transparent;border:0;color:inherit;font:inherit;margin:0}
+.wm-shell .wm-rail .item.print{border-left:3px solid transparent;cursor:pointer}
+.wm-shell .wm-rail .item .ico{flex:0 0 19px;margin-bottom:4px}
+.wm-shell .wm-rail .item .lbl{font-size:7px;color:#F3EEE7;text-align:center;line-height:1.35}
+/* Divider1 / Divider2: a #333333 hairline, margin 6px 10px */
+.wm-shell .wm-rail .divider{flex:none;display:block;border-bottom:1px solid #333333;margin:6px 10px}

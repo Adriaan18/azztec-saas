@@ -1,7 +1,8 @@
 /**
- * Azztec_SaaS_web_lib_dates_v1_1_0.ts  ->  web/src/lib/dates.ts
- * Version:  1.1.0   Date: 2026-09-12   Author: Adriaan
- * Spec:     Azztec_SaaS_S1f_Grid_Chunk_Spec_v1_0_0.md §5.1 · OD-23, OD-29 · Landmines §C, §D
+ * Azztec_SaaS_web_lib_dates_v1_2_0.ts  ->  web/src/lib/dates.ts
+ * Version:  1.2.0   Date: 2026-09-16   Author: Adriaan
+ * Spec:     Azztec_SaaS_S1f_Grid_Chunk_Spec_v1_0_0.md §5.1 · OD-23, OD-29 · Landmines §C, §D;
+ *           Azztec_SaaS_S1k_Shell_Chunk_Spec_v1_0_1.md §3.9 (the header clock)
  * Oracle:   Planner_v1_8_1.html windowFor (src 519-532, six-month branch not ported), nav (871-876)
  * Twins:    backend/app/planner/rules.py civil_days / week_start / iso / parse_iso (Python date objects)
  *
@@ -19,7 +20,14 @@
  * the browser's civil day and is used ONLY for the default URL anchor (OD-29); the cells highlight
  * the API's `today` (OD-6, server tz).
  *
+ * 1.2.0 adds the shell's clock: HEADER_DATE / HEADER_TIME are the HeaderToolbar view's own dateFormat()
+ * patterns ("MMM d", "HH:mm:ss" - the same tokens in date-fns and Java), headerDate / headerTime format
+ * a Date, and headerClock() takes ONE new Date() read for both strings so the pair can never straddle
+ * midnight. The live KT page read "Sep 16" on 2026-09-16 (screenshot), so the en-US month abbreviation
+ * is the oracle's. The clock is the only time the shell reads the browser's Date, and it does it here.
+ *
  * Changelog:
+ *   1.2.0  S1k: HEADER_DATE, HEADER_TIME, headerDate, headerTime, headerClock. 1.1.0 exports unchanged.
  *   1.1.0  S1f: Mode/MODES/isMode, Window/windowFor, navAnchor, todayIso, dowOf, daysInMonthOf,
  *          monthStart, isIso. 1.0.0 exports unchanged.
  *   1.0.0  Initial S1e.
@@ -37,7 +45,7 @@ import {
   startOfWeek,
 } from 'date-fns';
 
-export const VERSION = '1.1.0';
+export const VERSION = '1.2.0';
 
 /** The contract's date format. */
 export const ISO = 'yyyy-MM-dd';
@@ -153,4 +161,25 @@ export function navAnchor(mode: Mode, anchor: string, n: number): string {
 /** The browser's civil day. Default URL anchor only (OD-29); never the source of the `today` cell. */
 export function todayIso(): string {
   return iso(new Date());
+}
+
+/** HeaderToolbar dateLabel: dateFormat(now(), "MMM d") */
+export const HEADER_DATE = 'MMM d';
+/** HeaderToolbar timeLabel: dateFormat(now(), "HH:mm:ss") */
+export const HEADER_TIME = 'HH:mm:ss';
+
+export function headerDate(d: Date): string {
+  return format(d, HEADER_DATE);
+}
+
+export function headerTime(d: Date): string {
+  return format(d, HEADER_TIME);
+}
+
+export type HeaderClock = { date: string; time: string };
+
+/** Both header strings from ONE read of the browser clock. */
+export function headerClock(): HeaderClock {
+  const now = new Date();
+  return { date: headerDate(now), time: headerTime(now) };
 }

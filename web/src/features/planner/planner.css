@@ -1,7 +1,8 @@
 /*
- * Azztec_SaaS_web_planner_css_v1_1_1.css  ->  web/src/features/planner/planner.css
- * Version:  1.1.1   Date: 2026-09-13   Author: Adriaan
- * Spec:     Azztec_SaaS_S1g_Readonly_Chunk_Spec_v1_0_0.md s5.3 . OD-27, OD-31, OD-32
+ * Azztec_SaaS_web_planner_css_v1_1_2.css  ->  web/src/features/planner/planner.css
+ * Version:  1.1.2   Date: 2026-09-16   Author: Adriaan
+ * Spec:     Azztec_SaaS_S1g_Readonly_Chunk_Spec_v1_0_0.md s5.3 . OD-27, OD-31, OD-32;
+ *           Azztec_SaaS_S1k_Shell_Chunk_Spec_v1_0_1.md s3.8 . OD-54
  * Oracle:   Planner_v1_8_1.html <style> 102-137 (tokens, base, header), 138-148 (filters, worker menu),
  *           149-172 (body, grid, cell, chip), 179-186 (rail week bars), 194 (.dlg.wide), 215-221
  *           (twoweek), 267-272 (day dialog rows), 273-301 (chip parts, strip, bar, week headers),
@@ -31,7 +32,16 @@
  * Priority.Colour, which RST populates and the API does not yet send. Every badge is the oracle's base
  * grey again - parity - and the letter classes stay for KT.
  *
+ * 1.1.2 (S1k) changes two rules and nothing else. The oracle's #app was 100vh of an IFRAME inside
+ * Perspective's content area, under a 50px header and beside a 50px rail; in the SaaS the shell's grid
+ * cell is that area, so .wm-planner is height:100% of it (100vh overflowed the viewport by the header).
+ * And the day dialog's overlay was fixed to the iframe's viewport, which meant the planner only - here a
+ * fixed overlay would dim the header and the rail too, so .wm-planner becomes the containing block
+ * (position:relative) and .ovl is absolute inside it (OD-54). The other absolute descendants already
+ * have their own positioned ancestor (.loading in .grid-wrap, .wsel .menu in .wsel) and do not move.
+ *
  * Changelog:
+ *   1.1.2  .wm-planner height 100vh -> 100% + position:relative; .ovl position fixed -> absolute (OD-54).
  *   1.1.1  .pri.r1..r4 colour rules removed (OD-32 falsified by the RST Priority table). No other change.
  *   1.1.0  S1g: filters row + worker menu (138-148), .dlg.wide (194), day dialog rows (267-272),
  *          selected card / kv / badge / lab (336-347), overlay + dialog (361-369); .pri.r1..r4 (OD-32).
@@ -48,7 +58,7 @@
 }
 
 /* base (oracle 108-121, #app 122) */
-.wm-planner{display:flex;flex-direction:column;height:100vh;padding:8px;gap:6px;background:var(--bg);color:var(--txt);
+.wm-planner{display:flex;flex-direction:column;height:100%;position:relative;padding:8px;gap:6px;background:var(--bg);color:var(--txt);
   font:12px/1.35 "Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;overflow:hidden}
 .wm-planner *{box-sizing:border-box}
 .wm-planner button,.wm-planner select,.wm-planner input{font:inherit;color:inherit}
@@ -204,7 +214,7 @@
 .wm-planner .lab small{color:var(--dim)}
 
 /* overlay + day dialog (oracle 194, 267-272, 361-369) */
-.wm-planner .ovl{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:40}
+.wm-planner .ovl{position:absolute;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:40}
 .wm-planner .ovl.on{display:flex}
 .wm-planner .dlg{background:var(--panel);border:1px solid var(--gold2);border-radius:10px;padding:14px 16px;min-width:360px;max-width:520px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
 .wm-planner .dlg h2{margin:0 0 8px;font-size:13px;letter-spacing:1px;color:var(--gold)}

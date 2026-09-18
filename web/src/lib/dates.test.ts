@@ -1,7 +1,8 @@
 /**
- * Azztec_SaaS_web_lib_dates_test_v1_1_0.ts  ->  web/src/lib/dates.test.ts
- * Version:  1.1.0   Date: 2026-09-12   Author: Adriaan
- * Spec:     Azztec_SaaS_S1f_Grid_Chunk_Spec_v1_0_0.md §6 (dates.test.ts row) · pair rule (Ways of Working §4)
+ * Azztec_SaaS_web_lib_dates_test_v1_2_0.ts  ->  web/src/lib/dates.test.ts
+ * Version:  1.2.0   Date: 2026-09-16   Author: Adriaan
+ * Spec:     Azztec_SaaS_S1f_Grid_Chunk_Spec_v1_0_0.md §6 (dates.test.ts row) · pair rule (Ways of Working §4);
+ *           Azztec_SaaS_S1k_Shell_Chunk_Spec_v1_0_1.md §5 · pair of dates.ts 1.2.0
  *
  * Zero network, zero DOM, plain string values. The DST pair (17<->29 Sep 2026 = +/-12) is the same
  * assertion the backend carries for civil_days (Landmines §A) - both halves of the contract must agree.
@@ -12,11 +13,14 @@
  * geometry agree by construction, not by the one example someone picked.
  *
  * Changelog:
+ *   1.2.0  S1k: every 1.1.0 case kept; VERSION is 1.2.0. Three new cases for the header clock - the
+ *          strings the KT page showed on 2026-09-16 ("Sep 16" / "13:08:06"), an unpadded day, midnight,
+ *          and headerClock reading the clock once (fake timers, local-time constructor).
  *   1.1.0  S1f: windowFor week / twoweek / month (Sep 2026 across the DST day, Aug 2026 = 42), the
  *          2025-2030 loop, navAnchor, dowOf, isMode, isIso, todayIso shape.
  *   1.0.0  Initial S1e.
  */
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { checkWindow } from '../features/planner/usePlannerRange';
 import {
@@ -25,6 +29,9 @@ import {
   addDays,
   civilDays,
   dowOf,
+  headerClock,
+  headerDate,
+  headerTime,
   isIso,
   isMode,
   iso,
@@ -35,11 +42,11 @@ import {
   windowFor,
 } from './dates';
 
-export const TEST_VERSION = '1.1.0';
+export const TEST_VERSION = '1.2.0';
 
 describe('dates.ts - the civil-date twin', () => {
   it('carries its version', () => {
-    expect(VERSION).toBe('1.1.0');
+    expect(VERSION).toBe('1.2.0');
   });
 
   // 1. the Ignition daysBetween bug, must not be reproduced
@@ -164,5 +171,39 @@ describe('dates.ts 1.1.0 - the planner window (oracle windowFor / nav)', () => {
     const t = todayIso();
     expect(isIso(t)).toBe(true);
     expect(weekStart(t) <= t).toBe(true);
+  });
+});
+
+describe('dates.ts 1.2.0 - the header clock (HeaderToolbar dateLabel / timeLabel)', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  // 16. the strings the live KT page showed on 2026-09-16 13:08:06 (the screenshot)
+  it('headerDate is "MMM d" (Sep, not Sept, no zero-pad) and headerTime is "HH:mm:ss"', () => {
+    const d = new Date(2026, 8, 16, 13, 8, 6);
+    expect(headerDate(d)).toBe('Sep 16');
+    expect(headerTime(d)).toBe('13:08:06');
+    expect(headerDate(new Date(2026, 9, 1, 0, 0, 0))).toBe('Oct 1');
+    expect(headerTime(new Date(2026, 9, 1, 0, 0, 0))).toBe('00:00:00');
+    expect(headerDate(new Date(2026, 11, 25, 23, 59, 59))).toBe('Dec 25');
+  });
+
+  // 17. headerClock reads the browser clock - fake timers, LOCAL constructor (never an ISO string)
+  it('headerClock returns both strings for now', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2026, 8, 16, 13, 8, 6));
+    expect(headerClock()).toEqual({ date: 'Sep 16', time: '13:08:06' });
+    vi.advanceTimersByTime(1000);
+    expect(headerClock().time).toBe('13:08:07');
+  });
+
+  // 18. one read for both: at 23:59:59 -> 00:00:00 the pair moves together
+  it('headerClock takes one read, so the date and the time never straddle midnight', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2026, 8, 16, 23, 59, 59));
+    expect(headerClock()).toEqual({ date: 'Sep 16', time: '23:59:59' });
+    vi.advanceTimersByTime(1000);
+    expect(headerClock()).toEqual({ date: 'Sep 17', time: '00:00:00' });
   });
 });
