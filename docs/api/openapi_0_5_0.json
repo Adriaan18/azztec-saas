@@ -1,0 +1,2530 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Workmate SaaS",
+    "version": "0.5.0"
+  },
+  "paths": {
+    "/api/v1/health": {
+      "get": {
+        "summary": "Health",
+        "operationId": "health_api_v1_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Health Api V1 Health Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/_diag/self-test": {
+      "get": {
+        "summary": "Diag Self Test",
+        "operationId": "diag_self_test_api_v1__diag_self_test_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Diag Self Test Api V1  Diag Self Test Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/planner/range": {
+      "get": {
+        "tags": [
+          "planner"
+        ],
+        "summary": "Get Range",
+        "operationId": "get_range_api_v1_planner_range_get",
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "yyyy-MM-dd, inclusive",
+              "title": "From"
+            },
+            "description": "yyyy-MM-dd, inclusive"
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "yyyy-MM-dd, inclusive; max 400 days from `from`",
+              "title": "To"
+            },
+            "description": "yyyy-MM-dd, inclusive; max 400 days from `from`"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RangeData"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/workorders": {
+      "get": {
+        "tags": [
+          "workorders"
+        ],
+        "summary": "List Workorders",
+        "operationId": "list_workorders_api_v1_workorders_get",
+        "parameters": [
+          {
+            "name": "woType",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "'' all \u00b7 N work orders \u00b7 CP capital \u00b7 M PMs",
+              "default": "N",
+              "title": "Wotype"
+            },
+            "description": "'' all \u00b7 N work orders \u00b7 CP capital \u00b7 M PMs"
+          },
+          {
+            "name": "includeClosed",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 2,
+              "minimum": 0,
+              "description": "0 open \u00b7 1 all \u00b7 2 closed/cancelled",
+              "default": 0,
+              "title": "Includeclosed"
+            },
+            "description": "0 open \u00b7 1 all \u00b7 2 closed/cancelled"
+          },
+          {
+            "name": "includeArchive",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 2,
+              "minimum": 0,
+              "description": "0 live \u00b7 1 both \u00b7 2 archive only",
+              "default": 0,
+              "title": "Includearchive"
+            },
+            "description": "0 live \u00b7 1 both \u00b7 2 archive only"
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "one term, Short_WO_Id or WO_Title contains",
+              "default": "",
+              "title": "Search"
+            },
+            "description": "one term, Short_WO_Id or WO_Title contains"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000,
+              "minimum": 1,
+              "default": 200,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WoList"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/workorders/{wo_id}": {
+      "get": {
+        "tags": [
+          "workorders"
+        ],
+        "summary": "Get Workorder",
+        "operationId": "get_workorder_api_v1_workorders__wo_id__get",
+        "parameters": [
+          {
+            "name": "wo_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "description": "WO_N_Header.WO_ID",
+              "title": "Wo Id"
+            },
+            "description": "WO_N_Header.WO_ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WoRecord"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/workorders/{wo_id}/events": {
+      "get": {
+        "tags": [
+          "workorders"
+        ],
+        "summary": "Get Events",
+        "operationId": "get_events_api_v1_workorders__wo_id__events_get",
+        "parameters": [
+          {
+            "name": "wo_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "description": "WO_N_Header.WO_ID",
+              "title": "Wo Id"
+            },
+            "description": "WO_N_Header.WO_ID"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000,
+              "minimum": 1,
+              "default": 200,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventPage"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/workorders/{wo_id}/linked": {
+      "get": {
+        "tags": [
+          "workorders"
+        ],
+        "summary": "Get Linked",
+        "operationId": "get_linked_api_v1_workorders__wo_id__linked_get",
+        "parameters": [
+          {
+            "name": "wo_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "description": "WO_N_Header.WO_ID",
+              "title": "Wo Id"
+            },
+            "description": "WO_N_Header.WO_ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LinkedFamily"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/workorders/{wo_id}/queries": {
+      "get": {
+        "tags": [
+          "workorders"
+        ],
+        "summary": "Get Queries",
+        "operationId": "get_queries_api_v1_workorders__wo_id__queries_get",
+        "parameters": [
+          {
+            "name": "wo_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "description": "WO_N_Header.WO_ID",
+              "title": "Wo Id"
+            },
+            "description": "WO_N_Header.WO_ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryList"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/workorders/{wo_id}/pos": {
+      "get": {
+        "tags": [
+          "workorders"
+        ],
+        "summary": "Get Po Lines",
+        "operationId": "get_po_lines_api_v1_workorders__wo_id__pos_get",
+        "parameters": [
+          {
+            "name": "wo_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "description": "WO_N_Header.WO_ID",
+              "title": "Wo Id"
+            },
+            "description": "WO_N_Header.WO_ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PoList"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ApiError": {
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "title": "Ok",
+            "default": false
+          },
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "rid": {
+            "type": "string",
+            "title": "Rid",
+            "default": ""
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "title": "ApiError",
+        "description": "Flat error body (OD-15, D-9): the same shape main.py emits for INTERNAL."
+      },
+      "Counts": {
+        "properties": {
+          "wo": {
+            "type": "integer",
+            "title": "Wo"
+          },
+          "pm": {
+            "type": "integer",
+            "title": "Pm"
+          },
+          "done": {
+            "type": "integer",
+            "title": "Done"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "wo",
+          "pm",
+          "done",
+          "total"
+        ],
+        "title": "Counts"
+      },
+      "EventPage": {
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "title": "Ok"
+          },
+          "apiVersion": {
+            "type": "string",
+            "title": "Apiversion"
+          },
+          "actor": {
+            "type": "integer",
+            "title": "Actor"
+          },
+          "ms": {
+            "type": "integer",
+            "title": "Ms"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/EventRow"
+            },
+            "type": "array",
+            "title": "Rows"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          },
+          "more": {
+            "type": "boolean",
+            "title": "More"
+          },
+          "offset": {
+            "type": "integer",
+            "title": "Offset"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "ok",
+          "apiVersion",
+          "actor",
+          "ms",
+          "rows",
+          "count",
+          "more",
+          "offset"
+        ],
+        "title": "EventPage"
+      },
+      "EventRow": {
+        "properties": {
+          "seq": {
+            "type": "integer",
+            "title": "Seq"
+          },
+          "eventId": {
+            "type": "integer",
+            "title": "Eventid"
+          },
+          "event": {
+            "type": "string",
+            "title": "Event"
+          },
+          "detail": {
+            "type": "string",
+            "title": "Detail"
+          },
+          "date": {
+            "type": "string",
+            "title": "Date"
+          },
+          "editorId": {
+            "type": "integer",
+            "title": "Editorid"
+          },
+          "editor": {
+            "type": "string",
+            "title": "Editor"
+          },
+          "siteCode": {
+            "type": "string",
+            "title": "Sitecode"
+          },
+          "siteName": {
+            "type": "string",
+            "title": "Sitename"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source"
+          },
+          "server": {
+            "type": "string",
+            "title": "Server"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "seq",
+          "eventId",
+          "event",
+          "detail",
+          "date",
+          "editorId",
+          "editor",
+          "siteCode",
+          "siteName",
+          "source",
+          "server"
+        ],
+        "title": "EventRow"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "LabourRow": {
+        "properties": {
+          "resId": {
+            "type": "integer",
+            "title": "Resid"
+          },
+          "woId": {
+            "type": "integer",
+            "title": "Woid"
+          },
+          "userId": {
+            "type": "integer",
+            "title": "Userid"
+          },
+          "hours": {
+            "type": "number",
+            "title": "Hours"
+          },
+          "rate": {
+            "type": "number",
+            "title": "Rate"
+          },
+          "note": {
+            "type": "string",
+            "title": "Note"
+          },
+          "date": {
+            "type": "string",
+            "title": "Date"
+          },
+          "skillId": {
+            "type": "integer",
+            "title": "Skillid"
+          },
+          "skillTitle": {
+            "type": "string",
+            "title": "Skilltitle"
+          },
+          "uomId": {
+            "type": "integer",
+            "title": "Uomid"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "resId",
+          "woId",
+          "userId",
+          "hours",
+          "rate",
+          "note",
+          "date",
+          "skillId",
+          "skillTitle",
+          "uomId"
+        ],
+        "title": "LabourRow"
+      },
+      "LinkedFamily": {
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "title": "Ok"
+          },
+          "apiVersion": {
+            "type": "string",
+            "title": "Apiversion"
+          },
+          "actor": {
+            "type": "integer",
+            "title": "Actor"
+          },
+          "ms": {
+            "type": "integer",
+            "title": "Ms"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/LinkedRow"
+            },
+            "type": "array",
+            "title": "Rows"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          },
+          "root": {
+            "type": "string",
+            "title": "Root"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "ok",
+          "apiVersion",
+          "actor",
+          "ms",
+          "rows",
+          "count",
+          "root"
+        ],
+        "title": "LinkedFamily"
+      },
+      "LinkedRow": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "sid": {
+            "type": "string",
+            "title": "Sid"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "prog": {
+            "type": "integer",
+            "title": "Prog"
+          },
+          "hasPO": {
+            "type": "boolean",
+            "title": "Haspo"
+          },
+          "badge": {
+            "type": "string",
+            "title": "Badge"
+          },
+          "level": {
+            "type": "integer",
+            "title": "Level"
+          },
+          "rel": {
+            "type": "string",
+            "title": "Rel"
+          },
+          "parentId": {
+            "type": "integer",
+            "title": "Parentid"
+          },
+          "parentSid": {
+            "type": "string",
+            "title": "Parentsid"
+          },
+          "start": {
+            "type": "string",
+            "title": "Start"
+          },
+          "entry": {
+            "type": "string",
+            "title": "Entry"
+          },
+          "selected": {
+            "type": "boolean",
+            "title": "Selected"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "sid",
+          "title",
+          "status",
+          "prog",
+          "hasPO",
+          "badge",
+          "level",
+          "rel",
+          "parentId",
+          "parentSid",
+          "start",
+          "entry",
+          "selected"
+        ],
+        "title": "LinkedRow"
+      },
+      "PoLine": {
+        "properties": {
+          "poSid": {
+            "type": "string",
+            "title": "Posid"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "badge": {
+            "type": "string",
+            "title": "Badge"
+          },
+          "due": {
+            "type": "string",
+            "title": "Due"
+          },
+          "supplier": {
+            "type": "string",
+            "title": "Supplier"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "qty": {
+            "type": "number",
+            "title": "Qty"
+          },
+          "unitCost": {
+            "type": "number",
+            "title": "Unitcost"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "poSid",
+          "status",
+          "badge",
+          "due",
+          "supplier",
+          "description",
+          "qty",
+          "unitCost"
+        ],
+        "title": "PoLine"
+      },
+      "PoList": {
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "title": "Ok"
+          },
+          "apiVersion": {
+            "type": "string",
+            "title": "Apiversion"
+          },
+          "actor": {
+            "type": "integer",
+            "title": "Actor"
+          },
+          "ms": {
+            "type": "integer",
+            "title": "Ms"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/PoLine"
+            },
+            "type": "array",
+            "title": "Rows"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "ok",
+          "apiVersion",
+          "actor",
+          "ms",
+          "rows",
+          "count"
+        ],
+        "title": "PoList"
+      },
+      "Priority": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "short": {
+            "type": "string",
+            "title": "Short"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "colour": {
+            "type": "string",
+            "title": "Colour"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "short",
+          "title",
+          "colour"
+        ],
+        "title": "Priority"
+      },
+      "ProgressRow": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "short": {
+            "type": "string",
+            "title": "Short"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "short"
+        ],
+        "title": "ProgressRow"
+      },
+      "QueryList": {
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "title": "Ok"
+          },
+          "apiVersion": {
+            "type": "string",
+            "title": "Apiversion"
+          },
+          "actor": {
+            "type": "integer",
+            "title": "Actor"
+          },
+          "ms": {
+            "type": "integer",
+            "title": "Ms"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/QueryRow"
+            },
+            "type": "array",
+            "title": "Rows"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "ok",
+          "apiVersion",
+          "actor",
+          "ms",
+          "rows",
+          "count"
+        ],
+        "title": "QueryList"
+      },
+      "QueryRow": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "type": {
+            "type": "string",
+            "title": "Type"
+          },
+          "typeLabel": {
+            "type": "string",
+            "title": "Typelabel"
+          },
+          "queryFrom": {
+            "type": "string",
+            "title": "Queryfrom"
+          },
+          "queryTo": {
+            "type": "string",
+            "title": "Queryto"
+          },
+          "desc": {
+            "type": "string",
+            "title": "Desc"
+          },
+          "date": {
+            "type": "string",
+            "title": "Date"
+          },
+          "pairId": {
+            "type": "integer",
+            "title": "Pairid"
+          },
+          "emailed": {
+            "type": "boolean",
+            "title": "Emailed"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "typeLabel",
+          "queryFrom",
+          "queryTo",
+          "desc",
+          "date",
+          "pairId",
+          "emailed"
+        ],
+        "title": "QueryRow"
+      },
+      "RangeData": {
+        "properties": {
+          "from": {
+            "type": "string",
+            "title": "From"
+          },
+          "to": {
+            "type": "string",
+            "title": "To"
+          },
+          "today": {
+            "type": "string",
+            "title": "Today"
+          },
+          "wos": {
+            "items": {
+              "$ref": "#/components/schemas/Wo"
+            },
+            "type": "array",
+            "title": "Wos"
+          },
+          "labour": {
+            "items": {
+              "$ref": "#/components/schemas/LabourRow"
+            },
+            "type": "array",
+            "title": "Labour"
+          },
+          "workers": {
+            "items": {
+              "$ref": "#/components/schemas/Worker"
+            },
+            "type": "array",
+            "title": "Workers"
+          },
+          "teams": {
+            "items": {
+              "$ref": "#/components/schemas/Team"
+            },
+            "type": "array",
+            "title": "Teams"
+          },
+          "priorities": {
+            "items": {
+              "$ref": "#/components/schemas/Priority"
+            },
+            "type": "array",
+            "title": "Priorities"
+          },
+          "colours": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Colours"
+          },
+          "weeks": {
+            "items": {
+              "$ref": "#/components/schemas/WeekLoad"
+            },
+            "type": "array",
+            "title": "Weeks"
+          },
+          "load": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Load"
+          },
+          "counts": {
+            "$ref": "#/components/schemas/Counts"
+          },
+          "pinTable": {
+            "type": "boolean",
+            "title": "Pintable"
+          },
+          "workerWeeks": {
+            "additionalProperties": {
+              "items": {
+                "$ref": "#/components/schemas/WorkerWeek"
+              },
+              "type": "array"
+            },
+            "type": "object",
+            "title": "Workerweeks"
+          },
+          "uomHours": {
+            "type": "integer",
+            "title": "Uomhours"
+          },
+          "libVersion": {
+            "type": "string",
+            "title": "Libversion"
+          },
+          "ok": {
+            "type": "boolean",
+            "title": "Ok"
+          },
+          "apiVersion": {
+            "type": "string",
+            "title": "Apiversion"
+          },
+          "actor": {
+            "type": "integer",
+            "title": "Actor"
+          },
+          "ms": {
+            "type": "integer",
+            "title": "Ms"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "from",
+          "to",
+          "today",
+          "wos",
+          "labour",
+          "workers",
+          "teams",
+          "priorities",
+          "colours",
+          "weeks",
+          "load",
+          "counts",
+          "pinTable",
+          "workerWeeks",
+          "uomHours",
+          "libVersion",
+          "ok",
+          "apiVersion",
+          "actor",
+          "ms"
+        ],
+        "title": "RangeData",
+        "description": "GET /api/v1/planner/range - the Ignition rangeData dict plus the OD-14 envelope. No `gate`."
+      },
+      "ResourceRow": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "title": "Type"
+          },
+          "item": {
+            "type": "string",
+            "title": "Item"
+          },
+          "planQty": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Planqty"
+          },
+          "planCost": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plancost"
+          },
+          "actQty": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actqty"
+          },
+          "actCost": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actcost"
+          },
+          "delta": {
+            "type": "number",
+            "title": "Delta"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "type",
+          "item",
+          "planQty",
+          "planCost",
+          "actQty",
+          "actCost",
+          "delta"
+        ],
+        "title": "ResourceRow"
+      },
+      "Resources": {
+        "properties": {
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/ResourceRow"
+            },
+            "type": "array",
+            "title": "Rows"
+          },
+          "planned": {
+            "type": "number",
+            "title": "Planned"
+          },
+          "actual": {
+            "type": "number",
+            "title": "Actual"
+          },
+          "diff": {
+            "type": "number",
+            "title": "Diff"
+          },
+          "line": {
+            "type": "string",
+            "title": "Line"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "rows",
+          "planned",
+          "actual",
+          "diff",
+          "line"
+        ],
+        "title": "Resources"
+      },
+      "RespUser": {
+        "properties": {
+          "userId": {
+            "type": "integer",
+            "title": "Userid"
+          },
+          "shortId": {
+            "type": "string",
+            "title": "Shortid"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "userId",
+          "shortId",
+          "name"
+        ],
+        "title": "RespUser"
+      },
+      "SearchFilters": {
+        "properties": {
+          "woType": {
+            "type": "string",
+            "enum": [
+              "",
+              "N",
+              "CP",
+              "M"
+            ],
+            "title": "Wotype"
+          },
+          "includeClosed": {
+            "type": "integer",
+            "title": "Includeclosed"
+          },
+          "includeArchive": {
+            "type": "integer",
+            "title": "Includearchive"
+          },
+          "search": {
+            "type": "string",
+            "title": "Search"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          },
+          "offset": {
+            "type": "integer",
+            "title": "Offset"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "woType",
+          "includeClosed",
+          "includeArchive",
+          "search",
+          "limit",
+          "offset"
+        ],
+        "title": "SearchFilters"
+      },
+      "Skill": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "sysId": {
+            "type": "integer",
+            "title": "Sysid"
+          },
+          "hrsPerWeek": {
+            "type": "number",
+            "title": "Hrsperweek"
+          },
+          "supplierId": {
+            "type": "integer",
+            "title": "Supplierid"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "sysId",
+          "hrsPerWeek",
+          "supplierId"
+        ],
+        "title": "Skill"
+      },
+      "Team": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "short": {
+            "type": "string",
+            "title": "Short"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "internal": {
+            "type": "boolean",
+            "title": "Internal"
+          },
+          "users": {
+            "type": "integer",
+            "title": "Users"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "short",
+          "name",
+          "internal",
+          "users"
+        ],
+        "title": "Team"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "WeekLoad": {
+        "properties": {
+          "weekStart": {
+            "type": "string",
+            "title": "Weekstart"
+          },
+          "planned": {
+            "type": "number",
+            "title": "Planned"
+          },
+          "unknown": {
+            "type": "integer",
+            "title": "Unknown"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          },
+          "capacity": {
+            "type": "number",
+            "title": "Capacity"
+          },
+          "pct": {
+            "type": "integer",
+            "title": "Pct"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "weekStart",
+          "planned",
+          "unknown",
+          "count",
+          "capacity",
+          "pct"
+        ],
+        "title": "WeekLoad"
+      },
+      "Wo": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "sid": {
+            "type": "string",
+            "title": "Sid"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "statusTitle": {
+            "type": "string",
+            "title": "Statustitle"
+          },
+          "type": {
+            "type": "string",
+            "title": "Type"
+          },
+          "cat": {
+            "type": "string",
+            "title": "Cat"
+          },
+          "start": {
+            "type": "string",
+            "title": "Start"
+          },
+          "startTime": {
+            "type": "string",
+            "title": "Starttime"
+          },
+          "end": {
+            "type": "string",
+            "title": "End"
+          },
+          "days": {
+            "type": "integer",
+            "title": "Days"
+          },
+          "weekNo": {
+            "type": "number",
+            "title": "Weekno"
+          },
+          "prog": {
+            "type": "integer",
+            "title": "Prog"
+          },
+          "priId": {
+            "type": "integer",
+            "title": "Priid"
+          },
+          "pri": {
+            "type": "string",
+            "title": "Pri"
+          },
+          "estimate": {
+            "type": "number",
+            "title": "Estimate"
+          },
+          "resp": {
+            "type": "integer",
+            "title": "Resp"
+          },
+          "asset": {
+            "type": "string",
+            "title": "Asset"
+          },
+          "assetTitle": {
+            "type": "string",
+            "title": "Assettitle"
+          },
+          "loc": {
+            "type": "string",
+            "title": "Loc"
+          },
+          "locTitle": {
+            "type": "string",
+            "title": "Loctitle"
+          },
+          "hasPO": {
+            "type": "boolean",
+            "title": "Haspo"
+          },
+          "engineOwned": {
+            "type": "boolean",
+            "title": "Engineowned"
+          },
+          "pinned": {
+            "type": "boolean",
+            "title": "Pinned"
+          },
+          "pinnedOn": {
+            "type": "string",
+            "title": "Pinnedon"
+          },
+          "engineDate": {
+            "type": "string",
+            "title": "Enginedate"
+          },
+          "locked": {
+            "type": "boolean",
+            "title": "Locked"
+          },
+          "movable": {
+            "type": "boolean",
+            "title": "Movable"
+          },
+          "hrs": {
+            "type": "number",
+            "title": "Hrs"
+          },
+          "hrsSrc": {
+            "type": "string",
+            "title": "Hrssrc"
+          },
+          "assigned": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Assigned"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "sid",
+          "title",
+          "status",
+          "statusTitle",
+          "type",
+          "cat",
+          "start",
+          "startTime",
+          "end",
+          "days",
+          "weekNo",
+          "prog",
+          "priId",
+          "pri",
+          "estimate",
+          "resp",
+          "asset",
+          "assetTitle",
+          "loc",
+          "locTitle",
+          "hasPO",
+          "engineOwned",
+          "pinned",
+          "pinnedOn",
+          "engineDate",
+          "locked",
+          "movable",
+          "hrs",
+          "hrsSrc",
+          "assigned"
+        ],
+        "title": "Wo"
+      },
+      "WoList": {
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "title": "Ok"
+          },
+          "apiVersion": {
+            "type": "string",
+            "title": "Apiversion"
+          },
+          "actor": {
+            "type": "integer",
+            "title": "Actor"
+          },
+          "ms": {
+            "type": "integer",
+            "title": "Ms"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/WoListRow"
+            },
+            "type": "array",
+            "title": "Rows"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          },
+          "more": {
+            "type": "boolean",
+            "title": "More"
+          },
+          "filters": {
+            "$ref": "#/components/schemas/SearchFilters"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "ok",
+          "apiVersion",
+          "actor",
+          "ms",
+          "rows",
+          "count",
+          "more",
+          "filters"
+        ],
+        "title": "WoList"
+      },
+      "WoListRow": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "sid": {
+            "type": "string",
+            "title": "Sid"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "asset": {
+            "type": "string",
+            "title": "Asset"
+          },
+          "loc": {
+            "type": "string",
+            "title": "Loc"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "prog": {
+            "type": "integer",
+            "title": "Prog"
+          },
+          "hasPO": {
+            "type": "boolean",
+            "title": "Haspo"
+          },
+          "entry": {
+            "type": "string",
+            "title": "Entry"
+          },
+          "badge": {
+            "type": "string",
+            "title": "Badge"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "sid",
+          "title",
+          "asset",
+          "loc",
+          "status",
+          "prog",
+          "hasPO",
+          "entry",
+          "badge"
+        ],
+        "title": "WoListRow"
+      },
+      "WoRecord": {
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "title": "Ok"
+          },
+          "apiVersion": {
+            "type": "string",
+            "title": "Apiversion"
+          },
+          "actor": {
+            "type": "integer",
+            "title": "Actor"
+          },
+          "ms": {
+            "type": "integer",
+            "title": "Ms"
+          },
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "sid": {
+            "type": "string",
+            "title": "Sid"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "statusTitle": {
+            "type": "string",
+            "title": "Statustitle"
+          },
+          "type": {
+            "type": "string",
+            "title": "Type"
+          },
+          "overDue": {
+            "type": "string",
+            "title": "Overdue"
+          },
+          "weekNo": {
+            "type": "number",
+            "title": "Weekno"
+          },
+          "start": {
+            "type": "string",
+            "title": "Start"
+          },
+          "startTime": {
+            "type": "string",
+            "title": "Starttime"
+          },
+          "end": {
+            "type": "string",
+            "title": "End"
+          },
+          "endTime": {
+            "type": "string",
+            "title": "Endtime"
+          },
+          "logged": {
+            "type": "string",
+            "title": "Logged"
+          },
+          "companyId": {
+            "type": "integer",
+            "title": "Companyid"
+          },
+          "companyTitle": {
+            "type": "string",
+            "title": "Companytitle"
+          },
+          "assetId": {
+            "type": "integer",
+            "title": "Assetid"
+          },
+          "asset": {
+            "type": "string",
+            "title": "Asset"
+          },
+          "assetTitle": {
+            "type": "string",
+            "title": "Assettitle"
+          },
+          "locId": {
+            "type": "integer",
+            "title": "Locid"
+          },
+          "loc": {
+            "type": "string",
+            "title": "Loc"
+          },
+          "locTitle": {
+            "type": "string",
+            "title": "Loctitle"
+          },
+          "hierarchy": {
+            "type": "string",
+            "title": "Hierarchy"
+          },
+          "hierarchyRaw": {
+            "type": "string",
+            "title": "Hierarchyraw"
+          },
+          "durationHrs": {
+            "type": "number",
+            "title": "Durationhrs"
+          },
+          "estCost": {
+            "type": "number",
+            "title": "Estcost"
+          },
+          "downTime": {
+            "type": "number",
+            "title": "Downtime"
+          },
+          "priId": {
+            "type": "integer",
+            "title": "Priid"
+          },
+          "priShort": {
+            "type": "string",
+            "title": "Prishort"
+          },
+          "priTitle": {
+            "type": "string",
+            "title": "Prititle"
+          },
+          "groupId": {
+            "type": "integer",
+            "title": "Groupid"
+          },
+          "groupShort": {
+            "type": "string",
+            "title": "Groupshort"
+          },
+          "groupTitle": {
+            "type": "string",
+            "title": "Grouptitle"
+          },
+          "reasonId": {
+            "type": "integer",
+            "title": "Reasonid"
+          },
+          "reasonTitle": {
+            "type": "string",
+            "title": "Reasontitle"
+          },
+          "faultId": {
+            "type": "integer",
+            "title": "Faultid"
+          },
+          "faultTitle": {
+            "type": "string",
+            "title": "Faulttitle"
+          },
+          "costCenterId": {
+            "type": "integer",
+            "title": "Costcenterid"
+          },
+          "costCenterTitle": {
+            "type": "string",
+            "title": "Costcentertitle"
+          },
+          "accountId": {
+            "type": "integer",
+            "title": "Accountid"
+          },
+          "accountTitle": {
+            "type": "string",
+            "title": "Accounttitle"
+          },
+          "chargeToId": {
+            "type": "integer",
+            "title": "Chargetoid"
+          },
+          "chargeToShort": {
+            "type": "string",
+            "title": "Chargetoshort"
+          },
+          "chargeToName": {
+            "type": "string",
+            "title": "Chargetoname"
+          },
+          "respSupplierId": {
+            "type": "integer",
+            "title": "Respsupplierid"
+          },
+          "respSupplierShort": {
+            "type": "string",
+            "title": "Respsuppliershort"
+          },
+          "respSupplierName": {
+            "type": "string",
+            "title": "Respsuppliername"
+          },
+          "woc1Id": {
+            "type": "integer",
+            "title": "Woc1Id"
+          },
+          "woc1Title": {
+            "type": "string",
+            "title": "Woc1Title"
+          },
+          "woc2Id": {
+            "type": "integer",
+            "title": "Woc2Id"
+          },
+          "woc2Title": {
+            "type": "string",
+            "title": "Woc2Title"
+          },
+          "woc3Id": {
+            "type": "integer",
+            "title": "Woc3Id"
+          },
+          "woc3Title": {
+            "type": "string",
+            "title": "Woc3Title"
+          },
+          "ref1": {
+            "type": "string",
+            "title": "Ref1"
+          },
+          "ref2": {
+            "type": "string",
+            "title": "Ref2"
+          },
+          "prog": {
+            "type": "integer",
+            "title": "Prog"
+          },
+          "progTitle": {
+            "type": "string",
+            "title": "Progtitle"
+          },
+          "notes": {
+            "type": "string",
+            "title": "Notes"
+          },
+          "requestedById": {
+            "type": "integer",
+            "title": "Requestedbyid"
+          },
+          "respUserId": {
+            "type": "integer",
+            "title": "Respuserid"
+          },
+          "respUserName": {
+            "type": "string",
+            "title": "Respusername"
+          },
+          "conditionId": {
+            "type": "integer",
+            "title": "Conditionid"
+          },
+          "generatedFrom": {
+            "type": "string",
+            "title": "Generatedfrom"
+          },
+          "intrusive": {
+            "type": "string",
+            "title": "Intrusive"
+          },
+          "intrusiveComplete": {
+            "type": "string",
+            "title": "Intrusivecomplete"
+          },
+          "intrusiveCompleteDate": {
+            "type": "string",
+            "title": "Intrusivecompletedate"
+          },
+          "firstActivity": {
+            "type": "string",
+            "title": "Firstactivity"
+          },
+          "lastActivity": {
+            "type": "string",
+            "title": "Lastactivity"
+          },
+          "meterId": {
+            "type": "integer",
+            "title": "Meterid"
+          },
+          "meterReading": {
+            "type": "number",
+            "title": "Meterreading"
+          },
+          "printed": {
+            "type": "string",
+            "title": "Printed"
+          },
+          "progressDate": {
+            "type": "string",
+            "title": "Progressdate"
+          },
+          "createdBy": {
+            "type": "string",
+            "title": "Createdby"
+          },
+          "ackBy": {
+            "type": "string",
+            "title": "Ackby"
+          },
+          "ackDate": {
+            "type": "string",
+            "title": "Ackdate"
+          },
+          "approvedBy": {
+            "type": "string",
+            "title": "Approvedby"
+          },
+          "approvedDate": {
+            "type": "string",
+            "title": "Approveddate"
+          },
+          "closedBy": {
+            "type": "string",
+            "title": "Closedby"
+          },
+          "closedDate": {
+            "type": "string",
+            "title": "Closeddate"
+          },
+          "cancelledBy": {
+            "type": "string",
+            "title": "Cancelledby"
+          },
+          "cancelledDate": {
+            "type": "string",
+            "title": "Cancelleddate"
+          },
+          "lastSaveBy": {
+            "type": "string",
+            "title": "Lastsaveby"
+          },
+          "lastSaveDate": {
+            "type": "string",
+            "title": "Lastsavedate"
+          },
+          "completeWithin": {
+            "type": "string",
+            "enum": [
+              "day",
+              "week",
+              "month",
+              "3month",
+              "nextshut",
+              "range"
+            ],
+            "title": "Completewithin"
+          },
+          "detailsMissing": {
+            "type": "boolean",
+            "title": "Detailsmissing"
+          },
+          "respUsers": {
+            "items": {
+              "$ref": "#/components/schemas/RespUser"
+            },
+            "type": "array",
+            "title": "Respusers"
+          },
+          "resources": {
+            "$ref": "#/components/schemas/Resources"
+          },
+          "progressAll": {
+            "items": {
+              "$ref": "#/components/schemas/ProgressRow"
+            },
+            "type": "array",
+            "title": "Progressall"
+          },
+          "filtersFor": {
+            "$ref": "#/components/schemas/SearchFilters"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "ok",
+          "apiVersion",
+          "actor",
+          "ms",
+          "id",
+          "sid",
+          "title",
+          "status",
+          "statusTitle",
+          "type",
+          "overDue",
+          "weekNo",
+          "start",
+          "startTime",
+          "end",
+          "endTime",
+          "logged",
+          "companyId",
+          "companyTitle",
+          "assetId",
+          "asset",
+          "assetTitle",
+          "locId",
+          "loc",
+          "locTitle",
+          "hierarchy",
+          "hierarchyRaw",
+          "durationHrs",
+          "estCost",
+          "downTime",
+          "priId",
+          "priShort",
+          "priTitle",
+          "groupId",
+          "groupShort",
+          "groupTitle",
+          "reasonId",
+          "reasonTitle",
+          "faultId",
+          "faultTitle",
+          "costCenterId",
+          "costCenterTitle",
+          "accountId",
+          "accountTitle",
+          "chargeToId",
+          "chargeToShort",
+          "chargeToName",
+          "respSupplierId",
+          "respSupplierShort",
+          "respSupplierName",
+          "woc1Id",
+          "woc1Title",
+          "woc2Id",
+          "woc2Title",
+          "woc3Id",
+          "woc3Title",
+          "ref1",
+          "ref2",
+          "prog",
+          "progTitle",
+          "notes",
+          "requestedById",
+          "respUserId",
+          "respUserName",
+          "conditionId",
+          "generatedFrom",
+          "intrusive",
+          "intrusiveComplete",
+          "intrusiveCompleteDate",
+          "firstActivity",
+          "lastActivity",
+          "meterId",
+          "meterReading",
+          "printed",
+          "progressDate",
+          "createdBy",
+          "ackBy",
+          "ackDate",
+          "approvedBy",
+          "approvedDate",
+          "closedBy",
+          "closedDate",
+          "cancelledBy",
+          "cancelledDate",
+          "lastSaveBy",
+          "lastSaveDate",
+          "completeWithin",
+          "detailsMissing",
+          "respUsers",
+          "resources",
+          "progressAll",
+          "filtersFor"
+        ],
+        "title": "WoRecord"
+      },
+      "Worker": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "sid": {
+            "type": "string",
+            "title": "Sid"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "initials": {
+            "type": "string",
+            "title": "Initials"
+          },
+          "skills": {
+            "items": {
+              "$ref": "#/components/schemas/Skill"
+            },
+            "type": "array",
+            "title": "Skills"
+          },
+          "hrsPerWeek": {
+            "type": "number",
+            "title": "Hrsperweek"
+          },
+          "teamId": {
+            "type": "integer",
+            "title": "Teamid"
+          },
+          "team": {
+            "type": "string",
+            "title": "Team"
+          },
+          "internal": {
+            "type": "boolean",
+            "title": "Internal"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "sid",
+          "name",
+          "initials",
+          "skills",
+          "hrsPerWeek",
+          "teamId",
+          "team",
+          "internal"
+        ],
+        "title": "Worker"
+      },
+      "WorkerWeek": {
+        "properties": {
+          "weekStart": {
+            "type": "string",
+            "title": "Weekstart"
+          },
+          "planned": {
+            "type": "number",
+            "title": "Planned"
+          },
+          "capacity": {
+            "type": "number",
+            "title": "Capacity"
+          },
+          "pct": {
+            "type": "integer",
+            "title": "Pct"
+          },
+          "flag": {
+            "type": "string",
+            "title": "Flag"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "weekStart",
+          "planned",
+          "capacity",
+          "pct",
+          "flag"
+        ],
+        "title": "WorkerWeek"
+      }
+    }
+  }
+}

@@ -51,6 +51,94 @@ export type Counts = {
 }
 
 /**
+ * EventPage
+ */
+export type EventPage = {
+  /**
+   * Ok
+   */
+  ok: boolean
+  /**
+   * Apiversion
+   */
+  apiVersion: string
+  /**
+   * Actor
+   */
+  actor: number
+  /**
+   * Ms
+   */
+  ms: number
+  /**
+   * Rows
+   */
+  rows: Array<EventRow>
+  /**
+   * Count
+   */
+  count: number
+  /**
+   * More
+   */
+  more: boolean
+  /**
+   * Offset
+   */
+  offset: number
+}
+
+/**
+ * EventRow
+ */
+export type EventRow = {
+  /**
+   * Seq
+   */
+  seq: number
+  /**
+   * Eventid
+   */
+  eventId: number
+  /**
+   * Event
+   */
+  event: string
+  /**
+   * Detail
+   */
+  detail: string
+  /**
+   * Date
+   */
+  date: string
+  /**
+   * Editorid
+   */
+  editorId: number
+  /**
+   * Editor
+   */
+  editor: string
+  /**
+   * Sitecode
+   */
+  siteCode: string
+  /**
+   * Sitename
+   */
+  siteName: string
+  /**
+   * Source
+   */
+  source: string
+  /**
+   * Server
+   */
+  server: string
+}
+
+/**
  * HTTPValidationError
  */
 export type HttpValidationError = {
@@ -107,6 +195,170 @@ export type LabourRow = {
 }
 
 /**
+ * LinkedFamily
+ */
+export type LinkedFamily = {
+  /**
+   * Ok
+   */
+  ok: boolean
+  /**
+   * Apiversion
+   */
+  apiVersion: string
+  /**
+   * Actor
+   */
+  actor: number
+  /**
+   * Ms
+   */
+  ms: number
+  /**
+   * Rows
+   */
+  rows: Array<LinkedRow>
+  /**
+   * Count
+   */
+  count: number
+  /**
+   * Root
+   */
+  root: string
+}
+
+/**
+ * LinkedRow
+ */
+export type LinkedRow = {
+  /**
+   * Id
+   */
+  id: number
+  /**
+   * Sid
+   */
+  sid: string
+  /**
+   * Title
+   */
+  title: string
+  /**
+   * Status
+   */
+  status: string
+  /**
+   * Prog
+   */
+  prog: number
+  /**
+   * Haspo
+   */
+  hasPO: boolean
+  /**
+   * Badge
+   */
+  badge: string
+  /**
+   * Level
+   */
+  level: number
+  /**
+   * Rel
+   */
+  rel: string
+  /**
+   * Parentid
+   */
+  parentId: number
+  /**
+   * Parentsid
+   */
+  parentSid: string
+  /**
+   * Start
+   */
+  start: string
+  /**
+   * Entry
+   */
+  entry: string
+  /**
+   * Selected
+   */
+  selected: boolean
+}
+
+/**
+ * PoLine
+ */
+export type PoLine = {
+  /**
+   * Posid
+   */
+  poSid: string
+  /**
+   * Status
+   */
+  status: string
+  /**
+   * Badge
+   */
+  badge: string
+  /**
+   * Due
+   */
+  due: string
+  /**
+   * Supplier
+   */
+  supplier: string
+  /**
+   * Description
+   */
+  description: string
+  /**
+   * Qty
+   */
+  qty: number
+  /**
+   * Unitcost
+   */
+  unitCost: number
+}
+
+/**
+ * PoList
+ */
+export type PoList = {
+  /**
+   * Ok
+   */
+  ok: boolean
+  /**
+   * Apiversion
+   */
+  apiVersion: string
+  /**
+   * Actor
+   */
+  actor: number
+  /**
+   * Ms
+   */
+  ms: number
+  /**
+   * Rows
+   */
+  rows: Array<PoLine>
+  /**
+   * Count
+   */
+  count: number
+}
+
+/**
  * Priority
  */
 export type Priority = {
@@ -126,6 +378,96 @@ export type Priority = {
    * Colour
    */
   colour: string
+}
+
+/**
+ * ProgressRow
+ */
+export type ProgressRow = {
+  /**
+   * Id
+   */
+  id: number
+  /**
+   * Title
+   */
+  title: string
+  /**
+   * Short
+   */
+  short: string
+}
+
+/**
+ * QueryList
+ */
+export type QueryList = {
+  /**
+   * Ok
+   */
+  ok: boolean
+  /**
+   * Apiversion
+   */
+  apiVersion: string
+  /**
+   * Actor
+   */
+  actor: number
+  /**
+   * Ms
+   */
+  ms: number
+  /**
+   * Rows
+   */
+  rows: Array<QueryRow>
+  /**
+   * Count
+   */
+  count: number
+}
+
+/**
+ * QueryRow
+ */
+export type QueryRow = {
+  /**
+   * Id
+   */
+  id: number
+  /**
+   * Type
+   */
+  type: string
+  /**
+   * Typelabel
+   */
+  typeLabel: string
+  /**
+   * Queryfrom
+   */
+  queryFrom: string
+  /**
+   * Queryto
+   */
+  queryTo: string
+  /**
+   * Desc
+   */
+  desc: string
+  /**
+   * Date
+   */
+  date: string
+  /**
+   * Pairid
+   */
+  pairId: number
+  /**
+   * Emailed
+   */
+  emailed: boolean
 }
 
 /**
@@ -217,6 +559,114 @@ export type RangeData = {
    * Ms
    */
   ms: number
+}
+
+/**
+ * ResourceRow
+ */
+export type ResourceRow = {
+  /**
+   * Type
+   */
+  type: string
+  /**
+   * Item
+   */
+  item: string
+  /**
+   * Planqty
+   */
+  planQty: number | null
+  /**
+   * Plancost
+   */
+  planCost: number | null
+  /**
+   * Actqty
+   */
+  actQty: number | null
+  /**
+   * Actcost
+   */
+  actCost: number | null
+  /**
+   * Delta
+   */
+  delta: number
+}
+
+/**
+ * Resources
+ */
+export type Resources = {
+  /**
+   * Rows
+   */
+  rows: Array<ResourceRow>
+  /**
+   * Planned
+   */
+  planned: number
+  /**
+   * Actual
+   */
+  actual: number
+  /**
+   * Diff
+   */
+  diff: number
+  /**
+   * Line
+   */
+  line: string
+}
+
+/**
+ * RespUser
+ */
+export type RespUser = {
+  /**
+   * Userid
+   */
+  userId: number
+  /**
+   * Shortid
+   */
+  shortId: string
+  /**
+   * Name
+   */
+  name: string
+}
+
+/**
+ * SearchFilters
+ */
+export type SearchFilters = {
+  /**
+   * Wotype
+   */
+  woType: '' | 'N' | 'CP' | 'M'
+  /**
+   * Includeclosed
+   */
+  includeClosed: number
+  /**
+   * Includearchive
+   */
+  includeArchive: number
+  /**
+   * Search
+   */
+  search: string
+  /**
+   * Limit
+   */
+  limit: number
+  /**
+   * Offset
+   */
+  offset: number
 }
 
 /**
@@ -460,6 +910,455 @@ export type Wo = {
 }
 
 /**
+ * WoList
+ */
+export type WoList = {
+  /**
+   * Ok
+   */
+  ok: boolean
+  /**
+   * Apiversion
+   */
+  apiVersion: string
+  /**
+   * Actor
+   */
+  actor: number
+  /**
+   * Ms
+   */
+  ms: number
+  /**
+   * Rows
+   */
+  rows: Array<WoListRow>
+  /**
+   * Count
+   */
+  count: number
+  /**
+   * More
+   */
+  more: boolean
+  filters: SearchFilters
+}
+
+/**
+ * WoListRow
+ */
+export type WoListRow = {
+  /**
+   * Id
+   */
+  id: number
+  /**
+   * Sid
+   */
+  sid: string
+  /**
+   * Title
+   */
+  title: string
+  /**
+   * Asset
+   */
+  asset: string
+  /**
+   * Loc
+   */
+  loc: string
+  /**
+   * Status
+   */
+  status: string
+  /**
+   * Prog
+   */
+  prog: number
+  /**
+   * Haspo
+   */
+  hasPO: boolean
+  /**
+   * Entry
+   */
+  entry: string
+  /**
+   * Badge
+   */
+  badge: string
+}
+
+/**
+ * WoRecord
+ */
+export type WoRecord = {
+  /**
+   * Ok
+   */
+  ok: boolean
+  /**
+   * Apiversion
+   */
+  apiVersion: string
+  /**
+   * Actor
+   */
+  actor: number
+  /**
+   * Ms
+   */
+  ms: number
+  /**
+   * Id
+   */
+  id: number
+  /**
+   * Sid
+   */
+  sid: string
+  /**
+   * Title
+   */
+  title: string
+  /**
+   * Status
+   */
+  status: string
+  /**
+   * Statustitle
+   */
+  statusTitle: string
+  /**
+   * Type
+   */
+  type: string
+  /**
+   * Overdue
+   */
+  overDue: string
+  /**
+   * Weekno
+   */
+  weekNo: number
+  /**
+   * Start
+   */
+  start: string
+  /**
+   * Starttime
+   */
+  startTime: string
+  /**
+   * End
+   */
+  end: string
+  /**
+   * Endtime
+   */
+  endTime: string
+  /**
+   * Logged
+   */
+  logged: string
+  /**
+   * Companyid
+   */
+  companyId: number
+  /**
+   * Companytitle
+   */
+  companyTitle: string
+  /**
+   * Assetid
+   */
+  assetId: number
+  /**
+   * Asset
+   */
+  asset: string
+  /**
+   * Assettitle
+   */
+  assetTitle: string
+  /**
+   * Locid
+   */
+  locId: number
+  /**
+   * Loc
+   */
+  loc: string
+  /**
+   * Loctitle
+   */
+  locTitle: string
+  /**
+   * Hierarchy
+   */
+  hierarchy: string
+  /**
+   * Hierarchyraw
+   */
+  hierarchyRaw: string
+  /**
+   * Durationhrs
+   */
+  durationHrs: number
+  /**
+   * Estcost
+   */
+  estCost: number
+  /**
+   * Downtime
+   */
+  downTime: number
+  /**
+   * Priid
+   */
+  priId: number
+  /**
+   * Prishort
+   */
+  priShort: string
+  /**
+   * Prititle
+   */
+  priTitle: string
+  /**
+   * Groupid
+   */
+  groupId: number
+  /**
+   * Groupshort
+   */
+  groupShort: string
+  /**
+   * Grouptitle
+   */
+  groupTitle: string
+  /**
+   * Reasonid
+   */
+  reasonId: number
+  /**
+   * Reasontitle
+   */
+  reasonTitle: string
+  /**
+   * Faultid
+   */
+  faultId: number
+  /**
+   * Faulttitle
+   */
+  faultTitle: string
+  /**
+   * Costcenterid
+   */
+  costCenterId: number
+  /**
+   * Costcentertitle
+   */
+  costCenterTitle: string
+  /**
+   * Accountid
+   */
+  accountId: number
+  /**
+   * Accounttitle
+   */
+  accountTitle: string
+  /**
+   * Chargetoid
+   */
+  chargeToId: number
+  /**
+   * Chargetoshort
+   */
+  chargeToShort: string
+  /**
+   * Chargetoname
+   */
+  chargeToName: string
+  /**
+   * Respsupplierid
+   */
+  respSupplierId: number
+  /**
+   * Respsuppliershort
+   */
+  respSupplierShort: string
+  /**
+   * Respsuppliername
+   */
+  respSupplierName: string
+  /**
+   * Woc1Id
+   */
+  woc1Id: number
+  /**
+   * Woc1Title
+   */
+  woc1Title: string
+  /**
+   * Woc2Id
+   */
+  woc2Id: number
+  /**
+   * Woc2Title
+   */
+  woc2Title: string
+  /**
+   * Woc3Id
+   */
+  woc3Id: number
+  /**
+   * Woc3Title
+   */
+  woc3Title: string
+  /**
+   * Ref1
+   */
+  ref1: string
+  /**
+   * Ref2
+   */
+  ref2: string
+  /**
+   * Prog
+   */
+  prog: number
+  /**
+   * Progtitle
+   */
+  progTitle: string
+  /**
+   * Notes
+   */
+  notes: string
+  /**
+   * Requestedbyid
+   */
+  requestedById: number
+  /**
+   * Respuserid
+   */
+  respUserId: number
+  /**
+   * Respusername
+   */
+  respUserName: string
+  /**
+   * Conditionid
+   */
+  conditionId: number
+  /**
+   * Generatedfrom
+   */
+  generatedFrom: string
+  /**
+   * Intrusive
+   */
+  intrusive: string
+  /**
+   * Intrusivecomplete
+   */
+  intrusiveComplete: string
+  /**
+   * Intrusivecompletedate
+   */
+  intrusiveCompleteDate: string
+  /**
+   * Firstactivity
+   */
+  firstActivity: string
+  /**
+   * Lastactivity
+   */
+  lastActivity: string
+  /**
+   * Meterid
+   */
+  meterId: number
+  /**
+   * Meterreading
+   */
+  meterReading: number
+  /**
+   * Printed
+   */
+  printed: string
+  /**
+   * Progressdate
+   */
+  progressDate: string
+  /**
+   * Createdby
+   */
+  createdBy: string
+  /**
+   * Ackby
+   */
+  ackBy: string
+  /**
+   * Ackdate
+   */
+  ackDate: string
+  /**
+   * Approvedby
+   */
+  approvedBy: string
+  /**
+   * Approveddate
+   */
+  approvedDate: string
+  /**
+   * Closedby
+   */
+  closedBy: string
+  /**
+   * Closeddate
+   */
+  closedDate: string
+  /**
+   * Cancelledby
+   */
+  cancelledBy: string
+  /**
+   * Cancelleddate
+   */
+  cancelledDate: string
+  /**
+   * Lastsaveby
+   */
+  lastSaveBy: string
+  /**
+   * Lastsavedate
+   */
+  lastSaveDate: string
+  /**
+   * Completewithin
+   */
+  completeWithin: 'day' | 'week' | 'month' | '3month' | 'nextshut' | 'range'
+  /**
+   * Detailsmissing
+   */
+  detailsMissing: boolean
+  /**
+   * Respusers
+   */
+  respUsers: Array<RespUser>
+  resources: Resources
+  /**
+   * Progressall
+   */
+  progressAll: Array<ProgressRow>
+  filtersFor: SearchFilters
+}
+
+/**
  * Worker
  */
 export type Worker = {
@@ -616,3 +1515,290 @@ export type GetRangeApiV1PlannerRangeGetResponses = {
 
 export type GetRangeApiV1PlannerRangeGetResponse =
   GetRangeApiV1PlannerRangeGetResponses[keyof GetRangeApiV1PlannerRangeGetResponses]
+
+export type ListWorkordersApiV1WorkordersGetData = {
+  body?: never
+  path?: never
+  query?: {
+    /**
+     * Wotype
+     *
+     * '' all · N work orders · CP capital · M PMs
+     */
+    woType?: string
+    /**
+     * Includeclosed
+     *
+     * 0 open · 1 all · 2 closed/cancelled
+     */
+    includeClosed?: number
+    /**
+     * Includearchive
+     *
+     * 0 live · 1 both · 2 archive only
+     */
+    includeArchive?: number
+    /**
+     * Search
+     *
+     * one term, Short_WO_Id or WO_Title contains
+     */
+    search?: string
+    /**
+     * Limit
+     */
+    limit?: number
+    /**
+     * Offset
+     */
+    offset?: number
+  }
+  url: '/api/v1/workorders'
+}
+
+export type ListWorkordersApiV1WorkordersGetErrors = {
+  /**
+   * Bad Request
+   */
+  400: ApiError
+  /**
+   * Unauthorized
+   */
+  401: ApiError
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+}
+
+export type ListWorkordersApiV1WorkordersGetError =
+  ListWorkordersApiV1WorkordersGetErrors[keyof ListWorkordersApiV1WorkordersGetErrors]
+
+export type ListWorkordersApiV1WorkordersGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: WoList
+}
+
+export type ListWorkordersApiV1WorkordersGetResponse =
+  ListWorkordersApiV1WorkordersGetResponses[keyof ListWorkordersApiV1WorkordersGetResponses]
+
+export type GetWorkorderApiV1WorkordersWoIdGetData = {
+  body?: never
+  path: {
+    /**
+     * Wo Id
+     *
+     * WO_N_Header.WO_ID
+     */
+    wo_id: number
+  }
+  query?: never
+  url: '/api/v1/workorders/{wo_id}'
+}
+
+export type GetWorkorderApiV1WorkordersWoIdGetErrors = {
+  /**
+   * Unauthorized
+   */
+  401: ApiError
+  /**
+   * Not Found
+   */
+  404: ApiError
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+}
+
+export type GetWorkorderApiV1WorkordersWoIdGetError =
+  GetWorkorderApiV1WorkordersWoIdGetErrors[keyof GetWorkorderApiV1WorkordersWoIdGetErrors]
+
+export type GetWorkorderApiV1WorkordersWoIdGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: WoRecord
+}
+
+export type GetWorkorderApiV1WorkordersWoIdGetResponse =
+  GetWorkorderApiV1WorkordersWoIdGetResponses[keyof GetWorkorderApiV1WorkordersWoIdGetResponses]
+
+export type GetEventsApiV1WorkordersWoIdEventsGetData = {
+  body?: never
+  path: {
+    /**
+     * Wo Id
+     *
+     * WO_N_Header.WO_ID
+     */
+    wo_id: number
+  }
+  query?: {
+    /**
+     * Offset
+     */
+    offset?: number
+    /**
+     * Limit
+     */
+    limit?: number
+  }
+  url: '/api/v1/workorders/{wo_id}/events'
+}
+
+export type GetEventsApiV1WorkordersWoIdEventsGetErrors = {
+  /**
+   * Unauthorized
+   */
+  401: ApiError
+  /**
+   * Not Found
+   */
+  404: ApiError
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+}
+
+export type GetEventsApiV1WorkordersWoIdEventsGetError =
+  GetEventsApiV1WorkordersWoIdEventsGetErrors[keyof GetEventsApiV1WorkordersWoIdEventsGetErrors]
+
+export type GetEventsApiV1WorkordersWoIdEventsGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: EventPage
+}
+
+export type GetEventsApiV1WorkordersWoIdEventsGetResponse =
+  GetEventsApiV1WorkordersWoIdEventsGetResponses[keyof GetEventsApiV1WorkordersWoIdEventsGetResponses]
+
+export type GetLinkedApiV1WorkordersWoIdLinkedGetData = {
+  body?: never
+  path: {
+    /**
+     * Wo Id
+     *
+     * WO_N_Header.WO_ID
+     */
+    wo_id: number
+  }
+  query?: never
+  url: '/api/v1/workorders/{wo_id}/linked'
+}
+
+export type GetLinkedApiV1WorkordersWoIdLinkedGetErrors = {
+  /**
+   * Unauthorized
+   */
+  401: ApiError
+  /**
+   * Not Found
+   */
+  404: ApiError
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+}
+
+export type GetLinkedApiV1WorkordersWoIdLinkedGetError =
+  GetLinkedApiV1WorkordersWoIdLinkedGetErrors[keyof GetLinkedApiV1WorkordersWoIdLinkedGetErrors]
+
+export type GetLinkedApiV1WorkordersWoIdLinkedGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: LinkedFamily
+}
+
+export type GetLinkedApiV1WorkordersWoIdLinkedGetResponse =
+  GetLinkedApiV1WorkordersWoIdLinkedGetResponses[keyof GetLinkedApiV1WorkordersWoIdLinkedGetResponses]
+
+export type GetQueriesApiV1WorkordersWoIdQueriesGetData = {
+  body?: never
+  path: {
+    /**
+     * Wo Id
+     *
+     * WO_N_Header.WO_ID
+     */
+    wo_id: number
+  }
+  query?: never
+  url: '/api/v1/workorders/{wo_id}/queries'
+}
+
+export type GetQueriesApiV1WorkordersWoIdQueriesGetErrors = {
+  /**
+   * Unauthorized
+   */
+  401: ApiError
+  /**
+   * Not Found
+   */
+  404: ApiError
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+}
+
+export type GetQueriesApiV1WorkordersWoIdQueriesGetError =
+  GetQueriesApiV1WorkordersWoIdQueriesGetErrors[keyof GetQueriesApiV1WorkordersWoIdQueriesGetErrors]
+
+export type GetQueriesApiV1WorkordersWoIdQueriesGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: QueryList
+}
+
+export type GetQueriesApiV1WorkordersWoIdQueriesGetResponse =
+  GetQueriesApiV1WorkordersWoIdQueriesGetResponses[keyof GetQueriesApiV1WorkordersWoIdQueriesGetResponses]
+
+export type GetPoLinesApiV1WorkordersWoIdPosGetData = {
+  body?: never
+  path: {
+    /**
+     * Wo Id
+     *
+     * WO_N_Header.WO_ID
+     */
+    wo_id: number
+  }
+  query?: never
+  url: '/api/v1/workorders/{wo_id}/pos'
+}
+
+export type GetPoLinesApiV1WorkordersWoIdPosGetErrors = {
+  /**
+   * Unauthorized
+   */
+  401: ApiError
+  /**
+   * Not Found
+   */
+  404: ApiError
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+}
+
+export type GetPoLinesApiV1WorkordersWoIdPosGetError =
+  GetPoLinesApiV1WorkordersWoIdPosGetErrors[keyof GetPoLinesApiV1WorkordersWoIdPosGetErrors]
+
+export type GetPoLinesApiV1WorkordersWoIdPosGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: PoList
+}
+
+export type GetPoLinesApiV1WorkordersWoIdPosGetResponse =
+  GetPoLinesApiV1WorkordersWoIdPosGetResponses[keyof GetPoLinesApiV1WorkordersWoIdPosGetResponses]

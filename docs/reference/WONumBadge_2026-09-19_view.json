@@ -1,0 +1,107 @@
+{
+  "custom": {
+    "woNumber": ""
+  },
+  "params": {
+    "value": ""
+  },
+  "propConfig": {
+    "params.value": {
+      "paramDirection": "input",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 26,
+      "width": 130
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Badge"
+        },
+        "position": {
+          "shrink": 0
+        },
+        "propConfig": {
+          "props.style.backgroundColor": {
+            "binding": {
+              "config": {
+                "expression": "if(left({view.params.value},1) \u003d \u0027R\u0027, \u0027rgba(var(--wo-rgb-request),0.16)\u0027, if(left({view.params.value},1) \u003d \u0027H\u0027, \u0027rgba(var(--wo-rgb-planned),0.16)\u0027, if(left({view.params.value},1) \u003d \u0027P\u0027, \u0027rgba(var(--wo-rgb-pending),0.16)\u0027, if(left({view.params.value},1) \u003d \u0027K\u0027, \u0027rgba(var(--wo-rgb-acknowledged),0.16)\u0027, if(left({view.params.value},1) \u003d \u0027A\u0027, \u0027rgba(var(--wo-rgb-approved),0.16)\u0027, if(left({view.params.value},1) \u003d \u0027V\u0027, \u0027rgba(var(--wo-rgb-active),0.16)\u0027, if(left({view.params.value},1) \u003d \u0027C\u0027, \u0027rgba(var(--wo-rgb-closed),0.16)\u0027, if(left({view.params.value},1) \u003d \u0027D\u0027, \u0027rgba(var(--wo-rgb-cancelled),0.16)\u0027, if(left({view.params.value},1) \u003d \u0027F\u0027, \u0027rgba(var(--wo-rgb-deferred),0.16)\u0027, \u0027rgba(var(--wo-rgb-cancelled),0.08)\u0027)))))))))"
+              },
+              "type": "expr"
+            }
+          },
+          "props.style.backgroundImage": {
+            "binding": {
+              "config": {
+                "expression": "{view.params.value}"
+              },
+              "transforms": [
+                {
+                  "code": "\tv \u003d u\u0027\u0027 if value is None else unicode(value)\n\tparts \u003d v.split(\u0027|\u0027)\n\tst \u003d parts[0][:1] if (parts and parts[0]) else \u0027\u0027\n\tprog \u003d parts[2] if len(parts) \u003e\u003d 3 else \u00270\u0027\n\ttry:\n\t\tpid \u003d int(float(prog))\n\texcept:\n\t\tpid \u003d 0\n\tif pid \u003d\u003d 2:\n\t\t# Wait -- subtle muted nub (distinct from real progress)\n\t\tfill \u003d u\u0027rgba(100,116,139,0.55)\u0027\n\t\tp \u003d u\u00278\u0027\n\telse:\n\t\tcol \u003d {\u0027R\u0027:\u0027request\u0027,\u0027H\u0027:\u0027planned\u0027,\u0027P\u0027:\u0027pending\u0027,\u0027K\u0027:\u0027acknowledged\u0027,\u0027A\u0027:\u0027approved\u0027,\u0027V\u0027:\u0027active\u0027,\u0027C\u0027:\u0027closed\u0027,\u0027D\u0027:\u0027cancelled\u0027,\u0027F\u0027:\u0027deferred\u0027}\n\t\tfill \u003d u\u0027rgba(var(--wo-rgb-\u0027 + col[st] + u\u0027),0.95)\u0027 if st in col else u\u0027#196690\u0027\n\t\tpct \u003d {1:0, 3:25, 4:50, 5:75, 6:100}.get(pid, 0)\n\t\tp \u003d unicode(pct)\n\t# v1.3.0: layer 1 \u003d PO-linked dot, top-right, POList blue (#0B5ED7).\n\t# 4th pipe part HasPO (\u00271\u0027/\u00270\u0027, optional - absent \u003d no dot). Layer is\n\t# ALWAYS emitted (transparent when no PO) so the static two-entry\n\t# backgroundSize/Position/Repeat lists stay aligned per CSS layer rules.\n\thasPO \u003d False\n\tif len(parts) \u003e\u003d 4:\n\t\ttry:\n\t\t\thasPO \u003d int(float(parts[3])) \u003e 0\n\t\texcept:\n\t\t\thasPO \u003d False\n\tdot \u003d u\u0027#0B5ED7\u0027 if hasPO else u\u0027transparent\u0027\n\treturn (u\u0027radial-gradient(circle, \u0027 + dot + u\u0027 55%, transparent 60%), \u0027\n\t\t+ u\u0027linear-gradient(to right, \u0027 + fill + u\u0027 \u0027 + p + u\u0027%, transparent \u0027 + p + u\u0027%)\u0027)\n",
+                  "type": "script"
+                }
+              ],
+              "type": "expr"
+            }
+          },
+          "props.style.color": {
+            "binding": {
+              "config": {
+                "expression": "if(left({view.params.value},1) \u003d \u0027R\u0027, \u0027rgba(var(--wo-rgb-request),0.80)\u0027, if(left({view.params.value},1) \u003d \u0027H\u0027, \u0027rgba(var(--wo-rgb-planned),0.80)\u0027, if(left({view.params.value},1) \u003d \u0027P\u0027, \u0027rgba(var(--wo-rgb-pending),0.80)\u0027, if(left({view.params.value},1) \u003d \u0027K\u0027, \u0027rgba(var(--wo-rgb-acknowledged),0.80)\u0027, if(left({view.params.value},1) \u003d \u0027A\u0027, \u0027rgba(var(--wo-rgb-approved),0.80)\u0027, if(left({view.params.value},1) \u003d \u0027V\u0027, \u0027rgba(var(--wo-rgb-active),0.80)\u0027, if(left({view.params.value},1) \u003d \u0027C\u0027, \u0027rgba(var(--wo-rgb-closed),0.80)\u0027, if(left({view.params.value},1) \u003d \u0027D\u0027, \u0027rgba(var(--wo-rgb-cancelled),0.80)\u0027, if(left({view.params.value},1) \u003d \u0027F\u0027, \u0027rgba(var(--wo-rgb-deferred),0.80)\u0027, \u0027rgba(var(--wo-rgb-cancelled),0.50)\u0027)))))))))"
+              },
+              "type": "expr"
+            }
+          },
+          "props.text": {
+            "binding": {
+              "config": {
+                "expression": "{view.params.value}"
+              },
+              "transforms": [
+                {
+                  "code": "\tv \u003d u\u0027\u0027 if value is None else unicode(value)\n\tparts \u003d v.split(\u0027|\u0027)\n\treturn parts[1] if len(parts) \u003e\u003d 2 else (parts[0] if parts else \u0027\u0027)\n",
+                  "type": "script"
+                }
+              ],
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "backgroundPosition": "right 3px top 3px, left bottom",
+            "backgroundRepeat": "no-repeat, no-repeat",
+            "backgroundSize": "7px 7px, 100% 3px",
+            "borderRadius": "4px",
+            "fontSize": "11px",
+            "fontWeight": "600",
+            "letterSpacing": "0.3px",
+            "marginBottom": "0px",
+            "paddingBottom": "5px",
+            "paddingLeft": "7px",
+            "paddingRight": "7px",
+            "paddingTop": "3px",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      }
+    ],
+    "meta": {
+      "name": "WONumBadge_v1_3_0"
+    },
+    "props": {
+      "direction": "column",
+      "justify": "center",
+      "style": {
+        "overflow": "visible"
+      }
+    },
+    "type": "ia.container.flex"
+  }
+}

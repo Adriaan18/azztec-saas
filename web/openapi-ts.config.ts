@@ -1,6 +1,6 @@
 /**
- * Azztec_SaaS_web_openapi_ts_config_v1_0_2.ts  ->  web/openapi-ts.config.ts
- * Version:  1.0.2   Date: 2026-09-14   Author: Adriaan
+ * Azztec_SaaS_web_openapi_ts_config_v1_0_3.ts  ->  web/openapi-ts.config.ts
+ * Version:  1.0.3   Date: 2026-09-19   Author: Adriaan
  * Spec:     Azztec_SaaS_S1e_Web_Chunk_Spec_v1_0_0.md §5.2 · OD-22 · Architecture §3.2; S1i spec §3.1 · OD-38
  *
  * Input is the COMMITTED OpenAPI document, not the live server: deterministic, no backend needed,
@@ -16,6 +16,9 @@
  * never linted either: eslint.config.js ignores src/api/client/** for the same reason.
  *
  * Changelog:
+ *   1.0.3  W1a (OD-70): input -> openapi_0_5_0.json. main.py 0.5.0 publishes the six /workorders paths;
+ *          the 0.4.0 document is git rm-ed in the same commit. Nothing in web/src imports the new
+ *          client functions yet - that is W1b.
  *   1.0.2  S1i (OD-38): input -> openapi_0_4_0.json. main.py 0.4.0 is the document's info.version, and
  *          the schema gained Priority.colour (required) in S1h without the filename moving - the
  *          committed 0.3.0 document was three versions of truth behind the app. The 0.3.0 file is
@@ -25,10 +28,10 @@
  */
 import { defineConfig } from '@hey-api/openapi-ts';
 
-export const VERSION = '1.0.2';
+export const VERSION = '1.0.3';
 
 export default defineConfig({
-  input: '../docs/api/openapi_0_4_0.json',
+  input: '../docs/api/openapi_0_5_0.json',
   output: {
     path: 'src/api/client',
     postProcess: ['prettier'],

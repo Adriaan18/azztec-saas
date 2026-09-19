@@ -1,0 +1,1149 @@
+{
+  "custom": {},
+  "params": {
+    "progressId": 1
+  },
+  "propConfig": {
+    "params.progressId": {
+      "paramDirection": "inout",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 62,
+      "width": 428
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "svgProgress0"
+                },
+                "propConfig": {
+                  "props.elements[0].fill.paint": {
+                    "binding": {
+                      "config": {
+                        "expression": "if({view.params.progressId} = 1, '#FFFFFF', '#EEF0F0')"
+                      },
+                      "type": "expr"
+                    }
+                  },
+                  "props.elements[0].stroke.paint": {
+                    "binding": {
+                      "config": {
+                        "expression": "if({view.params.progressId} = 1, '#FFFFFFAA', '#8A9698')"
+                      },
+                      "type": "expr"
+                    }
+                  },
+                  "props.elements[1].stroke.paint": {
+                    "binding": {
+                      "config": {
+                        "expression": "if({view.params.progressId} = 1, '#242E30', '#5D6E71')"
+                      },
+                      "type": "expr"
+                    }
+                  }
+                },
+                "props": {
+                  "elements": [
+                    {
+                      "fill": {},
+                      "height": 22,
+                      "name": "bg",
+                      "rx": 3,
+                      "ry": 3,
+                      "stroke": {
+                        "width": 1
+                      },
+                      "type": "rect",
+                      "width": 22,
+                      "x": 1,
+                      "y": 1
+                    },
+                    {
+                      "cx": 12,
+                      "cy": 12,
+                      "fill": {
+                        "paint": "transparent"
+                      },
+                      "name": "ico",
+                      "r": 5.5,
+                      "stroke": {
+                        "width": 1.5
+                      },
+                      "type": "circle"
+                    }
+                  ],
+                  "style": {
+                    "height": "24px",
+                    "overflow": "hidden",
+                    "width": "24px"
+                  },
+                  "viewBox": "0 0 24 24"
+                },
+                "type": "ia.shapes.svg"
+              }
+            ],
+            "meta": {
+              "name": "icoWrapP0"
+            },
+            "position": {
+              "grow": 1,
+              "shrink": 0
+            },
+            "props": {
+              "alignItems": "center",
+              "justify": "center",
+              "style": {
+                "alignSelf": "stretch",
+                "overflow": "hidden"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "meta": {
+              "name": "lblProgress0"
+            },
+            "position": {
+              "shrink": 0
+            },
+            "propConfig": {
+              "props.style.color": {
+                "binding": {
+                  "config": {
+                    "expression": "if({view.params.progressId} = 1, '#FFFFFF', '#5D6E71')"
+                  },
+                  "type": "expr"
+                }
+              },
+              "props.style.fontWeight": {
+                "binding": {
+                  "config": {
+                    "expression": "if({view.params.progressId} = 1, 'bold', 'normal')"
+                  },
+                  "type": "expr"
+                }
+              }
+            },
+            "props": {
+              "style": {
+                "fontSize": "10px",
+                "paddingBottom": "4px",
+                "textAlign": "center"
+              },
+              "text": "None"
+            },
+            "type": "ia.display.label"
+          }
+        ],
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tself.view.params.progressId = 1\n\tsystem.perspective.sendMessage('wo-progress-changed', {'progressId': 1}, scope='session')"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "cardProgress0"
+        },
+        "propConfig": {
+          "props.style.backgroundColor": {
+            "binding": {
+              "config": {
+                "expression": "if({view.params.progressId} = 1, '#3D4F52', 'transparent')"
+              },
+              "type": "expr"
+            }
+          },
+          "props.style.border": {
+            "binding": {
+              "config": {
+                "expression": "if({view.params.progressId} = 1, '2px solid #242E30', '1px solid #8A9698')"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "alignItems": "center",
+          "direction": "column",
+          "style": {
+            "borderRadius": "8px",
+            "cursor": "pointer",
+            "height": "58px",
+            "minWidth": "68px",
+            "width": "68px"
+          }
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "svgProgress1"
+                },
+                "propConfig": {
+                  "props.elements[0].fill.paint": {
+                    "binding": {
+                      "config": {
+                        "expression": "if({view.params.progressId} = 2, '#FFFFFF', '#EEF0F0')"
+                      },
+                      "type": "expr"
+                    }
+                  },
+                  "props.elements[0].stroke.paint": {
+                    "binding": {
+                      "config": {
+                        "expression": "if({view.params.progressId} = 2, '#FFFFFFAA', '#8A9698')"
+                      },
+                      "type": "expr"
+                    }
+                  },
+                  "props.elements[1].fill.paint": {
+                    "binding": {
+                      "config": {
+                        "expression": "if({view.params.progressId} = 2, '#242E30', '#5D6E71')"
+                      },
+                      "type": "expr"
+                    }
+                  }
+                },
+                "props": {
+                  "elements": [
+                    {
+                      "fill": {},
+                      "height": 22,
+                      "name": "bg",
+                      "rx": 3,
+                      "ry": 3,
+                      "stroke": {
+                        "width": 1
+                      },
+                      "type": "rect",
+                      "width": 22,
+                      "x": 1,
+                      "y": 1
+                    },
+                    {
+                      "d": "M7.2 5.3 L16.8 5.3 L12.5 11.5 L16.8 18.7 L7.2 18.7 L11.5 11.5 Z",
+                      "fill": {},
+                      "name": "ico",
+                      "stroke": {
+                        "paint": "none"
+                      },
+                      "type": "path"
+                    }
+                  ],
+                  "style": {
+                    "height": "24px",
+                    "overflow": "hidden",
+                    "width": "24px"
+                  },
+                  "viewBox": "0 0 24 24"
+                },
+                "type": "ia.shapes.svg"
+              }
+            ],
+            "meta": {
+              "name": "icoWrapP1"
+            },
+            "position": {
+              "grow": 1,
+              "shrink": 0
+            },
+            "props": {
+              "alignItems": "center",
+              "justify": "center",
+              "style": {
+                "alignSelf": "stretch",
+                "overflow": "hidden"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "meta": {
+              "name": "lblProgress1"
+            },
+            "position": {
+              "shrink": 0
+            },
+            "propConfig": {
+              "props.style.color": {
+                "binding": {
+                  "config": {
+                    "expression": "if({view.params.progressId} = 2, '#FFFFFF', '#5D6E71')"
+                  },
+                  "type": "expr"
+                }
+              },
+              "props.style.fontWeight": {
+                "binding": {
+                  "config": {
+                    "expression": "if({view.params.progressId} = 2, 'bold', 'normal')"
+                  },
+                  "type": "expr"
+                }
+              }
+            },
+            "props": {
+              "style": {
+                "fontSize": "10px",
+                "paddingBottom": "4px",
+                "textAlign": "center"
+              },
+              "text": "Wait"
+            },
+            "type": "ia.display.label"
+          }
+        ],
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tself.view.params.progressId = 2\n\tsystem.perspective.sendMessage('wo-progress-changed', {'progressId': 2}, scope='session')"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "cardProgress1"
+        },
+        "propConfig": {
+          "props.style.backgroundColor": {
+            "binding": {
+              "config": {
+                "expression": "if({view.params.progressId} = 2, '#3D4F52', 'transparent')"
+              },
+              "type": "expr"
+            }
+          },
+          "props.style.border": {
+            "binding": {
+              "config": {
+                "expression": "if({view.params.progressId} = 2, '2px solid #242E30', '1px solid #8A9698')"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "alignItems": "center",
+          "direction": "column",
+          "style": {
+            "borderRadius": "8px",
+            "cursor": "pointer",
+            "height": "58px",
+            "minWidth": "68px",
+            "width": "68px"
+          }
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "svgProgress25"
+                },
+                "propConfig": {
+                  "props.elements[0].fill.paint": {
+                    "binding": {
+                      "config": {
+                        "expression": "if({view.params.progressId} = 3, '#FFFFFF', '#EEF0F0')"
+                      },
+                      "type": "expr"
+                    }
+                  },
+                  "props.elements[0].stroke.paint": {
+                    "binding": {
+                      "config": {
+                        "expression": "if({view.params.progressId} = 3, '#FFFFFFAA', '#8A9698')"
+                      },
+                      "type": "expr"
+                    }
+                  },
+                  "props.elements[1].fill.opacity": {
+                    "binding": {
+                      "config": {
+                        "expression": "if({view.params.progressId} = 3, '0.5', '0.19')"
+                      },
+                      "type": "expr"
+                    }
+                  },
+                  "props.elements[1].fill.paint": {
+                    "binding": {
+                      "config": {
+                        "expression": "if({view.params.progressId} = 3, '#3D4F52', '#5D6E71')"
+                      },
+                      "type": "expr"
+                    }
+                  },
+                  "props.elements[2].fill": {
+                    "binding": {
+                      "config": {
+                        "expression": "if({view.params.progressId} = 3, '#242E30', '#5D6E71')"
+                      },
+                      "type": "expr"
+                    }
+                  }
+                },
+                "props": {
+                  "elements": [
+                    {
+                      "fill": {},
+                      "height": 22,
+                      "name": "bg",
+                      "rx": 3,
+                      "ry": 3,
+                      "stroke": {
+                        "width": 1
+                      },
+                      "type": "rect",
+                      "width": 22,
+                      "x": 1,
+                      "y": 1
+                    },
+                    {
+                      "fill": {},
+                      "height": 5.5,
+                      "name": "fill",
+                      "stroke": {
+                        "paint": "none"
+                      },
+                      "type": "rect",
+                      "width": 22,
+                      "x": 1,
+                      "y": 17.5
+                    },
+                    {
+                      "fontSize": "13px",
+                      "fontWeight": "700",
+                      "name": "num",
+                      "style": {
+                        "dominantBaseline": "central",
+                        "pointer-events": "none",
+                        "textAnchor": "middle"
+                      },
+                      "text": "1",
+                      "type": "text",
+                      "x": 12,
+                      "y": 12
+                    }
+                  ],
+                  "style": {
+                    "height": "24px",
+                    "overflow": "hidden",
+                    "width": "24px"
+                  },
+                  "viewBox": "0 0 24 24"
+                },
+                "type": "ia.shapes.svg"
+              }
+            ],
+            "meta": {
+              "name": "icoWrapP25"
+            },
+            "position": {
+              "grow": 1,
+              "shrink": 0
+            },
+            "props": {
+              "alignItems": "center",
+              "justify": "center",
+              "style": {
+                "alignSelf": "stretch",
+                "overflow": "hidden"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "meta": {
+              "name": "lblProgress25"
+            },
+            "position": {
+              "shrink": 0
+            },
+            "propConfig": {
+              "props.style.color": {
+                "binding": {
+                  "config": {
+                    "expression": "if({view.params.progressId} = 3, '#FFFFFF', '#5D6E71')"
+                  },
+                  "type": "expr"
+                }
+              },
+              "props.style.fontWeight": {
+                "binding": {
+                  "config": {
+                    "expression": "if({view.params.progressId} = 3, 'bold', 'normal')"
+                  },
+                  "type": "expr"
+                }
+              }
+            },
+            "props": {
+              "style": {
+                "fontSize": "10px",
+                "paddingBottom": "4px",
+                "textAlign": "center"
+              },
+              "text": "25%"
+            },
+            "type": "ia.display.label"
+          }
+        ],
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tself.view.params.progressId = 3\n\tsystem.perspective.sendMessage('wo-progress-changed', {'progressId': 3}, scope='session')"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "cardProgress25"
+        },
+        "propConfig": {
+          "props.style.backgroundColor": {
+            "binding": {
+              "config": {
+                "expression": "if({view.params.progressId} = 3, '#3D4F52', 'transparent')"
+              },
+              "type": "expr"
+            }
+          },
+          "props.style.border": {
+            "binding": {
+              "config": {
+                "expression": "if({view.params.progressId} = 3, '2px solid #242E30', '1px solid #8A9698')"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "alignItems": "center",
+          "direction": "column",
+          "style": {
+            "borderRadius": "8px",
+            "cursor": "pointer",
+            "height": "58px",
+            "minWidth": "68px",
+            "width": "68px"
+          }
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "svgProgress50"
+                },
+                "propConfig": {
+                  "props.elements[0].fill.paint": {
+                    "binding": {
+                      "config": {
+                        "expression": "if({view.params.progressId} = 4, '#FFFFFF', '#EEF0F0')"
+                      },
+                      "type": "expr"
+                    }
+                  },
+                  "props.elements[0].stroke.paint": {
+                    "binding": {
+                      "config": {
+                        "expression": "if({view.params.progressId} = 4, '#FFFFFFAA', '#8A9698')"
+                      },
+                      "type": "expr"
+                    }
+                  },
+                  "props.elements[1].fill.opacity": {
+                    "binding": {
+                      "config": {
+                        "expression": "if({view.params.progressId} = 4, '0.5', '0.19')"
+                      },
+                      "type": "expr"
+                    }
+                  },
+                  "props.elements[1].fill.paint": {
+                    "binding": {
+                      "config": {
+                        "expression": "if({view.params.progressId} = 4, '#3D4F52', '#5D6E71')"
+                      },
+                      "type": "expr"
+                    }
+                  },
+                  "props.elements[2].fill": {
+                    "binding": {
+                      "config": {
+                        "expression": "if({view.params.progressId} = 4, '#242E30', '#5D6E71')"
+                      },
+                      "type": "expr"
+                    }
+                  }
+                },
+                "props": {
+                  "elements": [
+                    {
+                      "fill": {},
+                      "height": 22,
+                      "name": "bg",
+                      "rx": 3,
+                      "ry": 3,
+                      "stroke": {
+                        "width": 1
+                      },
+                      "type": "rect",
+                      "width": 22,
+                      "x": 1,
+                      "y": 1
+                    },
+                    {
+                      "fill": {},
+                      "height": 11,
+                      "name": "fill",
+                      "stroke": {
+                        "paint": "none"
+                      },
+                      "type": "rect",
+                      "width": 22,
+                      "x": 1,
+                      "y": 12
+                    },
+                    {
+                      "fontSize": "13px",
+                      "fontWeight": "700",
+                      "name": "num",
+                      "style": {
+                        "dominantBaseline": "central",
+                        "pointer-events": "none",
+                        "textAnchor": "middle"
+                      },
+                      "text": "2",
+                      "type": "text",
+                      "x": 12,
+                      "y": 12
+                    }
+                  ],
+                  "style": {
+                    "height": "24px",
+                    "overflow": "hidden",
+                    "width": "24px"
+                  },
+                  "viewBox": "0 0 24 24"
+                },
+                "type": "ia.shapes.svg"
+              }
+            ],
+            "meta": {
+              "name": "icoWrapP50"
+            },
+            "position": {
+              "grow": 1,
+              "shrink": 0
+            },
+            "props": {
+              "alignItems": "center",
+              "justify": "center",
+              "style": {
+                "alignSelf": "stretch",
+                "overflow": "hidden"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "meta": {
+              "name": "lblProgress50"
+            },
+            "position": {
+              "shrink": 0
+            },
+            "propConfig": {
+              "props.style.color": {
+                "binding": {
+                  "config": {
+                    "expression": "if({view.params.progressId} = 4, '#FFFFFF', '#5D6E71')"
+                  },
+                  "type": "expr"
+                }
+              },
+              "props.style.fontWeight": {
+                "binding": {
+                  "config": {
+                    "expression": "if({view.params.progressId} = 4, 'bold', 'normal')"
+                  },
+                  "type": "expr"
+                }
+              }
+            },
+            "props": {
+              "style": {
+                "fontSize": "10px",
+                "paddingBottom": "4px",
+                "textAlign": "center"
+              },
+              "text": "50%"
+            },
+            "type": "ia.display.label"
+          }
+        ],
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tself.view.params.progressId = 4\n\tsystem.perspective.sendMessage('wo-progress-changed', {'progressId': 4}, scope='session')"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "cardProgress50"
+        },
+        "propConfig": {
+          "props.style.backgroundColor": {
+            "binding": {
+              "config": {
+                "expression": "if({view.params.progressId} = 4, '#3D4F52', 'transparent')"
+              },
+              "type": "expr"
+            }
+          },
+          "props.style.border": {
+            "binding": {
+              "config": {
+                "expression": "if({view.params.progressId} = 4, '2px solid #242E30', '1px solid #8A9698')"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "alignItems": "center",
+          "direction": "column",
+          "style": {
+            "borderRadius": "8px",
+            "cursor": "pointer",
+            "height": "58px",
+            "minWidth": "68px",
+            "width": "68px"
+          }
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "svgProgress75"
+                },
+                "propConfig": {
+                  "props.elements[0].fill.paint": {
+                    "binding": {
+                      "config": {
+                        "expression": "if({view.params.progressId} = 5, '#FFFFFF', '#EEF0F0')"
+                      },
+                      "type": "expr"
+                    }
+                  },
+                  "props.elements[0].stroke.paint": {
+                    "binding": {
+                      "config": {
+                        "expression": "if({view.params.progressId} = 5, '#FFFFFFAA', '#8A9698')"
+                      },
+                      "type": "expr"
+                    }
+                  },
+                  "props.elements[1].fill.opacity": {
+                    "binding": {
+                      "config": {
+                        "expression": "if({view.params.progressId} = 5, '0.5', '0.19')"
+                      },
+                      "type": "expr"
+                    }
+                  },
+                  "props.elements[1].fill.paint": {
+                    "binding": {
+                      "config": {
+                        "expression": "if({view.params.progressId} = 5, '#3D4F52', '#5D6E71')"
+                      },
+                      "type": "expr"
+                    }
+                  },
+                  "props.elements[2].fill": {
+                    "binding": {
+                      "config": {
+                        "expression": "if({view.params.progressId} = 5, '#242E30', '#5D6E71')"
+                      },
+                      "type": "expr"
+                    }
+                  }
+                },
+                "props": {
+                  "elements": [
+                    {
+                      "fill": {},
+                      "height": 22,
+                      "name": "bg",
+                      "rx": 3,
+                      "ry": 3,
+                      "stroke": {
+                        "width": 1
+                      },
+                      "type": "rect",
+                      "width": 22,
+                      "x": 1,
+                      "y": 1
+                    },
+                    {
+                      "fill": {},
+                      "height": 16.5,
+                      "name": "fill",
+                      "stroke": {
+                        "paint": "none"
+                      },
+                      "type": "rect",
+                      "width": 22,
+                      "x": 1,
+                      "y": 6.5
+                    },
+                    {
+                      "fontSize": "13px",
+                      "fontWeight": "700",
+                      "name": "num",
+                      "style": {
+                        "dominantBaseline": "central",
+                        "pointer-events": "none",
+                        "textAnchor": "middle"
+                      },
+                      "text": "3",
+                      "type": "text",
+                      "x": 12,
+                      "y": 12
+                    }
+                  ],
+                  "style": {
+                    "height": "24px",
+                    "overflow": "hidden",
+                    "width": "24px"
+                  },
+                  "viewBox": "0 0 24 24"
+                },
+                "type": "ia.shapes.svg"
+              }
+            ],
+            "meta": {
+              "name": "icoWrapP75"
+            },
+            "position": {
+              "grow": 1,
+              "shrink": 0
+            },
+            "props": {
+              "alignItems": "center",
+              "justify": "center",
+              "style": {
+                "alignSelf": "stretch",
+                "overflow": "hidden"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "meta": {
+              "name": "lblProgress75"
+            },
+            "position": {
+              "shrink": 0
+            },
+            "propConfig": {
+              "props.style.color": {
+                "binding": {
+                  "config": {
+                    "expression": "if({view.params.progressId} = 5, '#FFFFFF', '#5D6E71')"
+                  },
+                  "type": "expr"
+                }
+              },
+              "props.style.fontWeight": {
+                "binding": {
+                  "config": {
+                    "expression": "if({view.params.progressId} = 5, 'bold', 'normal')"
+                  },
+                  "type": "expr"
+                }
+              }
+            },
+            "props": {
+              "style": {
+                "fontSize": "10px",
+                "paddingBottom": "4px",
+                "textAlign": "center"
+              },
+              "text": "75%"
+            },
+            "type": "ia.display.label"
+          }
+        ],
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tself.view.params.progressId = 5\n\tsystem.perspective.sendMessage('wo-progress-changed', {'progressId': 5}, scope='session')"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "cardProgress75"
+        },
+        "propConfig": {
+          "props.style.backgroundColor": {
+            "binding": {
+              "config": {
+                "expression": "if({view.params.progressId} = 5, '#3D4F52', 'transparent')"
+              },
+              "type": "expr"
+            }
+          },
+          "props.style.border": {
+            "binding": {
+              "config": {
+                "expression": "if({view.params.progressId} = 5, '2px solid #242E30', '1px solid #8A9698')"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "alignItems": "center",
+          "direction": "column",
+          "style": {
+            "borderRadius": "8px",
+            "cursor": "pointer",
+            "height": "58px",
+            "minWidth": "68px",
+            "width": "68px"
+          }
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "svgProgress100"
+                },
+                "propConfig": {
+                  "props.elements[0].fill.paint": {
+                    "binding": {
+                      "config": {
+                        "expression": "if({view.params.progressId} = 6, '#FFFFFF', '#EEF0F0')"
+                      },
+                      "type": "expr"
+                    }
+                  },
+                  "props.elements[0].stroke.paint": {
+                    "binding": {
+                      "config": {
+                        "expression": "if({view.params.progressId} = 6, '#FFFFFFAA', '#8A9698')"
+                      },
+                      "type": "expr"
+                    }
+                  },
+                  "props.elements[1].stroke.paint": {
+                    "binding": {
+                      "config": {
+                        "expression": "if({view.params.progressId} = 6, '#16A34A', '#5D6E71')"
+                      },
+                      "type": "expr"
+                    }
+                  }
+                },
+                "props": {
+                  "elements": [
+                    {
+                      "fill": {},
+                      "height": 22,
+                      "name": "bg",
+                      "rx": 3,
+                      "ry": 3,
+                      "stroke": {
+                        "width": 1
+                      },
+                      "type": "rect",
+                      "width": 22,
+                      "x": 1,
+                      "y": 1
+                    },
+                    {
+                      "d": "M6.5 12 L10.2 15.8 L17.5 8.2",
+                      "fill": {
+                        "paint": "none"
+                      },
+                      "name": "ico",
+                      "stroke": {
+                        "linecap": "round",
+                        "linejoin": "round",
+                        "width": 2.5
+                      },
+                      "type": "path"
+                    }
+                  ],
+                  "style": {
+                    "height": "24px",
+                    "overflow": "hidden",
+                    "width": "24px"
+                  },
+                  "viewBox": "0 0 24 24"
+                },
+                "type": "ia.shapes.svg"
+              }
+            ],
+            "meta": {
+              "name": "icoWrapP100"
+            },
+            "position": {
+              "grow": 1,
+              "shrink": 0
+            },
+            "props": {
+              "alignItems": "center",
+              "justify": "center",
+              "style": {
+                "alignSelf": "stretch",
+                "overflow": "hidden"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "meta": {
+              "name": "lblProgress100"
+            },
+            "position": {
+              "shrink": 0
+            },
+            "propConfig": {
+              "props.style.color": {
+                "binding": {
+                  "config": {
+                    "expression": "if({view.params.progressId} = 6, '#FFFFFF', '#5D6E71')"
+                  },
+                  "type": "expr"
+                }
+              },
+              "props.style.fontWeight": {
+                "binding": {
+                  "config": {
+                    "expression": "if({view.params.progressId} = 6, 'bold', 'normal')"
+                  },
+                  "type": "expr"
+                }
+              }
+            },
+            "props": {
+              "style": {
+                "fontSize": "10px",
+                "paddingBottom": "4px",
+                "textAlign": "center"
+              },
+              "text": "100%"
+            },
+            "type": "ia.display.label"
+          }
+        ],
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tself.view.params.progressId = 6\n\tsystem.perspective.sendMessage('wo-progress-changed', {'progressId': 6}, scope='session')"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "cardProgress100"
+        },
+        "propConfig": {
+          "props.style.backgroundColor": {
+            "binding": {
+              "config": {
+                "expression": "if({view.params.progressId} = 6, '#16A34A', 'transparent')"
+              },
+              "type": "expr"
+            }
+          },
+          "props.style.border": {
+            "binding": {
+              "config": {
+                "expression": "if({view.params.progressId} = 6, '2px solid #242E30', '1px solid #8A9698')"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "alignItems": "center",
+          "direction": "column",
+          "style": {
+            "borderRadius": "8px",
+            "cursor": "pointer",
+            "height": "58px",
+            "minWidth": "68px",
+            "width": "68px"
+          }
+        },
+        "type": "ia.container.flex"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "alignItems": "center",
+      "justify": "center",
+      "style": {
+        "gap": "4px",
+        "overflow": "visible"
+      }
+    },
+    "type": "ia.container.flex"
+  }
+}

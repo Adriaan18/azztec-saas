@@ -1,8 +1,9 @@
 """
-Azztec_SaaS_test_openapi_contract_v1_0_0.py  ->  backend/tests/test_openapi_contract.py
-Version:  1.0.0
+Azztec_SaaS_test_openapi_contract_v1_1_1.py  ->  backend/tests/test_openapi_contract.py
+Version:  1.1.1
 Author:   Adriaan
 Spec:     Azztec_SaaS_S1d_Diag_Chunk_Spec_v1_0_0.md §6
+          Azztec_SaaS_W1a_WOMaint_Read_Api_Chunk_Spec_v1_0_0.md §3.6
 
 Guards the PUBLISHED schema, not the runtime body. `from` is a Python keyword, so the contract key needs
 Field(alias="from") on the model AND Query(alias="from") on the route parameter - two independent
@@ -15,6 +16,11 @@ Reads app.openapi(). Never iterates router.routes - FastAPI 0.137 made that a tr
 (Landmines §A). Zero DB: building the schema opens no connection.
 
 Changelog:
+  1.1.1  W1a smoke: ruff SIM300 (Yoda condition) on the envelope subset assertion - operands swapped.
+         No assertion change.
+  1.1.0  W1a. The six /workorders paths: published, their parameters and bounds, the flat error shapes,
+         WoRecord's key set and additionalProperties False, info.version 0.5.0, and the S1d `from_` trap
+         re-asserted over the whole document. The eight range tests are untouched.
   1.0.0  Initial (S1d).
 """
 
@@ -125,3 +131,103 @@ def test_400_is_documented_with_the_flat_error_shape(schema: dict[str, Any]) -> 
 
 def test_no_from_underscore_survives_anywhere_in_the_operation(schema: dict[str, Any]) -> None:
     assert "from_" not in json.dumps(_range_get(schema))
+
+
+# ---------------------------------------------------------------------------
+# W1a - the six /workorders paths
+# ---------------------------------------------------------------------------
+
+WO_BASE = "/api/v1/workorders"
+WO_PATHS = (
+    WO_BASE,
+    WO_BASE + "/{wo_id}",
+    WO_BASE + "/{wo_id}/events",
+    WO_BASE + "/{wo_id}/linked",
+    WO_BASE + "/{wo_id}/queries",
+    WO_BASE + "/{wo_id}/pos",
+)
+ENVELOPE = {"ok", "apiVersion", "actor", "ms"}
+
+
+def _wo_get(schema: dict[str, Any], path: str) -> dict[str, Any]:
+    return schema["paths"][path]["get"]
+
+
+def _wo_params(schema: dict[str, Any], path: str) -> dict[str, dict[str, Any]]:
+    return {p["name"]: p for p in _wo_get(schema, path).get("parameters", [])}
+
+
+def _wo_200(schema: dict[str, Any], path: str) -> dict[str, Any]:
+    ref = _wo_get(schema, path)["responses"]["200"]["content"]["application/json"]["schema"]["$ref"]
+    return _resolve(schema, ref)
+
+
+def test_workorders_routes_are_published(schema: dict[str, Any]) -> None:
+    for path in WO_PATHS:
+        assert path in schema["paths"], path
+        assert set(schema["paths"][path]) == {"get"}, path  # GET only this slice
+
+
+def test_workorders_list_params_and_bounds(schema: dict[str, Any]) -> None:
+    params = _wo_params(schema, WO_BASE)
+    assert set(params) == {"woType", "includeClosed", "includeArchive", "search", "limit", "offset"}
+    assert all(p["in"] == "query" and p.get("required", False) is False for p in params.values())
+    sch = {name: p["schema"] for name, p in params.items()}
+    assert sch["woType"]["default"] == "N"
+    for mode in ("includeClosed", "includeArchive"):
+        assert (sch[mode]["minimum"], sch[mode]["maximum"], sch[mode]["default"]) == (0, 2, 0), mode
+    assert sch["search"]["default"] == ""
+    assert (sch["limit"]["minimum"], sch["limit"]["maximum"], sch["limit"]["default"]) == (1, 1000, 200)
+    assert (sch["offset"]["minimum"], sch["offset"]["default"]) == (0, 0)
+
+
+def test_workorders_wo_id_is_a_positive_integer_path_param(schema: dict[str, Any]) -> None:
+    for path in WO_PATHS[1:]:
+        p = _wo_params(schema, path)["wo_id"]
+        assert p["in"] == "path" and p["required"] is True
+        assert p["schema"]["type"] == "integer" and p["schema"]["exclusiveMinimum"] == 0
+
+
+def test_workorders_events_params(schema: dict[str, Any]) -> None:
+    params = _wo_params(schema, WO_BASE + "/{wo_id}/events")
+    assert set(params) == {"wo_id", "offset", "limit"}
+    assert params["limit"]["schema"]["maximum"] == 1000 and params["limit"]["schema"]["default"] == 200
+
+
+def test_workorders_list_response_shape(schema: dict[str, Any]) -> None:
+    body = _wo_200(schema, WO_BASE)
+    assert set(body["properties"]) == {"rows", "count", "more", "filters"} | ENVELOPE
+    assert body.get("additionalProperties") is False
+    assert set(body["required"]) == set(body["properties"])
+
+
+def test_workorders_record_forbids_extras_and_carries_every_key(schema: dict[str, Any]) -> None:
+    from app.workorders.schemas import WoRecord  # noqa: PLC0415 - after env is set
+
+    body = _wo_200(schema, WO_BASE + "/{wo_id}")
+    assert body.get("additionalProperties") is False
+    assert set(body["properties"]) == set(WoRecord.model_fields)
+    assert set(body["required"]) == set(WoRecord.model_fields)  # every key required - no optional drift
+    assert set(body["properties"]) >= ENVELOPE
+
+
+def test_workorders_errors_are_documented_flat(schema: dict[str, Any]) -> None:
+    responses = _wo_get(schema, WO_BASE)["responses"]
+    assert "400" in responses and "401" in responses
+    for path in WO_PATHS[1:]:
+        responses = _wo_get(schema, path)["responses"]
+        assert "404" in responses and "401" in responses, path
+        ref = responses["404"]["content"]["application/json"]["schema"]["$ref"]
+        assert {"ok", "code", "message"} <= set(_resolve(schema, ref)["properties"])
+
+
+def test_workorders_no_from_underscore_anywhere(schema: dict[str, Any]) -> None:
+    for path in WO_PATHS:
+        assert "from_" not in json.dumps(_wo_get(schema, path)), path
+    assert "from_" not in json.dumps(schema["components"])
+
+
+def test_info_version_is_the_app_version(schema: dict[str, Any]) -> None:
+    from app.main import __version__ as app_version  # noqa: PLC0415 - after env is set
+
+    assert schema["info"]["version"] == app_version == "0.5.0"

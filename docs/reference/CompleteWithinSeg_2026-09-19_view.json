@@ -1,0 +1,477 @@
+{
+  "custom": {},
+  "params": {
+    "broadcast": true,
+    "value": "week",
+    "requester": ""
+  },
+  "propConfig": {
+    "params.broadcast": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.value": {
+      "persistent": true
+    },
+    "params.requester": {
+      "paramDirection": "input",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 36,
+      "width": 433
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tself.view.params.value = 'day'\n\t# v1.7: broadcast gate - a host (e.g. CreateWO_popup) can silence the page message\n\tif self.view.params.broadcast:\n\t\tsystem.perspective.sendMessage('complete-within-changed', {'value': 'day'}, scope='page')"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "daySeg"
+        },
+        "position": {
+          "basis": "0px",
+          "grow": 1
+        },
+        "propConfig": {
+          "props.style.backgroundColor": {
+            "binding": {
+              "config": {
+                "expression": "if(toStr({view.params.value}) = 'day', '#FFFFFF', 'transparent')"
+              },
+              "type": "expr"
+            }
+          },
+          "props.style.boxShadow": {
+            "binding": {
+              "config": {
+                "expression": "if(toStr({view.params.value}) = 'day', '0 1px 3px rgba(0,0,0,0.08)', 'none')"
+              },
+              "type": "expr"
+            }
+          },
+          "props.textStyle.color": {
+            "binding": {
+              "config": {
+                "expression": "if(toStr({view.params.value}) = 'day', '#242E30', '#5D6E71')"
+              },
+              "type": "expr"
+            }
+          },
+          "props.textStyle.fontWeight": {
+            "binding": {
+              "config": {
+                "expression": "if(toStr({view.params.value}) = 'day', 500, 400)"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "alignItems": "center",
+            "borderRadius": "6px",
+            "cursor": "pointer",
+            "display": "flex",
+            "justifyContent": "center",
+            "padding": "6px 6px",
+            "transition": "background-color 0.15s ease, box-shadow 0.15s ease, color 0.15s ease",
+            "userSelect": "none"
+          },
+          "text": "Day",
+          "textStyle": {
+            "fontSize": "12px",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tself.view.params.value = 'week'\n\t# v1.7: broadcast gate - a host (e.g. CreateWO_popup) can silence the page message\n\tif self.view.params.broadcast:\n\t\tsystem.perspective.sendMessage('complete-within-changed', {'value': 'week'}, scope='page')"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "weekSeg"
+        },
+        "position": {
+          "basis": "0px",
+          "grow": 1
+        },
+        "propConfig": {
+          "props.style.backgroundColor": {
+            "binding": {
+              "config": {
+                "expression": "if(toStr({view.params.value}) = 'week', '#FFFFFF', 'transparent')"
+              },
+              "type": "expr"
+            }
+          },
+          "props.style.boxShadow": {
+            "binding": {
+              "config": {
+                "expression": "if(toStr({view.params.value}) = 'week', '0 1px 3px rgba(0,0,0,0.08)', 'none')"
+              },
+              "type": "expr"
+            }
+          },
+          "props.textStyle.color": {
+            "binding": {
+              "config": {
+                "expression": "if(toStr({view.params.value}) = 'week', '#242E30', '#5D6E71')"
+              },
+              "type": "expr"
+            }
+          },
+          "props.textStyle.fontWeight": {
+            "binding": {
+              "config": {
+                "expression": "if(toStr({view.params.value}) = 'week', 500, 400)"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "alignItems": "center",
+            "borderRadius": "6px",
+            "cursor": "pointer",
+            "display": "flex",
+            "justifyContent": "center",
+            "padding": "6px 6px",
+            "transition": "background-color 0.15s ease, box-shadow 0.15s ease, color 0.15s ease",
+            "userSelect": "none"
+          },
+          "text": "Week",
+          "textStyle": {
+            "fontSize": "12px",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tself.view.params.value = 'month'\n\t# v1.7: broadcast gate - a host (e.g. CreateWO_popup) can silence the page message\n\tif self.view.params.broadcast:\n\t\tsystem.perspective.sendMessage('complete-within-changed', {'value': 'month'}, scope='page')"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "monthSeg"
+        },
+        "position": {
+          "basis": "0px",
+          "grow": 1
+        },
+        "propConfig": {
+          "props.style.backgroundColor": {
+            "binding": {
+              "config": {
+                "expression": "if(toStr({view.params.value}) = 'month', '#FFFFFF', 'transparent')"
+              },
+              "type": "expr"
+            }
+          },
+          "props.style.boxShadow": {
+            "binding": {
+              "config": {
+                "expression": "if(toStr({view.params.value}) = 'month', '0 1px 3px rgba(0,0,0,0.08)', 'none')"
+              },
+              "type": "expr"
+            }
+          },
+          "props.textStyle.color": {
+            "binding": {
+              "config": {
+                "expression": "if(toStr({view.params.value}) = 'month', '#242E30', '#5D6E71')"
+              },
+              "type": "expr"
+            }
+          },
+          "props.textStyle.fontWeight": {
+            "binding": {
+              "config": {
+                "expression": "if(toStr({view.params.value}) = 'month', 500, 400)"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "alignItems": "center",
+            "borderRadius": "6px",
+            "cursor": "pointer",
+            "display": "flex",
+            "justifyContent": "center",
+            "padding": "6px 6px",
+            "transition": "background-color 0.15s ease, box-shadow 0.15s ease, color 0.15s ease",
+            "userSelect": "none"
+          },
+          "text": "Month",
+          "textStyle": {
+            "fontSize": "12px",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tself.view.params.value = '3month'\n\t# v1.7: broadcast gate - a host (e.g. CreateWO_popup) can silence the page message\n\tif self.view.params.broadcast:\n\t\tsystem.perspective.sendMessage('complete-within-changed', {'value': '3month'}, scope='page')"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "threeMonthSeg"
+        },
+        "position": {
+          "basis": "0px",
+          "grow": 1
+        },
+        "propConfig": {
+          "props.style.backgroundColor": {
+            "binding": {
+              "config": {
+                "expression": "if(toStr({view.params.value}) = '3month', '#FFFFFF', 'transparent')"
+              },
+              "type": "expr"
+            }
+          },
+          "props.style.boxShadow": {
+            "binding": {
+              "config": {
+                "expression": "if(toStr({view.params.value}) = '3month', '0 1px 3px rgba(0,0,0,0.08)', 'none')"
+              },
+              "type": "expr"
+            }
+          },
+          "props.textStyle.color": {
+            "binding": {
+              "config": {
+                "expression": "if(toStr({view.params.value}) = '3month', '#242E30', '#5D6E71')"
+              },
+              "type": "expr"
+            }
+          },
+          "props.textStyle.fontWeight": {
+            "binding": {
+              "config": {
+                "expression": "if(toStr({view.params.value}) = '3month', 500, 400)"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "alignItems": "center",
+            "borderRadius": "6px",
+            "cursor": "pointer",
+            "display": "flex",
+            "justifyContent": "center",
+            "padding": "6px 6px",
+            "transition": "background-color 0.15s ease, box-shadow 0.15s ease, color 0.15s ease",
+            "userSelect": "none"
+          },
+          "text": "3-Month",
+          "textStyle": {
+            "fontSize": "12px",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tself.view.params.value = 'nextshut'\n\t# v1.7: broadcast gate - a host (e.g. CreateWO_popup) can silence the page message\n\tif self.view.params.broadcast:\n\t\tsystem.perspective.sendMessage('complete-within-changed', {'value': 'nextshut'}, scope='page')"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "nextShutSeg"
+        },
+        "position": {
+          "basis": "0px",
+          "grow": 1
+        },
+        "propConfig": {
+          "props.style.backgroundColor": {
+            "binding": {
+              "config": {
+                "expression": "if(toStr({view.params.value}) = 'nextshut', '#FFFFFF', 'transparent')"
+              },
+              "type": "expr"
+            }
+          },
+          "props.style.boxShadow": {
+            "binding": {
+              "config": {
+                "expression": "if(toStr({view.params.value}) = 'nextshut', '0 1px 3px rgba(0,0,0,0.08)', 'none')"
+              },
+              "type": "expr"
+            }
+          },
+          "props.textStyle.color": {
+            "binding": {
+              "config": {
+                "expression": "if(toStr({view.params.value}) = 'nextshut', '#242E30', '#5D6E71')"
+              },
+              "type": "expr"
+            }
+          },
+          "props.textStyle.fontWeight": {
+            "binding": {
+              "config": {
+                "expression": "if(toStr({view.params.value}) = 'nextshut', 500, 400)"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "alignItems": "center",
+            "borderRadius": "6px",
+            "cursor": "pointer",
+            "display": "flex",
+            "justifyContent": "center",
+            "padding": "6px 6px",
+            "transition": "background-color 0.15s ease, box-shadow 0.15s ease, color 0.15s ease",
+            "userSelect": "none"
+          },
+          "text": "Next shut",
+          "textStyle": {
+            "fontSize": "12px",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tself.view.params.value = 'range'\n\tsystem.perspective.openPopup('wo-daterange', 'Components/Workmate/Popups/WODateRangePopup', params={'requester': str(self.view.params.requester or '')}, showCloseIcon=False, draggable=False, resizable=False, modal=True, overlayDismiss=False)\n\t# v1.7: broadcast gate - a host (e.g. CreateWO_popup) can silence the page message\n\tif self.view.params.broadcast:\n\t\tsystem.perspective.sendMessage('complete-within-changed', {'value': 'range'}, scope='page')"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "rangeSeg"
+        },
+        "position": {
+          "basis": "0px",
+          "grow": 1
+        },
+        "propConfig": {
+          "props.style.backgroundColor": {
+            "binding": {
+              "config": {
+                "expression": "if(toStr({view.params.value}) = 'range', '#FFFFFF', 'transparent')"
+              },
+              "type": "expr"
+            }
+          },
+          "props.style.boxShadow": {
+            "binding": {
+              "config": {
+                "expression": "if(toStr({view.params.value}) = 'range', '0 1px 3px rgba(0,0,0,0.08)', 'none')"
+              },
+              "type": "expr"
+            }
+          },
+          "props.textStyle.color": {
+            "binding": {
+              "config": {
+                "expression": "if(toStr({view.params.value}) = 'range', '#242E30', '#5D6E71')"
+              },
+              "type": "expr"
+            }
+          },
+          "props.textStyle.fontWeight": {
+            "binding": {
+              "config": {
+                "expression": "if(toStr({view.params.value}) = 'range', 500, 400)"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "alignItems": "center",
+            "borderRadius": "6px",
+            "cursor": "pointer",
+            "display": "flex",
+            "justifyContent": "center",
+            "padding": "6px 6px",
+            "transition": "background-color 0.15s ease, box-shadow 0.15s ease, color 0.15s ease",
+            "userSelect": "none"
+          },
+          "text": "Range",
+          "textStyle": {
+            "fontSize": "12px",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      }
+    ],
+    "meta": {
+      "name": "CompleteWithinSeg_v1_8_0"
+    },
+    "props": {
+      "alignItems": "center",
+      "style": {
+        "backgroundColor": "#EAECEC",
+        "borderRadius": "8px",
+        "gap": "0px",
+        "minHeight": "34px",
+        "padding": "3px"
+      }
+    },
+    "type": "ia.container.flex"
+  }
+}

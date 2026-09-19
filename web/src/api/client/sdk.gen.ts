@@ -11,11 +11,29 @@ import { client } from './client.gen'
 import type {
   DiagSelfTestApiV1DiagSelfTestGetData,
   DiagSelfTestApiV1DiagSelfTestGetResponses,
+  GetEventsApiV1WorkordersWoIdEventsGetData,
+  GetEventsApiV1WorkordersWoIdEventsGetErrors,
+  GetEventsApiV1WorkordersWoIdEventsGetResponses,
+  GetLinkedApiV1WorkordersWoIdLinkedGetData,
+  GetLinkedApiV1WorkordersWoIdLinkedGetErrors,
+  GetLinkedApiV1WorkordersWoIdLinkedGetResponses,
+  GetPoLinesApiV1WorkordersWoIdPosGetData,
+  GetPoLinesApiV1WorkordersWoIdPosGetErrors,
+  GetPoLinesApiV1WorkordersWoIdPosGetResponses,
+  GetQueriesApiV1WorkordersWoIdQueriesGetData,
+  GetQueriesApiV1WorkordersWoIdQueriesGetErrors,
+  GetQueriesApiV1WorkordersWoIdQueriesGetResponses,
   GetRangeApiV1PlannerRangeGetData,
   GetRangeApiV1PlannerRangeGetErrors,
   GetRangeApiV1PlannerRangeGetResponses,
+  GetWorkorderApiV1WorkordersWoIdGetData,
+  GetWorkorderApiV1WorkordersWoIdGetErrors,
+  GetWorkorderApiV1WorkordersWoIdGetResponses,
   HealthApiV1HealthGetData,
   HealthApiV1HealthGetResponses,
+  ListWorkordersApiV1WorkordersGetData,
+  ListWorkordersApiV1WorkordersGetErrors,
+  ListWorkordersApiV1WorkordersGetResponses,
 } from './types.gen'
 
 export type Options<
@@ -83,3 +101,111 @@ export const getRangeApiV1PlannerRangeGet = <
     GetRangeApiV1PlannerRangeGetErrors,
     ThrowOnError
   >({ url: '/api/v1/planner/range', ...options })
+
+/**
+ * List Workorders
+ */
+export const listWorkordersApiV1WorkordersGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<ListWorkordersApiV1WorkordersGetData, ThrowOnError>,
+): RequestResult<
+  ListWorkordersApiV1WorkordersGetResponses,
+  ListWorkordersApiV1WorkordersGetErrors,
+  ThrowOnError
+> =>
+  (options?.client ?? client).get<
+    ListWorkordersApiV1WorkordersGetResponses,
+    ListWorkordersApiV1WorkordersGetErrors,
+    ThrowOnError
+  >({ url: '/api/v1/workorders', ...options })
+
+/**
+ * Get Workorder
+ */
+export const getWorkorderApiV1WorkordersWoIdGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<GetWorkorderApiV1WorkordersWoIdGetData, ThrowOnError>,
+): RequestResult<
+  GetWorkorderApiV1WorkordersWoIdGetResponses,
+  GetWorkorderApiV1WorkordersWoIdGetErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    GetWorkorderApiV1WorkordersWoIdGetResponses,
+    GetWorkorderApiV1WorkordersWoIdGetErrors,
+    ThrowOnError
+  >({ url: '/api/v1/workorders/{wo_id}', ...options })
+
+/**
+ * Get Events
+ */
+export const getEventsApiV1WorkordersWoIdEventsGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<GetEventsApiV1WorkordersWoIdEventsGetData, ThrowOnError>,
+): RequestResult<
+  GetEventsApiV1WorkordersWoIdEventsGetResponses,
+  GetEventsApiV1WorkordersWoIdEventsGetErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    GetEventsApiV1WorkordersWoIdEventsGetResponses,
+    GetEventsApiV1WorkordersWoIdEventsGetErrors,
+    ThrowOnError
+  >({ url: '/api/v1/workorders/{wo_id}/events', ...options })
+
+/**
+ * Get Linked
+ */
+export const getLinkedApiV1WorkordersWoIdLinkedGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<GetLinkedApiV1WorkordersWoIdLinkedGetData, ThrowOnError>,
+): RequestResult<
+  GetLinkedApiV1WorkordersWoIdLinkedGetResponses,
+  GetLinkedApiV1WorkordersWoIdLinkedGetErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    GetLinkedApiV1WorkordersWoIdLinkedGetResponses,
+    GetLinkedApiV1WorkordersWoIdLinkedGetErrors,
+    ThrowOnError
+  >({ url: '/api/v1/workorders/{wo_id}/linked', ...options })
+
+/**
+ * Get Queries
+ */
+export const getQueriesApiV1WorkordersWoIdQueriesGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<GetQueriesApiV1WorkordersWoIdQueriesGetData, ThrowOnError>,
+): RequestResult<
+  GetQueriesApiV1WorkordersWoIdQueriesGetResponses,
+  GetQueriesApiV1WorkordersWoIdQueriesGetErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    GetQueriesApiV1WorkordersWoIdQueriesGetResponses,
+    GetQueriesApiV1WorkordersWoIdQueriesGetErrors,
+    ThrowOnError
+  >({ url: '/api/v1/workorders/{wo_id}/queries', ...options })
+
+/**
+ * Get Po Lines
+ */
+export const getPoLinesApiV1WorkordersWoIdPosGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<GetPoLinesApiV1WorkordersWoIdPosGetData, ThrowOnError>,
+): RequestResult<
+  GetPoLinesApiV1WorkordersWoIdPosGetResponses,
+  GetPoLinesApiV1WorkordersWoIdPosGetErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    GetPoLinesApiV1WorkordersWoIdPosGetResponses,
+    GetPoLinesApiV1WorkordersWoIdPosGetErrors,
+    ThrowOnError
+  >({ url: '/api/v1/workorders/{wo_id}/pos', ...options })

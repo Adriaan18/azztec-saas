@@ -1,16 +1,26 @@
 """
-Azztec_SaaS_app_main_v1_0_6.py  ->  backend/app/main.py
-Version:  0.4.0   (app version reported by /api/v1/health, and info.version of the exported OpenAPI document)
-                  UNCHANGED by D1a on purpose: the published document does not move, because every route
-                  this slice adds is include_in_schema=False. The card revision is 1.0.6.
+Azztec_SaaS_app_main_v1_0_8.py  ->  backend/app/main.py
+Version:  0.5.0   (app version reported by /api/v1/health, and info.version of the exported OpenAPI document)
+                  The card revision is 1.0.8.
 Author:   Adriaan
 Spec:     Azztec_SaaS_Architecture_and_Stack_v1_0_0.md (D-6, D-8, D-9), S1d chunk spec §5 (OD-19, OD-20)
 
 App factory, lifespan (engine up/down + tz probe), request-id middleware with [F]/[G]/[E] outcome lines,
-/api/v1/health, /api/v1/_diag/self-test, the planner router, and app.frontend() serving web/dist in prod.
+/api/v1/health, /api/v1/_diag/self-test, the planner and workorders routers, and app.frontend() serving
+web/dist in prod.
 Run: uv run fastapi dev app/main.py
 
 Changelog:
+  (card 1.0.8, app version unchanged)  FORMAT ONLY - the W1a smoke ran `ruff format --check` and this
+         file was the one of 43 it would reflow: five lines that were already in card 1.0.5/1.0.6
+         (SLOW_MS, a blank line before Conn, the diag-wired line, the INTERNAL JSONResponse, dbName).
+         D1a's smoke ran `ruff check` and no format pass - the S1h router 1.1.1 lesson, repeated on
+         main.py. No logic, no route, no response, no string change; the token stream is identical,
+         so the app version and the exported document do not move.
+  0.5.0  W1a (card 1.0.7), spec §3.7 · OD-70. Three lines: import and mount app.workorders.router under
+         /api/v1 after the planner's; versions.workorders in /health. Six new published GET paths, so the
+         app version is a minor bump (WoW §2): the export is openapi_0_5_0.json and the 0.4.0 file leaves
+         the tree in the same commit.
   (card 1.0.6, app version unchanged)  D1a smoke fix, before the tag: persistence never switches on under
          WORKMATE_ENV=test. The suite boots the app with the real .env (test_smoke's lifespan, every
          TestClient), and 1.0.5 would have written its self-test marker and every [G] it provokes into
@@ -73,8 +83,9 @@ from app.diag import router as diag_router
 from app.diag import sql as diag_sql
 from app.planner import router as planner_router
 from app.planner import service as planner_service
+from app.workorders import router as workorders_router
 
-__version__ = "0.4.0"
+__version__ = "0.5.0"
 
 _HTTP_CODES = {401: "NO_IDENTITY", 403: "FORBIDDEN", 404: "NOT_FOUND", 405: "METHOD_NOT_ALLOWED"}
 
@@ -217,6 +228,7 @@ def create_app() -> FastAPI:
                 "diag": diag.__version__,
                 "config": config.__version__,  # read, never a literal - /health must not lie (WoW §2)
                 "planner": planner_router.__version__,
+                "workorders": workorders_router.__version__,
                 "diagApi": diag_router.__version__,
             },
         }
@@ -245,6 +257,7 @@ def create_app() -> FastAPI:
         }
 
     api.include_router(planner_router.router)
+    api.include_router(workorders_router.router)
     api.include_router(diag_router.router)  # dev-only, out of the schema (OD-61)
     app.include_router(api)
 

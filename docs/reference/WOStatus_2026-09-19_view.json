@@ -1,0 +1,1066 @@
+{
+  "custom": {},
+  "params": {
+    "statusCode": "R"
+  },
+  "propConfig": {
+    "params.statusCode": {
+      "paramDirection": "inout",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 62,
+      "width": 572
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "icoStatusR"
+                },
+                "position": {
+                  "basis": 24,
+                  "shrink": 0
+                },
+                "propConfig": {
+                  "props.color": {
+                    "binding": {
+                      "config": {
+                        "expression": "if({view.params.statusCode} \u003d \u0027R\u0027, \u0027#000\u0027, \u0027#5D6E71\u0027)"
+                      },
+                      "type": "expr"
+                    }
+                  }
+                },
+                "props": {
+                  "path": "material/warning",
+                  "style": {
+                    "fontSize": "20px"
+                  }
+                },
+                "type": "ia.display.icon"
+              }
+            ],
+            "meta": {
+              "name": "icoWrapR"
+            },
+            "position": {
+              "grow": 1,
+              "shrink": 0
+            },
+            "props": {
+              "alignItems": "center",
+              "justify": "center",
+              "style": {
+                "alignSelf": "stretch",
+                "overflow": "hidden"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "meta": {
+              "name": "lblStatusR"
+            },
+            "position": {
+              "shrink": 0
+            },
+            "propConfig": {
+              "props.style.color": {
+                "binding": {
+                  "config": {
+                    "expression": "if({view.params.statusCode} \u003d \u0027R\u0027, \u0027#000\u0027, \u0027#5D6E71\u0027)"
+                  },
+                  "type": "expr"
+                }
+              },
+              "props.style.fontWeight": {
+                "binding": {
+                  "config": {
+                    "expression": "if({view.params.statusCode} \u003d \u0027R\u0027, \u0027bold\u0027, \u0027normal\u0027)"
+                  },
+                  "type": "expr"
+                }
+              }
+            },
+            "props": {
+              "style": {
+                "fontSize": "10px",
+                "paddingBottom": "4px",
+                "textAlign": "center"
+              },
+              "text": "Request"
+            },
+            "type": "ia.display.label"
+          }
+        ],
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tself.view.params.statusCode \u003d \u0027R\u0027\n\tsystem.perspective.sendMessage(\u0027wo-status-changed\u0027, {\u0027statusCode\u0027: \u0027R\u0027}, scope\u003d\u0027session\u0027)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "cardStatusR"
+        },
+        "propConfig": {
+          "props.style.backgroundColor": {
+            "binding": {
+              "config": {
+                "expression": "if({view.params.statusCode} \u003d \u0027R\u0027, \u0027var(--wo-color-request)\u0027, \u0027transparent\u0027)"
+              },
+              "type": "expr"
+            }
+          },
+          "props.style.border": {
+            "binding": {
+              "config": {
+                "expression": "if({view.params.statusCode} \u003d \u0027R\u0027, \u00272px solid #D4A006\u0027, \u00271px solid #8A9698\u0027)"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "alignItems": "center",
+          "direction": "column",
+          "style": {
+            "borderRadius": "8px",
+            "cursor": "pointer",
+            "height": "58px",
+            "minWidth": "68px",
+            "width": "68px"
+          }
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "icoStatusH"
+                },
+                "position": {
+                  "basis": 24,
+                  "shrink": 0
+                },
+                "propConfig": {
+                  "props.color": {
+                    "binding": {
+                      "config": {
+                        "expression": "if({view.params.statusCode} \u003d \u0027H\u0027, \u0027#FFF\u0027, \u0027#5D6E71\u0027)"
+                      },
+                      "type": "expr"
+                    }
+                  }
+                },
+                "props": {
+                  "path": "material/assignment",
+                  "style": {
+                    "fontSize": "20px"
+                  }
+                },
+                "type": "ia.display.icon"
+              }
+            ],
+            "meta": {
+              "name": "icoWrapH"
+            },
+            "position": {
+              "grow": 1,
+              "shrink": 0
+            },
+            "props": {
+              "alignItems": "center",
+              "justify": "center",
+              "style": {
+                "alignSelf": "stretch",
+                "overflow": "hidden"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "meta": {
+              "name": "lblStatusH"
+            },
+            "position": {
+              "shrink": 0
+            },
+            "propConfig": {
+              "props.style.color": {
+                "binding": {
+                  "config": {
+                    "expression": "if({view.params.statusCode} \u003d \u0027H\u0027, \u0027#FFF\u0027, \u0027#5D6E71\u0027)"
+                  },
+                  "type": "expr"
+                }
+              },
+              "props.style.fontWeight": {
+                "binding": {
+                  "config": {
+                    "expression": "if({view.params.statusCode} \u003d \u0027H\u0027, \u0027bold\u0027, \u0027normal\u0027)"
+                  },
+                  "type": "expr"
+                }
+              }
+            },
+            "props": {
+              "style": {
+                "fontSize": "10px",
+                "paddingBottom": "4px",
+                "textAlign": "center"
+              },
+              "text": "Planned"
+            },
+            "type": "ia.display.label"
+          }
+        ],
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tself.view.params.statusCode \u003d \u0027H\u0027\n\tsystem.perspective.sendMessage(\u0027wo-status-changed\u0027, {\u0027statusCode\u0027: \u0027H\u0027}, scope\u003d\u0027session\u0027)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "cardStatusH"
+        },
+        "propConfig": {
+          "props.style.backgroundColor": {
+            "binding": {
+              "config": {
+                "expression": "if({view.params.statusCode} \u003d \u0027H\u0027, \u0027var(--wo-color-planned)\u0027, \u0027transparent\u0027)"
+              },
+              "type": "expr"
+            }
+          },
+          "props.style.border": {
+            "binding": {
+              "config": {
+                "expression": "if({view.params.statusCode} \u003d \u0027H\u0027, \u00272px solid #11808F\u0027, \u00271px solid #8A9698\u0027)"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "alignItems": "center",
+          "direction": "column",
+          "style": {
+            "borderRadius": "8px",
+            "cursor": "pointer",
+            "height": "58px",
+            "minWidth": "68px",
+            "width": "68px"
+          }
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "icoStatusP"
+                },
+                "position": {
+                  "basis": 24,
+                  "shrink": 0
+                },
+                "propConfig": {
+                  "props.color": {
+                    "binding": {
+                      "config": {
+                        "expression": "if({view.params.statusCode} \u003d \u0027P\u0027, \u0027#FFF\u0027, \u0027#5D6E71\u0027)"
+                      },
+                      "type": "expr"
+                    }
+                  }
+                },
+                "props": {
+                  "path": "material/schedule",
+                  "style": {
+                    "fontSize": "20px"
+                  }
+                },
+                "type": "ia.display.icon"
+              }
+            ],
+            "meta": {
+              "name": "icoWrapP"
+            },
+            "position": {
+              "grow": 1,
+              "shrink": 0
+            },
+            "props": {
+              "alignItems": "center",
+              "justify": "center",
+              "style": {
+                "alignSelf": "stretch",
+                "overflow": "hidden"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "meta": {
+              "name": "lblStatusP"
+            },
+            "position": {
+              "shrink": 0
+            },
+            "propConfig": {
+              "props.style.color": {
+                "binding": {
+                  "config": {
+                    "expression": "if({view.params.statusCode} \u003d \u0027P\u0027, \u0027#FFF\u0027, \u0027#5D6E71\u0027)"
+                  },
+                  "type": "expr"
+                }
+              },
+              "props.style.fontWeight": {
+                "binding": {
+                  "config": {
+                    "expression": "if({view.params.statusCode} \u003d \u0027P\u0027, \u0027bold\u0027, \u0027normal\u0027)"
+                  },
+                  "type": "expr"
+                }
+              }
+            },
+            "props": {
+              "style": {
+                "fontSize": "10px",
+                "paddingBottom": "4px",
+                "textAlign": "center"
+              },
+              "text": "Pending"
+            },
+            "type": "ia.display.label"
+          }
+        ],
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tself.view.params.statusCode \u003d \u0027P\u0027\n\tsystem.perspective.sendMessage(\u0027wo-status-changed\u0027, {\u0027statusCode\u0027: \u0027P\u0027}, scope\u003d\u0027session\u0027)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "cardStatusP"
+        },
+        "propConfig": {
+          "props.style.backgroundColor": {
+            "binding": {
+              "config": {
+                "expression": "if({view.params.statusCode} \u003d \u0027P\u0027, \u0027var(--wo-color-pending)\u0027, \u0027transparent\u0027)"
+              },
+              "type": "expr"
+            }
+          },
+          "props.style.border": {
+            "binding": {
+              "config": {
+                "expression": "if({view.params.statusCode} \u003d \u0027P\u0027, \u00272px solid #3A8BBF\u0027, \u00271px solid #8A9698\u0027)"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "alignItems": "center",
+          "direction": "column",
+          "style": {
+            "borderRadius": "8px",
+            "cursor": "pointer",
+            "height": "58px",
+            "minWidth": "68px",
+            "width": "68px"
+          }
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "icoStatusK"
+                },
+                "position": {
+                  "basis": 24,
+                  "shrink": 0
+                },
+                "propConfig": {
+                  "props.color": {
+                    "binding": {
+                      "config": {
+                        "expression": "if({view.params.statusCode} \u003d \u0027K\u0027, \u0027#FFF\u0027, \u0027#5D6E71\u0027)"
+                      },
+                      "type": "expr"
+                    }
+                  }
+                },
+                "props": {
+                  "path": "material/thumb_up",
+                  "style": {
+                    "fontSize": "20px"
+                  }
+                },
+                "type": "ia.display.icon"
+              }
+            ],
+            "meta": {
+              "name": "icoWrapK"
+            },
+            "position": {
+              "grow": 1,
+              "shrink": 0
+            },
+            "props": {
+              "alignItems": "center",
+              "justify": "center",
+              "style": {
+                "alignSelf": "stretch",
+                "overflow": "hidden"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "meta": {
+              "name": "lblStatusK"
+            },
+            "position": {
+              "shrink": 0
+            },
+            "propConfig": {
+              "props.style.color": {
+                "binding": {
+                  "config": {
+                    "expression": "if({view.params.statusCode} \u003d \u0027K\u0027, \u0027#FFF\u0027, \u0027#5D6E71\u0027)"
+                  },
+                  "type": "expr"
+                }
+              },
+              "props.style.fontWeight": {
+                "binding": {
+                  "config": {
+                    "expression": "if({view.params.statusCode} \u003d \u0027K\u0027, \u0027bold\u0027, \u0027normal\u0027)"
+                  },
+                  "type": "expr"
+                }
+              }
+            },
+            "props": {
+              "style": {
+                "fontSize": "10px",
+                "paddingBottom": "4px",
+                "textAlign": "center"
+              },
+              "text": "Ack\u0027d"
+            },
+            "type": "ia.display.label"
+          }
+        ],
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tself.view.params.statusCode \u003d \u0027K\u0027\n\tsystem.perspective.sendMessage(\u0027wo-status-changed\u0027, {\u0027statusCode\u0027: \u0027K\u0027}, scope\u003d\u0027session\u0027)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "cardStatusK"
+        },
+        "propConfig": {
+          "props.style.backgroundColor": {
+            "binding": {
+              "config": {
+                "expression": "if({view.params.statusCode} \u003d \u0027K\u0027, \u0027var(--wo-color-acknowledged)\u0027, \u0027transparent\u0027)"
+              },
+              "type": "expr"
+            }
+          },
+          "props.style.border": {
+            "binding": {
+              "config": {
+                "expression": "if({view.params.statusCode} \u003d \u0027K\u0027, \u00272px solid #5A349E\u0027, \u00271px solid #8A9698\u0027)"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "alignItems": "center",
+          "direction": "column",
+          "style": {
+            "borderRadius": "8px",
+            "cursor": "pointer",
+            "height": "58px",
+            "minWidth": "68px",
+            "width": "68px"
+          }
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "icoStatusA"
+                },
+                "position": {
+                  "basis": 24,
+                  "shrink": 0
+                },
+                "propConfig": {
+                  "props.color": {
+                    "binding": {
+                      "config": {
+                        "expression": "if({view.params.statusCode} \u003d \u0027A\u0027, \u0027#FFF\u0027, \u0027#5D6E71\u0027)"
+                      },
+                      "type": "expr"
+                    }
+                  }
+                },
+                "props": {
+                  "path": "material/check_circle",
+                  "style": {
+                    "fontSize": "20px"
+                  }
+                },
+                "type": "ia.display.icon"
+              }
+            ],
+            "meta": {
+              "name": "icoWrapA"
+            },
+            "position": {
+              "grow": 1,
+              "shrink": 0
+            },
+            "props": {
+              "alignItems": "center",
+              "justify": "center",
+              "style": {
+                "alignSelf": "stretch",
+                "overflow": "hidden"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "meta": {
+              "name": "lblStatusA"
+            },
+            "position": {
+              "shrink": 0
+            },
+            "propConfig": {
+              "props.style.color": {
+                "binding": {
+                  "config": {
+                    "expression": "if({view.params.statusCode} \u003d \u0027A\u0027, \u0027#FFF\u0027, \u0027#5D6E71\u0027)"
+                  },
+                  "type": "expr"
+                }
+              },
+              "props.style.fontWeight": {
+                "binding": {
+                  "config": {
+                    "expression": "if({view.params.statusCode} \u003d \u0027A\u0027, \u0027bold\u0027, \u0027normal\u0027)"
+                  },
+                  "type": "expr"
+                }
+              }
+            },
+            "props": {
+              "style": {
+                "fontSize": "10px",
+                "paddingBottom": "4px",
+                "textAlign": "center"
+              },
+              "text": "Approved"
+            },
+            "type": "ia.display.label"
+          }
+        ],
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tself.view.params.statusCode \u003d \u0027A\u0027\n\tsystem.perspective.sendMessage(\u0027wo-status-changed\u0027, {\u0027statusCode\u0027: \u0027A\u0027}, scope\u003d\u0027session\u0027)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "cardStatusA"
+        },
+        "propConfig": {
+          "props.style.backgroundColor": {
+            "binding": {
+              "config": {
+                "expression": "if({view.params.statusCode} \u003d \u0027A\u0027, \u0027var(--wo-color-approved)\u0027, \u0027transparent\u0027)"
+              },
+              "type": "expr"
+            }
+          },
+          "props.style.border": {
+            "binding": {
+              "config": {
+                "expression": "if({view.params.statusCode} \u003d \u0027A\u0027, \u00272px solid #084AAB\u0027, \u00271px solid #8A9698\u0027)"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "alignItems": "center",
+          "direction": "column",
+          "style": {
+            "borderRadius": "8px",
+            "cursor": "pointer",
+            "height": "58px",
+            "minWidth": "68px",
+            "width": "68px"
+          }
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "icoStatusV"
+                },
+                "position": {
+                  "basis": 24,
+                  "shrink": 0
+                },
+                "propConfig": {
+                  "props.color": {
+                    "binding": {
+                      "config": {
+                        "expression": "if({view.params.statusCode} \u003d \u0027V\u0027, \u0027#FFF\u0027, \u0027#5D6E71\u0027)"
+                      },
+                      "type": "expr"
+                    }
+                  }
+                },
+                "props": {
+                  "path": "material/play_circle_filled",
+                  "style": {
+                    "fontSize": "20px"
+                  }
+                },
+                "type": "ia.display.icon"
+              }
+            ],
+            "meta": {
+              "name": "icoWrapV"
+            },
+            "position": {
+              "grow": 1,
+              "shrink": 0
+            },
+            "props": {
+              "alignItems": "center",
+              "justify": "center",
+              "style": {
+                "alignSelf": "stretch",
+                "overflow": "hidden"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "meta": {
+              "name": "lblStatusV"
+            },
+            "position": {
+              "shrink": 0
+            },
+            "propConfig": {
+              "props.style.color": {
+                "binding": {
+                  "config": {
+                    "expression": "if({view.params.statusCode} \u003d \u0027V\u0027, \u0027#FFF\u0027, \u0027#5D6E71\u0027)"
+                  },
+                  "type": "expr"
+                }
+              },
+              "props.style.fontWeight": {
+                "binding": {
+                  "config": {
+                    "expression": "if({view.params.statusCode} \u003d \u0027V\u0027, \u0027bold\u0027, \u0027normal\u0027)"
+                  },
+                  "type": "expr"
+                }
+              }
+            },
+            "props": {
+              "style": {
+                "fontSize": "10px",
+                "paddingBottom": "4px",
+                "textAlign": "center"
+              },
+              "text": "Active"
+            },
+            "type": "ia.display.label"
+          }
+        ],
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tself.view.params.statusCode \u003d \u0027V\u0027\n\tsystem.perspective.sendMessage(\u0027wo-status-changed\u0027, {\u0027statusCode\u0027: \u0027V\u0027}, scope\u003d\u0027session\u0027)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "cardStatusV"
+        },
+        "propConfig": {
+          "props.style.backgroundColor": {
+            "binding": {
+              "config": {
+                "expression": "if({view.params.statusCode} \u003d \u0027V\u0027, \u0027var(--wo-color-active)\u0027, \u0027transparent\u0027)"
+              },
+              "type": "expr"
+            }
+          },
+          "props.style.border": {
+            "binding": {
+              "config": {
+                "expression": "if({view.params.statusCode} \u003d \u0027V\u0027, \u00272px solid #1E8236\u0027, \u00271px solid #8A9698\u0027)"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "alignItems": "center",
+          "direction": "column",
+          "style": {
+            "borderRadius": "8px",
+            "cursor": "pointer",
+            "height": "58px",
+            "minWidth": "68px",
+            "width": "68px"
+          }
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "icoStatusC"
+                },
+                "position": {
+                  "basis": 24,
+                  "shrink": 0
+                },
+                "propConfig": {
+                  "props.color": {
+                    "binding": {
+                      "config": {
+                        "expression": "if({view.params.statusCode} \u003d \u0027C\u0027, \u0027#FFF\u0027, \u0027#5D6E71\u0027)"
+                      },
+                      "type": "expr"
+                    }
+                  }
+                },
+                "props": {
+                  "path": "material/cancel",
+                  "style": {
+                    "fontSize": "20px"
+                  }
+                },
+                "type": "ia.display.icon"
+              }
+            ],
+            "meta": {
+              "name": "icoWrapC"
+            },
+            "position": {
+              "grow": 1,
+              "shrink": 0
+            },
+            "props": {
+              "alignItems": "center",
+              "justify": "center",
+              "style": {
+                "alignSelf": "stretch",
+                "overflow": "hidden"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "meta": {
+              "name": "lblStatusC"
+            },
+            "position": {
+              "shrink": 0
+            },
+            "propConfig": {
+              "props.style.color": {
+                "binding": {
+                  "config": {
+                    "expression": "if({view.params.statusCode} \u003d \u0027C\u0027, \u0027#FFF\u0027, \u0027#5D6E71\u0027)"
+                  },
+                  "type": "expr"
+                }
+              },
+              "props.style.fontWeight": {
+                "binding": {
+                  "config": {
+                    "expression": "if({view.params.statusCode} \u003d \u0027C\u0027, \u0027bold\u0027, \u0027normal\u0027)"
+                  },
+                  "type": "expr"
+                }
+              }
+            },
+            "props": {
+              "style": {
+                "fontSize": "10px",
+                "paddingBottom": "4px",
+                "textAlign": "center"
+              },
+              "text": "Closed"
+            },
+            "type": "ia.display.label"
+          }
+        ],
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tself.view.params.statusCode \u003d \u0027C\u0027\n\tsystem.perspective.sendMessage(\u0027wo-status-changed\u0027, {\u0027statusCode\u0027: \u0027C\u0027}, scope\u003d\u0027session\u0027)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "cardStatusC"
+        },
+        "propConfig": {
+          "props.style.backgroundColor": {
+            "binding": {
+              "config": {
+                "expression": "if({view.params.statusCode} \u003d \u0027C\u0027, \u0027var(--wo-color-closed)\u0027, \u0027transparent\u0027)"
+              },
+              "type": "expr"
+            }
+          },
+          "props.style.border": {
+            "binding": {
+              "config": {
+                "expression": "if({view.params.statusCode} \u003d \u0027C\u0027, \u00272px solid #B02A37\u0027, \u00271px solid #8A9698\u0027)"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "alignItems": "center",
+          "direction": "column",
+          "style": {
+            "borderRadius": "8px",
+            "cursor": "pointer",
+            "height": "58px",
+            "minWidth": "68px",
+            "width": "68px"
+          }
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "icoStatusD"
+                },
+                "position": {
+                  "basis": 24,
+                  "shrink": 0
+                },
+                "propConfig": {
+                  "props.color": {
+                    "binding": {
+                      "config": {
+                        "expression": "if({view.params.statusCode} \u003d \u0027D\u0027, \u0027#FFF\u0027, \u0027#5D6E71\u0027)"
+                      },
+                      "type": "expr"
+                    }
+                  }
+                },
+                "props": {
+                  "path": "material/block",
+                  "style": {
+                    "fontSize": "20px"
+                  }
+                },
+                "type": "ia.display.icon"
+              }
+            ],
+            "meta": {
+              "name": "icoWrapD"
+            },
+            "position": {
+              "grow": 1,
+              "shrink": 0
+            },
+            "props": {
+              "alignItems": "center",
+              "justify": "center",
+              "style": {
+                "alignSelf": "stretch",
+                "overflow": "hidden"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "meta": {
+              "name": "lblStatusD"
+            },
+            "position": {
+              "shrink": 0
+            },
+            "propConfig": {
+              "props.style.color": {
+                "binding": {
+                  "config": {
+                    "expression": "if({view.params.statusCode} \u003d \u0027D\u0027, \u0027#FFF\u0027, \u0027#5D6E71\u0027)"
+                  },
+                  "type": "expr"
+                }
+              },
+              "props.style.fontWeight": {
+                "binding": {
+                  "config": {
+                    "expression": "if({view.params.statusCode} \u003d \u0027D\u0027, \u0027bold\u0027, \u0027normal\u0027)"
+                  },
+                  "type": "expr"
+                }
+              }
+            },
+            "props": {
+              "style": {
+                "fontSize": "10px",
+                "paddingBottom": "4px",
+                "textAlign": "center"
+              },
+              "text": "Cancel"
+            },
+            "type": "ia.display.label"
+          }
+        ],
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tself.view.params.statusCode \u003d \u0027D\u0027\n\tsystem.perspective.sendMessage(\u0027wo-status-changed\u0027, {\u0027statusCode\u0027: \u0027D\u0027}, scope\u003d\u0027session\u0027)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "cardStatusD"
+        },
+        "propConfig": {
+          "props.style.backgroundColor": {
+            "binding": {
+              "config": {
+                "expression": "if({view.params.statusCode} \u003d \u0027D\u0027, \u0027var(--wo-color-cancelled)\u0027, \u0027transparent\u0027)"
+              },
+              "type": "expr"
+            }
+          },
+          "props.style.border": {
+            "binding": {
+              "config": {
+                "expression": "if({view.params.statusCode} \u003d \u0027D\u0027, \u00272px solid #565E64\u0027, \u00271px solid #8A9698\u0027)"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "alignItems": "center",
+          "direction": "column",
+          "style": {
+            "borderRadius": "8px",
+            "cursor": "pointer",
+            "height": "58px",
+            "minWidth": "68px",
+            "width": "68px"
+          }
+        },
+        "type": "ia.container.flex"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "alignItems": "center",
+      "justify": "center",
+      "style": {
+        "gap": "4px",
+        "overflow": "visible"
+      }
+    },
+    "type": "ia.container.flex"
+  }
+}
