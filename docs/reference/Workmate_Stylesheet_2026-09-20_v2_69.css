@@ -1,0 +1,3513 @@
+/* ============================================================================
+ * WORKMATE PROJECT STYLESHEET v2.69
+ * Kaingaroa Tipu Brand Guidelines — Colour Palette V1.0 November 2025
+ * ============================================================================
+ * 
+ * USAGE IN IGNITION PERSPECTIVE:
+ *   Designer > Project > Perspective > Styles > stylesheet.css
+ *   Apply classes via component meta.classes, e.g.:
+ *     "meta": { "name": "MyComponent", "classes": "wm-panel-header" }
+ *
+ *   Perspective prefixes class names with "psc-" in the DOM, so class
+ *   "wm-panel-header" becomes ".psc-wm-panel-header" in CSS selectors.
+ *
+ * CHANGELOG:
+ *   v2.1: Unified golds, merged headers, added wm-tabs
+ *   v2.2: Added wm-icon-btn for ia.display.icon, removed all v2.2-draft
+ *         duplicate blocks, single clean icon button definition
+ *   v2.3: (unrecorded internal tweaks)
+ *   v2.4: SINGLE SOURCE OF TRUTH for PO + WO status colours.
+ *         RGB triplets (for alpha compositing) and solid hex shortcuts
+ *         added for every status code. View bindings that previously
+ *         hardcoded 'rgba(93,173,226,0.16)' should now read
+ *         'rgba(var(--po-rgb-pending),0.16)'. Email HTML (Python)
+ *         sources from shared.po_constants which mirrors these values.
+ *   v2.5: @media print rules for the POPrintable / browser-print
+ *         pattern. .psc-no-print hides on-screen controls; the
+ *         .psc-printable-area and .psc-po-card classes give clean
+ *         page-break behaviour on A4.
+ *   v2.6: Button + icon-button design system. wm-btn-primary /
+ *         secondary / tertiary / danger × default / sm / touch sizes,
+ *         plus wm-icon-btn-lg for 44x44 touch targets. See bottom
+ *         of file. Use everywhere — no more per-component styling.
+ *   v2.7: wm-btn-shadow-* coloured-shadow add-on classes (blue / gold /
+ *         forest / grey). Shadow-only — layers on top of a button's
+ *         existing styling without changing fill or border. hover
+ *         lifts the shadow, active presses it in. box-shadow uses
+ *         !important so it survives ia.input.button's built-in
+ *         hover styling (an inline boxShadow does NOT).
+ *   v2.8: wm-btn-shadow-* shadows made more prominent - higher
+ *         alpha, larger blur + spread at rest and on hover.
+ *   v2.9: wm-btn-shadow-* reworked - the prominent coloured shadow
+ *         is now the RESTING state. hover no longer intensifies
+ *         or pops the colour; it holds the same shadow so the
+ *         button reads as steadily coloured, not interactive-on-
+ *         hover. active still presses in slightly.
+ *  v2.10: wm-btn-shadow-* dialled back ~20% - lower alpha and a
+ *         slightly tighter blur/spread. Same colours, calmer
+ *         presence on a white panel.
+ *  v2.11: wm-btn-shadow-* trimmed a further ~5% (alpha only).
+ *  v2.12: wm-btn-shadow-* :hover now gives a defined lift again -
+ *         a tighter, stronger shadow on mouse-over (rest stays
+ *         soft). active still presses in. v2.9-2.11 had hover
+ *         deliberately equal to rest; this restores hover
+ *         feedback without a colour pop.
+ *  v2.13: wm-btn-shadow-* :hover lift made noticeably stronger -
+ *         larger blur + spread, higher alpha. rest/active
+ *         unchanged.
+ *  v2.14: added wm-btn-shadow-accent - a distinct accent shadow
+ *         (KT Mandatory #196690) for the single primary action
+ *         on a screen (e.g. PO 'Submit for Approval'). Same
+ *         rest/hover/active behaviour as the other shadow
+ *         classes, slightly stronger so it reads as primary.
+ *  v2.15: added wm-btn-shadow-dark - neutral black shadow trial
+ *         for a primary action (e.g. PO 'Submit for Approval').
+ *  v2.16: added wm-input-sm-placeholder - sizes only the
+ *         placeholder text of an ia.input.text-field (via
+ *         ::placeholder); typed text is unaffected.
+ *  v2.17: added wm-input-sm - sizes the internal <input> of an
+ *         ia.input.date-time-input / dropdown to 11px so it
+ *         matches text-fields (the outer style.fontSize does
+ *         not reach the wrapped input element).
+ *  v2.18: added kpp-chip-glass - frosted-glass raise-on-hover for
+ *         the KPP Daily Report status chips (ShiftStatusChipLight,
+ *         StemEngineChipLight). Pairs with inline frosted gradient +
+ *         backdrop-filter on the chip roots; this class adds the
+ *         hover lift (translateY -3px, deeper shadow) and a faint
+ *         diagonal ::before sheen. No effect on print (chips are
+ *         excluded from the printed report).
+ *  v2.19: REPLACED kpp-chip-glass with kpp-chip-glow. The frosted/
+ *         translucent look read poorly on the light report bg.
+ *         New approach mirrors the wm-btn-shadow-* buttons: a
+ *         SOLID card with a coloured glow ring all around (set
+ *         inline per chip - gold for Shift, teal for Stem Engine)
+ *         plus an inset top bevel. This class supplies only the
+ *         transition + hover lift so it stays chip-agnostic; the
+ *         accent glow rides along inline.
+ *
+ *  v2.20: FIX Stem Engine chip animation not freezing on STOPPED. The
+ *         se-stopped freeze block used descendant selectors that paired
+ *         the psc- prefixed ancestor (.psc-se-stopped) with the BARE
+ *         descendant (.se-gear-main) - but Perspective renders BOTH with
+ *         the psc- prefix, so .psc-se-stopped .psc-se-gear-main never
+ *         matched and the gears/dots/flow kept animating while STOPPED.
+ *         Freeze block now lists all four ancestor x descendant prefix
+ *         combinations. Fixes StemEngineChipNEW + StemEngineChipLight
+ *         (and any view using these se- classes). No other rule touched.
+ *
+ *  v2.29: Stem Engine animation now ALWAYS runs on the se- classes,
+ *         regardless of the client's prefers-reduced-motion / Windows
+ *         "Animation effects off" setting. Workstation (JxBrowser) honours
+ *         that OS flag, so on PCs with animations disabled the @media
+ *         (prefers-reduced-motion: reduce) block was setting animation:none
+ *         !important on the gears/flow/halo/dots -> a frozen RUNNING chip
+ *         that an operator could misread as STOPPED. The se- selectors are
+ *         removed from that media block (chip is a live status indicator,
+ *         not decorative). The se-stopped freeze (real STOPPED state) is
+ *         unchanged, and the reduced-motion block is kept for any future
+ *         decorative classes. No other rule touched.
+ *
+ *  v2.30: added kpp-seg / kpp-seg--active - subtle liquid-glass
+ *         segmented buttons for the Stem Grade Dashboard time-range
+ *         row (Yesterday/Today/7 Days/30 Days/MTD). Lighter frost +
+ *         thinner bevel than .gbtn; active segment carries KT gold.
+ *
+ *  v2.31: added kpp-live / kpp-live--on - glassy LIVE toggle for the
+ *         Stem Grade Dashboard Recent Stems header. Dial turned up vs
+ *         kpp-seg: heavier frost (blur 12px), brighter sheen + moving
+ *         specular glint, thicker bevel, bigger hover lift. ON state is
+ *         saturated green glass with an outer glow + slow pulse.
+ *
+ *  v2.32: added kpp-mseg / kpp-mseg--active - glassy metric-segment
+ *         buttons for the Stem Grade Dashboard Production by Grade row
+ *         (Volume/Value/Pieces). A notch glassier than kpp-seg: thicker
+ *         frost (blur 9px), brighter sheen, a specular streak that
+ *         sweeps on hover; active segment is gold glass with soft glow.
+ *  v2.33: wm-compact-table header-band rule - collapses the fixed
+ *         ~30px table header to 24px on any table carrying the
+ *         class (Compact Table Standard v1.0.0, Supplier rebuild).
+ *  v2.34: wm-dd-growrow - grow-on-focus field wraps (ActionMaint UX)
+ *         for the PO DetailEditPanel dropdowns: the focused field
+ *         expands, siblings shrink, so long option text is readable.
+ *  v2.35: wm-dd-compact - 10px dropdown text INCLUDING the open menu
+ *         (the options modal ignores inline fontSize; Perspective
+ *         mirrors the component classes onto the modal, so this works).
+ *  v2.36: v2.35 selectors were wrong (guessed BEM names) and the menu
+ *         is portalled to <body>, so component-scoped rules can never
+ *         reach it. v2.36 targets the real option class GLOBALLY.
+ *  v2.37: wm-th-34 - taller (34px) header band modifier for compact
+ *         tables whose sort arrows need breathing room (PO DetailTable).
+ *  v2.38: wm-print-doc print block appended (Workmate_Print_Styles
+ *         v1.0.0 snippet; pairs with POPrintable v1.8.x flowing
+ *         document). Recorded retroactively - header was not bumped
+ *         at the time.
+ *  v2.39: print block fixes. (a) row-keep-together selector was
+ *         missing the psc- prefix on the row class, so it matched
+ *         nothing and a line could split across a page edge (live
+ *         symptom: K-260701-006 line 22). (b) break-inside on flex
+ *         ITEMS is unreliable in browsers - the lines chain
+ *         (wm-po-lines, POPrintable v1.8.1) is flattened to block
+ *         layout in print only, where fragmentation is always
+ *         honoured. Adds print-color-adjust so badges keep colour.
+ *  v2.40: v2.39's block-flatten hit the ROW roots themselves (the
+ *         repeater's direct children are the rows, no wrapper), which
+ *         stacked every cell vertically and blew out line spacing.
+ *         Rows get display:flex back; keep-together still binds
+ *         because a flex container that is a child of a BLOCK parent
+ *         is a block-level box, and break-inside:avoid is honoured on
+ *         those. Only the repeater itself stays block in print.
+ *  v2.41: @page size dropped (margins kept). Declaring a fixed size
+ *         makes Chrome treat page setup as author-controlled - it
+ *         forces paper to Custom 210x297mm and HIDES the Portrait /
+ *         Landscape option in the print dialog. Without the size
+ *         property the user chooses paper + orientation again; the
+ *         flowing document and fluid card width adapt to either.
+ *  v2.47: hub-chip-new - chip-scale NEW badge for a single module
+ *         chip inside a card, used by Hub v1.15.0 on the TimberPay
+ *         chip. Replaces hub-card-new (v2.46-era, never shipped
+ *         to a released view), which lit the whole Business
+ *         Systems card instead of the one module that was new.
+ *  v2.48: hub-chip-new NEW moved from inside the chip to a pip on its
+ *         top-right corner, matching the rail badge. The inline tag
+ *         made the chip read as a wider, busier control than the
+ *         plain chips beside it.
+ *  v2.49: WOPrintable print sizing (.psc-wo-card): the WO job card
+ *         fills the sheet width and pins its comments grid to the
+ *         page bottom (min-height). PORTRAIT-designed form (mirrors
+ *         the .NET original); landscape paginates onto two pages.
+ *         Also REMOVES a mis-pasted unversioned tail block that
+ *         declared a fixed '@page' size of A4 portrait - that
+ *         regressed v2.41 (fixed size makes Chrome hide the
+ *         Portrait/Landscape choice and force Custom paper). The
+ *         margins-only page rule stands.
+ *  v2.50: docks (Workmate HeaderToolbar + SideMenu) hidden ON PAPER,
+ *         scoped with :has() to pages whose primary view is a
+ *         wm-print-doc (POPrintable / WOPrintable). Normal pages
+ *         print untouched.
+ *  v2.54: honour Perspective's OWN print opt-out: the platform tags
+ *         its chrome (app bar, modal wrapper, session-status
+ *         action-panel overlay) with a literal, unprefixed "no-print"
+ *         class; the overlay is hidden on screen by bottom:-15rem /
+ *         z-index, which print ignores - it kept paginating onto a
+ *         second sheet. One global rule wires the contract. (v2.51-
+ *         v2.53 were interim name-pattern / structural workarounds -
+ *         superseded, never retained in this file.)
+ *  v2.55: WO card print min-height 262mm -> 248mm. With chrome hidden
+ *         the trailing sheet was EMPTY - exact-fit spill (262mm +
+ *         2x10mm margins left sub-mm slack on A4; rounding pushed a
+ *         blank page). 248mm gives real slack; the Spacer keeps the
+ *         comments grid pinned to the sheet bottom.
+ *  v2.56: BROWSER EXTENSIONS off paper. DOM inspection (2026-08-17):
+ *         Grammarly and a writer extension inject elements into <body>
+ *         AFTER #app-container (<grammarly-desktop-integration>,
+ *         <cgw-writer-modal>, off-screen buttons) - outside the app,
+ *         untouched by every app-scoped rule, and one of them
+ *         paginated a blank trailing sheet. On paper, only the app
+ *         root prints: every other direct child of <body> is hidden,
+ *         ALL element types (the retired v2.53 div-only rule missed
+ *         custom tags). Global on purpose - no page in this project
+ *         should ever print extension junk.
+
+ *  v2.57: request-print RESTORED. Perspective's request-print action
+ *         renders the target view into an IFRAME id=printWindow
+ *         injected as a BODY-LEVEL SIBLING of #app-container
+ *         (MutationObserver probe, 2026-08-18). The v2.56 extension
+ *         guard display:none'd it - a display:none iframe lays out
+ *         nothing, so every request-print preview (KPPDailyReport
+ *         PrintBtn) went blank while native Ctrl+P flows kept
+ *         working. The guard now exempts #printWindow. Session-rule
+ *         correction: 'request-print renders without the project
+ *         stylesheet' holds for the iframe CONTENT only - the iframe
+ *         ELEMENT obeys this stylesheet's print rules.
+ *  v2.58: guard ARMED ONLY IN THE APP DOCUMENT. request-print's
+ *         printWindow iframe CLONES the app's stylesheets (10 sheets
+ *         observed inside it, 2026-08-19), so the v2.56 extension
+ *         guard also ran INSIDE the print document - whose body child
+ *         is not #app-container - and hid the entire report from
+ *         within. The v2.57 outer exemption was necessary but not
+ *         sufficient. The guard now requires body:has(> #app-container)
+ *         so it can only ever fire in the main app document; inside
+ *         the print iframe it is inert. Same :has() dependency as
+ *         v2.50.
+ *  v2.59: KPP DAILY REPORT PRINT LAYOUT. Three additions riding the
+ *         v2.58 discovery that the request-print iframe clones this
+ *         stylesheet: kt-print-only (print-only header row - hidden
+ *         on screen), kt-print-stack (side-by-side report columns
+ *         stack full-width on paper), and a print-doc-scoped release
+ *         of the app-shell viewport locks (body without a direct
+ *         #app-container child = we are inside the print iframe) so
+ *         tall reports paginate instead of clipping to one sheet.
+ *         Used by KPPDailyReport v1.13 / ShiftProduction v1.2.
+ *  v2.60: kt-print-stack SIZING FIX. v2.59 squashed the report into
+ *         a 200px strip: freeing the view-root heights exposed Body's
+ *         flex-basis 200px (grow had nothing to grow into), and the
+ *         cloned chart canvases stretched to their wrappers. The
+ *         stack now frees its own basis/height and its children's
+ *         and grandchildren's, and canvases scale proportionally
+ *         (width 100%, height auto - the clone keeps its aspect).
+ *  v2.61: SIDE-BY-SIDE RESTORED. The stacked print layout (v2.59/60)
+ *         is retired - the team wants the report on paper exactly as
+ *         on screen (charts left, summary right). Chrome fits the
+ *         print document to the sheet by its taller axis, so the
+ *         side-by-side sheet tops out around 80-85% scale - accepted.
+ *         kt-print-stack keeps its native row; only the kt-print-only
+ *         header block remains from v2.59. Landscape + Margins:
+ *         Minimum in the dialog recovers the rest of the size.
+ *  v2.62: SCORECARD PRINT SIZE. A fixed-width print page (the 794 px
+ *         A4-design card in ScorecardPrinter) printed at ~45 % because
+ *         the print document is as WIDE AS THE BROWSER WINDOW (~1900
+ *         px) with the card a small island inside it - Chrome shrinks
+ *         the whole document to the sheet, so the card inherits that
+ *         same shrink. On a wider monitor it printed smaller still.
+ *         Fix: inside the print iframe, when the document contains a
+ *         kt-print-page, the wrapper chain is pinned to the page's own
+ *         794 px design width, so the shrink factor lands near 1:1 and
+ *         the card fills the sheet. Page body height is capped at
+ *         1100 px (design 1180) so it clears A4 at every margin
+ *         setting - the card's own slack absorbs it. Scoped to
+ *         kt-print-page, so KPPDailyReport (kt-print-area only) is
+ *         untouched.
+ *  v2.63: preview zoom is SCREEN ONLY. ScorecardPrinter v1.1.0 adopts
+ *         the PurchaseOrder preview-zoom pattern (a scale() transform
+ *         on the card driven by view.custom.previewZoom). On paper the
+ *         transform would compound with the v2.62 fixed-width sizing
+ *         and make output depend on whatever zoom the operator last
+ *         left the screen at, so kt-print-page drops the transform in
+ *         print - paper is deterministic, screen is adjustable.
+ *  v2.64: v2.62 width pinning missed a link in the chain. The app
+ *         wrapper stack is BODY > DIV (no class - it is #app-container
+ *         in the app document, and the print clone DROPS the id, which
+ *         is why the v2.58 guard correctly disarms in there) >
+ *         .client-root > .center-column > .view-parent >
+ *         .ia_container--root. That unclassed div kept the print
+ *         document viewport-wide, so shrink-to-fit still crushed the
+ *         card. Pinning body's direct children too completes the
+ *         chain.
+ *  v2.65: width pinning REPLACED by display:contents. Measured in the
+ *         print iframe (2026-08-19): the cloned app shell reports a
+ *         1916 px document - the wrapper chain carries the layout
+ *         engine's own pixel widths, and pinning them to 794 px did
+ *         not hold. Giving the wrappers display:contents removes their
+ *         boxes altogether, so the card becomes a direct flow child of
+ *         the print body and lays out in the page box - no oversized
+ *         document, so no shrink-to-fit. Same double scoping.
+ *  v2.66: STRAY BRACE REMOVED - the real reason the scorecard print
+ *         sizing never took. The v2.61 edit that retired the stacked
+ *         layout left one extra '}' after the kt-print-only block, so
+ *         from that point the file's nesting was shifted and the whole
+ *         FIXED-WIDTH PRINT PAGES @media block parsed INSIDE another
+ *         rule instead of at top level. Measured in the print iframe:
+ *         one kt-print-page rule reachable where five were written.
+ *         v2.62-v2.65 were all correct CSS landing in a dead branch.
+ *         Brace balance is now verified on build.
+ *  v2.67: Compact Table Standard - 10px/700 header text enforced in CSS
+ *         for auto-column wm-compact-table tables (Explorer LocResTable /
+ *         ResTable). Title was bumped at the time; ledger line added here.
+ *  v2.68: wm-glow-crit - pulsing INSET red glow for the InsightsHub
+ *         critical-stock KPI cell (outer shadows are clipped by the
+ *         strip's overflow:hidden). Block already in the file; ledger
+ *         line added here.
+ *  v2.69: wm-print-doc PAGINATION. Native Ctrl+P paginates the DOCUMENT,
+ *         and Perspective's app shell (html/body 100% + overflow hidden,
+ *         #app-container > .client-root > .center-column > .view-parent
+ *         scroller) locks the document to ONE viewport - multi-PO /
+ *         multi-WO prints came out as "1 sheet of paper" with the
+ *         scroller's scrollbar painted on the sheet (POPrintable v1.10.0
+ *         smoke, 2026-09-03). Block at the end of the file: html/body
+ *         release the lock, the four wrappers get display:contents (the
+ *         v2.65 hammer, now in the MAIN document), print-doc root and
+ *         PrintableArea become block containers so every card's forced
+ *         break binds. Double-scoped: body:has(> #app-container) = main
+ *         document only; :has(.psc-wm-print-doc) = print-doc pages only.
+ *         Every other page prints exactly as before.
+ *
+ * ============================================================================ */
+
+
+/* -------------------------------------------
+   CSS VARIABLES
+   ------------------------------------------- */
+
+:root {
+
+    /* -- Legacy/System Variables -- */
+    --font: monospace;
+
+    /* Containers Color Palette */    
+    --root: #fbfbfb;
+    --container: #f5f5f5;
+    --containerNested: #dddddd;
+    --border: #ababab;
+
+    /* Menu Color Palette */
+    --rootMenu: #ababab;
+
+    /* State Color Palette */
+    --stateActive: #ffffff;
+    --stateInActive: #a1a1a1;
+    --stateFault: #e62323;
+    --stateWarning: #fdfd96;
+
+    /* Font/Text Color Palette */
+    --textTitle: #393939;
+    --textHeader: #5b5b5b;
+    --textSubHeader: #696969;
+    --textSubSubHeader: #818181;
+
+    /* Value Color Palette */
+    --valueData: #ababab;
+
+    /* Button Color Palette */
+    --buttonBaseActive: #b7b7b7;
+    --buttonBase: #ffffff;
+
+    /* -- KT Primary (Constant Growth / Lunar Cycle) -- */
+    --kt-dark-grey:    #242E30;
+    --kt-mid-grey:     #80878A;
+    --kt-light-grey:   #C2C7C7;
+    --kt-warm-white:   #F3EEE7;
+    --kt-light-gold:   #DEBF7A;
+    --kt-mid-gold:     #D4A863;
+    --kt-black:        #000000;
+    --kt-white:        #FFFFFF;
+
+    /* -- KT Secondary — Sun -- */
+    --kt-dark-sun:     #C99133;
+    --kt-mid-sun:      #EBC452;
+    --kt-light-sun:    #F2DE85;
+
+    /* -- KT Secondary — Water -- */
+    --kt-dark-water:   #004063;
+    --kt-mid-water:    #5CA6C4;
+    --kt-light-water:  #78B0B0;
+
+    /* -- KT Secondary — Forest -- */
+    --kt-dark-forest:  #242E30;
+    --kt-mid-forest:   #36664A;
+    --kt-light-forest: #78A699;
+
+    /* -- KT Secondary — Soil -- */
+    --kt-dark-soil:    #332B1F;
+    --kt-mid-soil:     #42210A;
+    --kt-light-soil:   #C79C6E;
+
+    /* -- KT Safety -- */
+    --kt-danger:       #C02026;
+    --kt-warning:      #DC7323;
+    --kt-safe:         #0A733A;
+    --kt-mandatory:    #196690;
+
+    /* ========================================================================
+     * STATUS COLOURS — v2.4
+     * ------------------------------------------------------------------------
+     * SINGLE SOURCE OF TRUTH for PO and WO status colours.
+     *
+     * Each status has TWO forms:
+     *   --xx-rgb-name   : 'R, G, B'  — compose alpha at use site, e.g.
+     *                     background: rgba(var(--po-rgb-pending), 0.16)
+     *   --xx-color-name : '#RRGGBB'  — opaque shortcut where alpha isn't
+     *                     needed, e.g.
+     *                     border-color: var(--po-color-pending)
+     *
+     * Used by:
+     *   - StatusBadgeProcurex, StatusBadge, PONumBadge, WONumBadge symbols
+     *   - POPrintPopup filter chips
+     *   - Procurex / Schedulex / PurchaseOrder filter chips
+     *   - shared.po_constants Python module (mirrored values for email HTML)
+     * ======================================================================== */
+
+    /* -- PO Status RGB triplets (compose alpha at use site) -- */
+    --po-rgb-pending:    93, 173, 226;
+    --po-rgb-waiting:    255, 128, 192;
+    --po-rgb-approved:   111, 66, 193;
+    --po-rgb-issued:     40, 167, 69;
+    --po-rgb-received:   0, 0, 128;
+    --po-rgb-part-recv:  0, 128, 255;
+    --po-rgb-completed:  220, 53, 69;
+    --po-rgb-exported:   0, 204, 204;
+    --po-rgb-rfq:        255, 193, 7;
+    --po-rgb-cancelled:  108, 117, 125;
+
+    /* -- PO Status solid hex shortcuts -- */
+    --po-color-pending:    #5DADE2;
+    --po-color-waiting:    #FF80C0;
+    --po-color-approved:   #6F42C1;
+    --po-color-issued:     #28A745;
+    --po-color-received:   #000080;
+    --po-color-part-recv:  #0080FF;
+    --po-color-completed:  #DC3545;
+    --po-color-exported:   #00CCCC;
+    --po-color-rfq:        #FFC107;
+    --po-color-cancelled:  #6C757D;
+
+    /* -- WO Status RGB triplets -- */
+    --wo-rgb-request:      255, 193, 7;
+    --wo-rgb-planned:      23, 162, 184;
+    --wo-rgb-pending:      93, 173, 226;
+    --wo-rgb-acknowledged: 111, 66, 193;
+    --wo-rgb-approved:     11, 94, 215;
+    --wo-rgb-active:       40, 167, 69;
+    --wo-rgb-closed:       220, 53, 69;
+    --wo-rgb-cancelled:    108, 117, 125;
+    --wo-rgb-deferred:     255, 152, 0;
+
+    /* -- WO Status solid hex shortcuts -- */
+    --wo-color-request:      #FFC107;
+    --wo-color-planned:      #17A2B8;
+    --wo-color-pending:      #5DADE2;
+    --wo-color-acknowledged: #6F42C1;
+    --wo-color-approved:     #0B5ED7;
+    --wo-color-active:       #28A745;
+    --wo-color-closed:       #DC3545;
+    --wo-color-cancelled:    #6C757D;
+    --wo-color-deferred:     #FF9800;
+
+    /* ======================================================================== */
+
+    /* -- Workmate UI Tokens -- */
+    --wm-bg-dark:      #242E30;
+    --wm-bg-menu:      #2F3B3D;
+    --wm-bg-content:   #FFFFFF;
+    --wm-bg-actionbar: #F0F0F0;
+    --wm-border:       #C8CECE;
+    --wm-border-light: #E0E4E4;
+    --wm-text-primary: #242E30;
+    --wm-text-secondary: #5D6E71;
+    --wm-text-muted:   #8A9BA0;
+    --wm-text-inverse: #F3EEE7;
+    --wm-accent:       #EBC452;
+    --wm-accent-dark:  #C99133;
+    --wm-save-green:   #28A745;
+    --wm-delete-red:   #DC3545;
+    --wm-new-blue:     #0B5ED7;
+    --wm-card-shadow:  rgba(235,196,82,0.08);
+    --wm-card-shadow-hover: rgba(235,196,82,0.15);
+}
+
+
+/* -------------------------------------------
+   COMPONENT OVERRIDES (Legacy)
+   ------------------------------------------- */
+
+.horizontal-menu-menu-item {
+    --container: var(--tl-darkred);
+}
+
+.ia_tableComponent__selection--root {
+    border: none;
+}
+
+
+/* -------------------------------------------
+   ANIMATIONS
+   ------------------------------------------- */
+
+@keyframes tipPulse {
+    0%, 100% {
+        opacity: 0.45;
+        transform: scale(0.92);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.0);
+    }
+}
+
+@keyframes knightRider {
+    0%   { background-position: 100% 50%; }
+    50%  { background-position: 0% 50%; }
+    100% { background-position: 100% 50%; }
+}
+
+.knight-rider-top {
+    position: relative !important;
+}
+
+.knight-rider-top::before {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: -1px;
+    right: -1px;
+    height: 4px;
+    background: linear-gradient(90deg, 
+        #004063 0%, 
+        #00a8e8 50%, 
+        #004063 100%
+    );
+    background-size: 200% 100%;
+    animation: knightRider 3s ease-in-out infinite;
+    border-radius: 10px 10px 0 0;
+    z-index: 10;
+}
+
+
+/* -------------------------------------------
+   LUNAR CYCLE — HeaderCard Gradient Text
+   ------------------------------------------- */
+
+.psc-headerTitle-moon.ia_labelComponent,
+.psc-headerTitle-moon .ia_labelComponent,
+.psc-headerTitle-moon span,
+.psc-headerTitle-moon {
+    background: linear-gradient(
+        90deg,
+        #F3EEE7 0%,
+        #FFFFFF 5%,
+        #FFFFFF 85%,
+        #DEBF7A 100%
+    ) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+}
+
+.psc-headerTitle-moon.ia_labelComponent:hover,
+.psc-headerTitle-moon .ia_labelComponent:hover,
+.psc-headerTitle-moon span:hover,
+.psc-headerTitle-moon:hover {
+    background: linear-gradient(
+        90deg,
+        #F3EEE7 0%,
+        #FFFFFF 5%,
+        #FFFFFF 80%,
+        #EBC452 100%
+    ) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    transition: background 0.4s ease;
+}
+
+
+/* -------------------------------------------
+   PANEL HEADERS
+   ------------------------------------------- */
+
+.psc-wm-panel-header {
+    background: linear-gradient(180deg, #242E30 0%, #2F3B3D 100%) !important;
+    border-bottom: 2px solid #EBC452 !important;
+    border-radius: 0 !important;
+    color: #FFFFFF !important;
+    font-size: 12px !important;
+    font-weight: bold !important;
+    line-height: 24px;
+    padding: 7px 12px;
+    text-align: center;
+    letter-spacing: 0.3px;
+}
+
+.psc-wm-header-lunar {
+    background: #242E30 !important;
+    border-bottom: 2px solid #EBC452 !important;
+    color: #FFFFFF !important;
+    letter-spacing: 0.5px;
+    text-shadow: 0 0 8px rgba(235,196,82,0.15);
+}
+
+.psc-wm-header-light {
+    background: #F0F0F0 !important;
+    border-bottom: 1px solid #C8CECE !important;
+    color: #242E30 !important;
+}
+
+
+/* -------------------------------------------
+   TAB CONTAINERS
+   ------------------------------------------- */
+
+.psc-wm-tabs .ia_tabContainer__tab--selected {
+    border-bottom: 3px solid #EBC452 !important;
+    color: #242E30 !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+}
+
+.psc-wm-tabs .ia_tabContainer__tab:not(.ia_tabContainer__tab--selected) {
+    color: #5D6E71 !important;
+    font-size: 12px !important;
+    font-weight: 400 !important;
+}
+
+.psc-wm-tabs .ia_tabContainer__tabMenu {
+    background-color: #FFFFFF !important;
+    border-bottom: none !important;
+    padding-left: 4px !important;
+}
+
+.psc-wm-tabs .ia_tabContainer__content {
+    background-color: #F5F5F5 !important;
+    border-radius: 0 0 8px 8px !important;
+    box-shadow: none !important;
+}
+
+.psc-wm-tabs-sub .ia_tabContainer__tab--selected {
+    border-bottom: 2px solid #EBC452 !important;
+    color: #242E30 !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+}
+
+.psc-wm-tabs-sub .ia_tabContainer__tab:not(.ia_tabContainer__tab--selected) {
+    color: #5D6E71 !important;
+    font-size: 11px !important;
+    font-weight: 400 !important;
+}
+
+.psc-wm-tabs-sub .ia_tabContainer__tabMenu {
+    background-color: #FFFFFF !important;
+    border-bottom: none !important;
+    padding-left: 4px !important;
+}
+
+.psc-wm-tabs-sub .ia_tabContainer__content {
+    background-color: #FAFAFA !important;
+    box-shadow: none !important;
+}
+
+
+/* -------------------------------------------
+   SIDE MENU
+   ------------------------------------------- */
+
+.psc-wm-menu-bg {
+    background-color: #2F3B3D !important;
+}
+
+.psc-wm-menu-group {
+    color: #80878A !important;
+    font-size: 9px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.psc-wm-menu-item {
+    color: #D0D8DA !important;
+    cursor: pointer;
+    font-size: 12px !important;
+    padding: 6px 12px;
+    border-left: 3px solid transparent;
+}
+
+.psc-wm-menu-item-active {
+    color: #EBC452 !important;
+    font-weight: bold !important;
+    border-left: 3px solid #EBC452 !important;
+    background-color: rgba(235,196,82,0.08) !important;
+}
+
+
+/* -------------------------------------------
+   CARDS
+   ------------------------------------------- */
+
+.psc-wm-card {
+    background: #FFFFFF !important;
+    border: 1px solid #C8CECE !important;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(235,196,82,0.08);
+}
+
+.psc-wm-card-gold {
+    background: #FFFFFF !important;
+    border: 1px solid #C8CECE !important;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(235,196,82,0.12);
+}
+
+.psc-wm-card-title {
+    color: #5D6E71 !important;
+    font-size: 10px !important;
+    font-weight: bold !important;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.psc-wm-form-label {
+    color: #5D6E71 !important;
+    font-size: 11px !important;
+    font-weight: bold !important;
+    text-align: right;
+}
+
+.psc-wm-form-field {
+    border: 1px solid #C8CECE !important;
+    border-radius: 4px;
+    font-size: 11px !important;
+}
+
+
+/* -------------------------------------------
+   TEXT BUTTONS (legacy — still used on 
+   workflow launchers like WO Wizard, PM Setup)
+   ------------------------------------------- */
+
+.psc-wm-btn-save {
+    background: transparent !important;
+    border: 1px solid #28A745 !important;
+    border-radius: 4px;
+    color: #28A745 !important;
+    cursor: pointer;
+    font-size: 11px !important;
+    font-weight: bold !important;
+}
+
+.psc-wm-btn-new {
+    background: #0B5ED7 !important;
+    border: none !important;
+    border-radius: 4px;
+    color: #FFFFFF !important;
+    cursor: pointer;
+    font-size: 11px !important;
+    font-weight: bold !important;
+}
+
+.psc-wm-btn-delete {
+    background: #DC3545 !important;
+    border: none !important;
+    border-radius: 4px;
+    color: #FFFFFF !important;
+    cursor: pointer;
+    font-size: 11px !important;
+    font-weight: bold !important;
+}
+
+.psc-wm-btn-clear {
+    background: transparent !important;
+    border: 1px solid #C2C7C7 !important;
+    border-radius: 4px;
+    color: #5D6E71 !important;
+    cursor: pointer;
+    font-size: 11px !important;
+}
+
+
+/* -------------------------------------------
+   ACTION BAR
+   ------------------------------------------- */
+
+.psc-wm-actionbar {
+    background: #F0F0F0 !important;
+    border-bottom: 1px solid #C8CECE !important;
+}
+
+
+/* -------------------------------------------
+   STATUS INDICATORS
+   ------------------------------------------- */
+
+.psc-wm-save-status {
+    color: #28A745 !important;
+    font-size: 11px !important;
+    font-style: italic;
+}
+
+.psc-wm-error-status {
+    color: #C02026 !important;
+    font-size: 11px !important;
+    font-style: italic;
+}
+
+
+/* -------------------------------------------
+   TRAFFIC LIGHT — Priority colours
+   ------------------------------------------- */
+
+.psc-wm-traffic-red {
+    color: #C02026 !important;
+}
+
+.psc-wm-traffic-amber {
+    color: #DC7323 !important;
+}
+
+.psc-wm-traffic-green {
+    color: #0A733A !important;
+}
+
+
+/* -------------------------------------------
+   ICON BUTTONS (v2.2) — ia.display.icon
+   -------------------------------------------
+   
+   Apply "wm-icon-btn" via meta.classes on
+   ia.display.icon components used as buttons.
+   
+   Click events: Mouse Events > onClick
+   ------------------------------------------- */
+
+.psc-wm-icon-btn {
+    background-color: #EAECEC !important;
+    border: 1px solid #D0D4D4 !important;
+    border-radius: 4px !important;
+    cursor: pointer !important;
+    transition: background-color 0.15s ease, transform 0.1s ease !important;
+}
+
+.psc-wm-icon-btn:hover {
+    background-color: #D0D4D4 !important;
+    border-color: #B8BCBC !important;
+}
+
+.psc-wm-icon-btn:active {
+    background-color: #C0C4C4 !important;
+    transform: scale(0.93) !important;
+}
+
+
+/* ─── View Loading Gate ─────────────────────────
+   Applied via meta.classes on containers that flash
+   before expression bindings evaluate.
+   Opacity:0 at render → fade in after 250ms delay.
+   The binding (viewReady → display:flex) fires within
+   that window, so content is correct when it appears.
+   ─────────────────────────────────────────────── */
+.psc-wm-view-loading {
+  opacity: 0;
+  animation: wmViewFadeIn 0.15s ease 0.25s forwards;
+}
+
+/* ─── Loading Overlay Gate ──────────────────────
+   Applied to a white flex container inside ContentRow.
+   Position:absolute covers the tab panels during the
+   ~200ms binding evaluation window. The overlay is
+   VISIBLE by default (aligned with Perspective's
+   first-paint behaviour). viewReady binding hides it.
+   ─────────────────────────────────────────────── */
+.psc-wm-loading-overlay {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  z-index: 50;
+  background: #FFFFFF !important;
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   VolumeMatrix Row Highlight — add to project stylesheet
+   Scoped to .psc-vm-grid (meta.classes="vm-grid" on GridTable)
+   Uses Perspective native table CSS classes
+   Note: inline cell styles override background-color even
+   with !important, so we use outline instead (renders on top)
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Hover: gold outline framing the entire row ──────────── */
+.psc-vm-grid .ia_tableComponent__body__row--hovered {
+  outline: 2px solid #D4A863 !important;
+  outline-offset: -2px;
+  z-index: 1;
+  position: relative;
+}
+
+/* ── Selected: pink outline ──────────────────────────────── */
+.psc-vm-grid .ia_tableComponent__body__row--selected {
+  outline: 2px solid #E91E8C !important;
+  outline-offset: -2px;
+  z-index: 2;
+  position: relative;
+}
+
+/* ── Hover + selected combo ──────────────────────────────── */
+.psc-vm-grid .ia_tableComponent__body__row--hovered.ia_tableComponent__body__row--selected {
+  outline: 2px solid #E91E8C !important;
+  outline-offset: -2px;
+}
+
+
+
+
+
+.visitor-table-transparent .ia_container--secondary {
+    background-color: rgba(36, 46, 48, 0.15) !important;
+}
+
+.visitor-table-transparent .ia_table__headContainer,
+.visitor-table-transparent .ia_table__footContainer {
+    background-color: unset !important;
+}
+
+
+/* -------------------------------------------------------
+   Operator Scorecard — Loading Shimmer Animation
+   Paste into: Perspective > Styles > Enable Advanced Stylesheet
+   ------------------------------------------------------- */
+
+@keyframes scorecard-shimmer {
+    0%   { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+@keyframes scorecard-pulse {
+    0%, 100% { opacity: 0.5; }
+    50%      { opacity: 1.0; }
+}
+
+/* Shimmer bar — teal/gold gradient sliding left to right */
+.psc-Scorecard\/ShimmerBar {
+    background: linear-gradient(
+        90deg,
+        #242E30 0%,
+        #36664A 20%,
+        #5CA6C4 40%,
+        #DEBF7A 50%,
+        #5CA6C4 60%,
+        #36664A 80%,
+        #242E30 100%
+    ) !important;
+    background-size: 200% 100% !important;
+    animation: scorecard-shimmer 2s ease-in-out infinite !important;
+    border-radius: 4px !important;
+}
+
+/* Pulsing text for the loading message */
+.psc-Scorecard\/PulseText {
+    animation: scorecard-pulse 2s ease-in-out infinite !important;
+}
+
+
+/* ==========================================================
+   KT card action buttons  (hub tile inline buttons)
+   Paste into: Perspective > Styles > Advanced Stylesheet
+   Used by:    OperationHub card buttons (View KPIs, Print Scorecard)
+   ========================================================== */
+
+.psc-kt-card-action {
+    background-color: transparent;
+    border: 1px solid #DEBF7A;          /* KT Light Gold */
+    border-radius: 8px;
+    cursor: pointer;
+    padding: 7px 12px;
+    min-height: 34px;
+    transition: background-color 180ms ease-out,
+                box-shadow        180ms ease-out,
+                border-color      180ms ease-out,
+                transform         180ms ease-out;
+    color: #242E30;                      /* KT Dark Grey */
+    user-select: none;
+    white-space: nowrap;
+}
+
+.psc-kt-card-action:hover {
+    background-color: rgba(222, 191, 122, 0.14);   /* soft gold tint */
+    border-color: #D4A863;                          /* KT Mid Gold */
+    box-shadow: 0 4px 14px -2px rgba(212, 168, 99, 0.45),
+                0 0 0 3px rgba(222, 191, 122, 0.18);
+    transform: translateY(-1px);
+}
+
+.psc-kt-card-action:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px -1px rgba(212, 168, 99, 0.35);
+}
+
+/* Child label and icon inherit colour cleanly */
+.psc-kt-card-action .ia_label,
+.psc-kt-card-action .ia_icon {
+    color: inherit;
+}
+
+
+
+/* ==========================================================
+   KT card action buttons  (hub tile inline buttons)
+   Paste into: Perspective > Styles > Advanced Stylesheet
+   Used by:    OperationHub card buttons (View KPIs, Print Scorecard)
+   ========================================================== */
+
+.psc-kt-card-action {
+    background-color: transparent;
+    border: 1px solid #DEBF7A;          /* KT Light Gold */
+    border-radius: 8px;
+    cursor: pointer;
+    padding: 7px 12px;
+    min-height: 34px;
+    transition: background-color 180ms ease-out,
+                box-shadow        180ms ease-out,
+                border-color      180ms ease-out,
+                transform         180ms ease-out;
+    color: #242E30;                      /* KT Dark Grey */
+    user-select: none;
+    white-space: nowrap;
+}
+
+.psc-kt-card-action:hover {
+    background-color: rgba(222, 191, 122, 0.14);   /* soft gold tint */
+    border-color: #D4A863;                          /* KT Mid Gold */
+    box-shadow: 0 4px 14px -2px rgba(212, 168, 99, 0.45),
+                0 0 0 3px rgba(222, 191, 122, 0.18);
+    transform: translateY(-1px);
+}
+
+.psc-kt-card-action:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px -1px rgba(212, 168, 99, 0.35);
+}
+
+/* Child label and icon inherit colour cleanly */
+.psc-kt-card-action .ia_label,
+.psc-kt-card-action .ia_icon {
+    color: inherit;
+}
+
+
+
+
+
+/* ==========================================================
+   KT card action buttons  (hub tile inline buttons)
+   Paste into: Perspective > Styles > Advanced Stylesheet
+   Used by:    OperationHub card buttons (View KPIs, Print Scorecard)
+   ========================================================== */
+
+.psc-kt-card-action {
+    background-color: transparent;
+    border: 1px solid #DEBF7A;          /* KT Light Gold */
+    border-radius: 8px;
+    cursor: pointer;
+    padding: 7px 12px;
+    min-height: 34px;
+    transition: background-color 180ms ease-out,
+                box-shadow        180ms ease-out,
+                border-color      180ms ease-out,
+                transform         180ms ease-out;
+    color: #242E30;                      /* KT Dark Grey */
+    user-select: none;
+    white-space: nowrap;
+}
+
+.psc-kt-card-action:hover {
+    background-color: rgba(222, 191, 122, 0.14);   /* soft gold tint */
+    border-color: #D4A863;                          /* KT Mid Gold */
+    box-shadow: 0 4px 14px -2px rgba(212, 168, 99, 0.45),
+                0 0 0 3px rgba(222, 191, 122, 0.18);
+    transform: translateY(-1px);
+}
+
+.psc-kt-card-action:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px -1px rgba(212, 168, 99, 0.35);
+}
+
+/* Child label and icon inherit colour cleanly */
+.psc-kt-card-action .ia_label,
+.psc-kt-card-action .ia_icon {
+    color: inherit;
+}
+
+
+/* ==========================================================
+   KT score tier pills  (scorecard category cards)
+   Used by:    ScorecardPrintable category breakdown cards
+   Transform emits one of kt-score-{green|forest|gold|orange|red|na}
+   into view.custom.detail.catN.scoreClass
+   Label component binds props.style.classes to that path.
+   Base pill shape + per-tier colour via the ramp classes.
+   ========================================================== */
+
+.psc-kt-score-pill {
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1;
+    padding: 6px 10px;
+    border-radius: 4px;
+    margin-top: 6px;
+    text-align: center;
+    min-width: 44px;
+    display: inline-block;
+}
+
+.psc-kt-score-green  { background-color: #C0DD97; color: #242E30; }
+.psc-kt-score-forest { background-color: #78A699; color: #FFFFFF; }
+.psc-kt-score-gold   { background-color: #EBC452; color: #242E30; }
+.psc-kt-score-orange { background-color: #DC7323; color: #FFFFFF; }
+.psc-kt-score-red    { background-color: #C02026; color: #FFFFFF; }
+.psc-kt-score-na     { background-color: #F3EEE7; color: #80878A; font-style: italic; font-size: 12px; font-weight: 500; }
+
+
+/* ==========================================================
+   KT print rules  (browser Print to PDF cleanup)
+   Used by:    ScorecardPrinter view
+   - kt-print-hide  → element disappears in print preview/PDF output
+   - kt-print-area  → strips the dark page-frame background and padding
+                       so the white scorecard sits cleanly on the paper
+   - kt-print-page  → removes shadow + recentres on the page
+   ========================================================== */
+
+@media print {
+    /* Hide the controls bar entirely — radios, dropdown, Print button
+       shouldn't appear in the printed PDF. */
+    .psc-kt-print-hide {
+        display: none !important;
+    }
+
+    /* The grey "desk" background and outer padding that look nice
+       on screen are wasted ink. Convert to a flex centring container so
+       the page card lands in the middle of the print page regardless
+       of what width the print engine gives the parent.
+
+       This bypasses the unreliable margin:auto centring that fails
+       when the parent ancestor chain has fixed widths. */
+    .psc-kt-print-area {
+        background-color: #FFFFFF !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        overflow: visible !important;
+        width: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+    }
+
+    /* The page card itself: drop shadow (no use on paper). margin:auto
+       still set as a belt-and-braces backup; flex parent does the real
+       centring above. */
+    .psc-kt-print-page {
+        box-shadow: none !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        flex-shrink: 0 !important;
+    }
+
+    /* Tell browsers to keep our heatmap colours rather than print
+       greyscale — without this, score pills lose their meaning. */
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+}
+
+
+
+@keyframes motor-round-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.4; }
+}
+@keyframes motor-round-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ============================================================================
+ * v2.5: @media print rules for POPrintable / browser-print views
+ *
+ * Any element with class "no-print" is hidden when printing (the top
+ * controls bar on POPrintable, for example). The printable area gets
+ * shed of its grey background and overflow so it renders cleanly on
+ * paper.
+ *
+ * Perspective prefixes classes with psc-, so:
+ *   meta.classes = "no-print"  ->  .psc-no-print
+ * ============================================================================ */
+@media print {
+
+    /* Hide anything tagged as no-print (controls bars, nav, etc.) */
+    .psc-no-print {
+        display: none !important;
+    }
+
+    /* Printable area: remove background + scroll for paper */
+    .psc-printable-area {
+        background: #FFFFFF !important;
+        overflow: visible !important;
+        padding: 0 !important;
+    }
+
+    /* Each PO card: ensure it doesn't get cut across pages */
+    .psc-po-card {
+        box-shadow: none !important;
+        border: none !important;
+        margin: 0 auto !important;
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    /* All cards except the first start on a new page */
+    .psc-po-card + .psc-po-card {
+        page-break-before: always;
+        break-before: page;
+    }
+
+    /* Suppress any sticky background colours on the page wrapper */
+    body, html {
+        background: #FFFFFF !important;
+    }
+}
+
+
+/* ============================================================================
+ * v2.6: WORKMATE BUTTON & ICON-BUTTON DESIGN SYSTEM
+ *
+ * Goal: ONE place that defines how every interactive control looks across
+ * the entire project. Apply via meta.classes — no per-component styling.
+ *
+ * INTENT (what does this button DO?):
+ *   wm-btn-primary    Main call-to-action. Solid gold. Use ONCE per row.
+ *   wm-btn-secondary  Important but not primary. Gold outline.
+ *   wm-btn-tertiary   Cancel, dismiss, low-emphasis.
+ *   wm-btn-danger     Destructive / urgent. Red solid.
+ *
+ * SIZE (combine with intent class):
+ *   wm-btn-sm         28px tall, 11px font. Dense layouts only.
+ *   (default)         34px tall, 12px font. Desktop standard.
+ *   wm-btn-touch      44px tall, 14px font. Touch panels + accessibility.
+ *
+ * ICON-ONLY BUTTONS (e.g. close X, kebab menus):
+ *   wm-icon-btn       32x32 with hover ring. Desktop.
+ *   wm-icon-btn-lg    44x44 with hover ring. Touch / accessibility.
+ *
+ * USAGE EXAMPLE:
+ *   "meta": { "name": "btnSave", "classes": "wm-btn-primary wm-btn-touch" }
+ *   "meta": { "name": "btnClose", "classes": "wm-icon-btn-lg" }
+ * ============================================================================ */
+
+/* --- Base button reset — every wm-btn inherits this ----------------------- */
+.psc-wm-btn-primary,
+.psc-wm-btn-secondary,
+.psc-wm-btn-tertiary,
+.psc-wm-btn-danger {
+    /* size defaults (overridden by size modifiers) */
+    min-height: 34px;
+    padding: 0 16px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+    border-radius: 4px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: background-color 120ms ease, border-color 120ms ease, transform 80ms ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    white-space: nowrap;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+/* Active press feedback (works on touch + mouse) */
+.psc-wm-btn-primary:active,
+.psc-wm-btn-secondary:active,
+.psc-wm-btn-tertiary:active,
+.psc-wm-btn-danger:active {
+    transform: translateY(1px);
+}
+
+/* --- PRIMARY: gold filled. Main action per row. --------------------------- */
+.psc-wm-btn-primary {
+    background: var(--kt-dark-sun, #C99133);
+    color: var(--kt-dark-grey, #242E30);
+    border-color: var(--kt-dark-sun, #C99133);
+}
+.psc-wm-btn-primary:hover {
+    background: var(--kt-mid-sun, #EBC452);
+    border-color: var(--kt-mid-sun, #EBC452);
+}
+
+/* --- SECONDARY: outline gold. Important but secondary. -------------------- */
+.psc-wm-btn-secondary {
+    background: #FFFFFF;
+    color: var(--kt-dark-grey, #242E30);
+    border-color: var(--kt-dark-sun, #C99133);
+}
+.psc-wm-btn-secondary:hover {
+    background: rgba(235, 196, 82, 0.10);
+}
+
+/* --- TERTIARY: subtle neutral. Cancel, dismiss. --------------------------- */
+.psc-wm-btn-tertiary {
+    background: #FFFFFF;
+    color: #5D6E71;
+    border-color: #C8CECE;
+}
+.psc-wm-btn-tertiary:hover {
+    background: #F3EEE7;
+    color: var(--kt-dark-grey, #242E30);
+    border-color: #A9B3B3;
+}
+
+/* --- DANGER: red filled. Destructive / urgent. ---------------------------- */
+.psc-wm-btn-danger {
+    background: #B33A3A;
+    color: #FFFFFF;
+    border-color: #B33A3A;
+}
+.psc-wm-btn-danger:hover {
+    background: #962F2F;
+    border-color: #962F2F;
+}
+
+/* --- SIZE MODIFIERS ------------------------------------------------------- */
+.psc-wm-btn-sm {
+    min-height: 28px;
+    padding: 0 12px;
+    font-size: 11px;
+}
+.psc-wm-btn-touch {
+    min-height: 44px;
+    padding: 0 24px;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+}
+
+/* --- ICON BUTTONS — touch-friendly variant -------------------------------- */
+/* Existing .psc-wm-icon-btn lives further up the stylesheet (v2.2).
+   Adding a larger touch variant here. */
+.psc-wm-icon-btn-lg {
+    min-width: 44px !important;
+    min-height: 44px !important;
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 120ms ease;
+}
+.psc-wm-icon-btn-lg:hover {
+    background-color: rgba(255, 255, 255, 0.12);
+}
+.psc-wm-icon-btn-lg:active {
+    background-color: rgba(255, 255, 255, 0.20);
+}
+
+/* On dark headers, hover gets brighter; on light bg, hover is grey */
+.psc-wm-icon-btn-lg.psc-wm-on-light:hover {
+    background-color: rgba(0, 0, 0, 0.06);
+}
+.psc-wm-icon-btn-lg.psc-wm-on-light:active {
+    background-color: rgba(0, 0, 0, 0.12);
+}
+
+/* ============================================================================
+ * COLOURED-SHADOW ADD-ON CLASSES (v2.7)
+ * ----------------------------------------------------------------------------
+ * Shadow-ONLY. These do not set background, border, colour or size - they
+ * layer a soft coloured drop-shadow onto whatever button they are added to,
+ * so a light-grey ia.input.button keeps its look and just gains lift.
+ *
+ * Why a class and not an inline style: ia.input.button applies its own
+ * :hover styling, which overrides an inline boxShadow on mouse-over (the
+ * shadow visibly disappears). A stylesheet rule with !important - and its
+ * own :hover / :active states - survives that.
+ *
+ * Colour = action meaning:
+ *   wm-btn-shadow-blue    create actions   (Create WO, + Asset, + Location)
+ *   wm-btn-shadow-gold    modify actions   (Copy, Attach, Move)
+ *   wm-btn-shadow-forest  PM actions       (PM Wizard, PM WO)
+ *   wm-btn-shadow-grey    edit / save / cancel
+ *
+ * USAGE - add alongside any existing classes:
+ *   "meta": { "name": "btnCreateWO", "classes": "wm-btn-shadow-blue" }
+ * ============================================================================ */
+
+.psc-wm-btn-shadow-blue,
+.psc-wm-btn-shadow-gold,
+.psc-wm-btn-shadow-forest,
+.psc-wm-btn-shadow-grey,
+.psc-wm-btn-shadow-accent,
+.psc-wm-btn-shadow-dark {
+    transition: box-shadow 140ms ease-out, transform 80ms ease;
+}
+
+/* --- BLUE - create actions ----------------------------------------------- */
+.psc-wm-btn-shadow-blue {
+    box-shadow: 0 2px 9px 1px rgba(0, 64, 99, 0.42) !important;
+}
+.psc-wm-btn-shadow-blue:hover {
+    box-shadow: 0 5px 16px 3px rgba(0, 64, 99, 0.68) !important;
+}
+.psc-wm-btn-shadow-blue:active {
+    box-shadow: 0 1px 5px rgba(0, 64, 99, 0.38) !important;
+    transform: translateY(1px);
+}
+
+/* --- GOLD - modify actions ----------------------------------------------- */
+.psc-wm-btn-shadow-gold {
+    box-shadow: 0 2px 9px 1px rgba(201, 145, 51, 0.42) !important;
+}
+.psc-wm-btn-shadow-gold:hover {
+    box-shadow: 0 5px 16px 3px rgba(201, 145, 51, 0.68) !important;
+}
+.psc-wm-btn-shadow-gold:active {
+    box-shadow: 0 1px 5px rgba(201, 145, 51, 0.38) !important;
+    transform: translateY(1px);
+}
+
+/* --- FOREST - PM actions ------------------------------------------------- */
+.psc-wm-btn-shadow-forest {
+    box-shadow: 0 2px 9px 1px rgba(54, 102, 74, 0.42) !important;
+}
+.psc-wm-btn-shadow-forest:hover {
+    box-shadow: 0 5px 16px 3px rgba(54, 102, 74, 0.68) !important;
+}
+.psc-wm-btn-shadow-forest:active {
+    box-shadow: 0 1px 5px rgba(54, 102, 74, 0.38) !important;
+    transform: translateY(1px);
+}
+
+/* --- GREY - edit / save / cancel ----------------------------------------- */
+.psc-wm-btn-shadow-grey {
+    box-shadow: 0 2px 8px 1px rgba(128, 135, 138, 0.38) !important;
+}
+.psc-wm-btn-shadow-grey:hover {
+    box-shadow: 0 5px 15px 3px rgba(128, 135, 138, 0.62) !important;
+}
+.psc-wm-btn-shadow-grey:active {
+    box-shadow: 0 1px 5px rgba(128, 135, 138, 0.35) !important;
+    transform: translateY(1px);
+}
+
+
+/* --- ACCENT - the single primary action on a screen (v2.14) --------------
+ * KT Mandatory #196690 = rgb(25, 102, 144). Use ONE per screen, on the
+ * main commit action (e.g. PO "Submit for Approval"). Slightly stronger
+ * than wm-btn-shadow-blue so it reads as primary among grey buttons. */
+.psc-wm-btn-shadow-accent {
+    box-shadow: 0 3px 11px 2px rgba(25, 102, 144, 0.52) !important;
+}
+.psc-wm-btn-shadow-accent:hover {
+    box-shadow: 0 6px 18px 4px rgba(25, 102, 144, 0.74) !important;
+}
+.psc-wm-btn-shadow-accent:active {
+    box-shadow: 0 1px 6px 1px rgba(25, 102, 144, 0.46) !important;
+    transform: translateY(1px);
+}
+
+
+/* --- DARK - neutral black shadow trial (v2.15) ---------------------------
+ * Plain black drop-shadow. Trial treatment for a primary action where a
+ * coloured shadow is not wanted. */
+.psc-wm-btn-shadow-dark {
+    box-shadow: 0 3px 11px 2px rgba(0, 0, 0, 0.42) !important;
+}
+.psc-wm-btn-shadow-dark:hover {
+    box-shadow: 0 6px 18px 4px rgba(0, 0, 0, 0.55) !important;
+}
+.psc-wm-btn-shadow-dark:active {
+    box-shadow: 0 1px 6px 1px rgba(0, 0, 0, 0.40) !important;
+    transform: translateY(1px);
+}
+
+
+/* --- INPUT PLACEHOLDER SIZING (v2.16) ------------------------------------
+ * On ia.input.text-field, props.style.fontSize sizes BOTH the placeholder
+ * and the typed text. To make only the placeholder smaller, target the
+ * ::placeholder pseudo-element. Typed text keeps the field's own fontSize.
+ * Add the class on props.style.classes (NOT meta.classes). */
+.psc-wm-input-sm-placeholder::placeholder {
+    font-size: 12px;
+    opacity: 1;            /* keep the grey readable, not faded */
+}
+.psc-wm-input-sm-placeholder input::placeholder {
+    font-size: 12px;
+    opacity: 1;
+}
+
+/* ── wm-input-sm ─────────────────────────────────────────────
+ * date-time-input / dropdown wrap an internal <input> that the
+ * component's own style.fontSize does NOT reach. This sizes that
+ * inner input to 11px to match the project text-field standard.
+ * Add on props.style.classes (NOT meta.classes). */
+.psc-wm-input-sm input {
+    font-size: 11px;
+}
+.psc-wm-input-sm .ia_inputField {
+    font-size: 11px;
+}
+
+
+
+
+
+/* =====================================================================
+   wm-ai-assistant  —  Stylesheet additions for WM_AI_Assistant view
+   ---------------------------------------------------------------------
+   path     : Project > Perspective > Styles  (paste into stylesheet.css)
+   file     : wm-ai-assistant_styles_v1_0_1.css
+   version  : 1.0.2
+   pairs    : WM_AI_Assistant_v1_0_6  (view.json)
+   notes    : @keyframes live OUTSIDE :root {} (Perspective rule).
+              Hover/active transforms use !important so they win over
+              Perspective inline style props.
+   ===================================================================== */
+
+/* ---------- keyframes (must NOT be nested in :root) ------------------ */
+
+@keyframes wmAiStatusPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(47, 210, 122, 0.55); }
+  70%  { box-shadow: 0 0 0 7px rgba(47, 210, 122, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(47, 210, 122, 0); }
+}
+
+@keyframes wmAiBreathe {
+  0%   { transform: scale(1);     }
+  50%  { transform: scale(1.085); }
+  100% { transform: scale(1);     }
+}
+
+@keyframes wmAiMsgIn {
+  0%   { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0);    }
+}
+
+@keyframes wmAiTyping {
+  0%, 60%, 100% { transform: translateY(0);    opacity: 0.45; }
+  30%           { transform: translateY(-5px); opacity: 1;    }
+}
+
+@keyframes wmAiGlowPulse {
+  /* constant luminous gold halo + an expanding pulse ring on top */
+  0%   { box-shadow: 0 6px 22px rgba(201, 145, 51, 0.55), 0 0 22px rgba(235, 196, 82, 0.55), 0 0 0 0  rgba(235, 196, 82, 0.50); }
+  70%  { box-shadow: 0 6px 22px rgba(201, 145, 51, 0.55), 0 0 32px rgba(235, 196, 82, 0.78), 0 0 0 16px rgba(235, 196, 82, 0); }
+  100% { box-shadow: 0 6px 22px rgba(201, 145, 51, 0.55), 0 0 22px rgba(235, 196, 82, 0.55), 0 0 0 0  rgba(235, 196, 82, 0); }
+}
+
+/* ---------- status dot (header "online" indicator) ------------------ */
+
+.wm-ai-status-dot, .psc-wm-ai-status-dot {
+  animation: wmAiStatusPulse 2.2s ease-out infinite;
+  border-radius: 50%;
+}
+
+/* ---------- breathing element (avatar + welcome glyph) -------------- */
+
+.wm-ai-breathe, .psc-wm-ai-breathe {
+  animation: wmAiBreathe 3.4s ease-in-out infinite;
+}
+
+/* ---------- message bubble entrance --------------------------------- */
+
+.wm-ai-msg-in, .psc-wm-ai-msg-in {
+  animation: wmAiMsgIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ---------- typing indicator dots ----------------------------------- */
+
+.wm-ai-typing-dot, .psc-wm-ai-typing-dot {
+  animation: wmAiTyping 1.3s ease-in-out infinite;
+}
+.wm-ai-typing-dot.d2, .psc-wm-ai-typing-dot.psc-d2 { animation-delay: 0.18s; }
+.wm-ai-typing-dot.d3, .psc-wm-ai-typing-dot.psc-d3 { animation-delay: 0.36s; }
+
+/* ---------- launcher FAB -------------------------------------------- */
+/* transition opacity (bound) + transform (hover) together so the open/
+   close fade and the hover lift both feel smooth.                      */
+
+.wm-ai-fab, .psc-wm-ai-fab {
+  animation: wmAiGlowPulse 3.2s ease-out infinite;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity   0.35s ease;
+  cursor: pointer;
+}
+.wm-ai-fab:hover, .psc-wm-ai-fab:hover {
+  transform: scale(1.07) !important;
+}
+.wm-ai-fab:active, .psc-wm-ai-fab:active {
+  transform: scale(0.95) !important;
+}
+
+/* ---------- send button --------------------------------------------- */
+
+.wm-ai-send, .psc-wm-ai-send {
+  transition: box-shadow 0.25s ease, filter 0.18s ease,
+              transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+}
+.wm-ai-send:hover, .psc-wm-ai-send:hover {
+  filter: brightness(1.07);
+  box-shadow: 0 6px 20px rgba(201, 145, 51, 0.55) !important;
+}
+.wm-ai-send:active, .psc-wm-ai-send:active {
+  transform: scale(0.94) !important;
+}
+
+/* ---------- suggestion chips ---------------------------------------- */
+
+.wm-ai-chip, .psc-wm-ai-chip {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.2s ease,
+              background 0.2s ease;
+  cursor: pointer;
+}
+.wm-ai-chip:hover, .psc-wm-ai-chip:hover {
+  transform: translateY(-2px) !important;
+  border: 1px solid rgba(222, 191, 122, 0.9) !important;
+  background: rgba(255, 255, 255, 0.07) !important;
+}
+.wm-ai-chip:active, .psc-wm-ai-chip:active {
+  transform: translateY(0) !important;
+}
+
+/* ---------- icon buttons (header close / minimise) ------------------ */
+
+.wm-ai-icon-btn, .psc-wm-ai-icon-btn {
+  transition: background 0.2s ease;
+  cursor: pointer;
+  border-radius: 8px;
+}
+.wm-ai-icon-btn:hover, .psc-wm-ai-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.10) !important;
+}
+
+/* ---------- composer input pill ------------------------------------- */
+
+.wm-ai-input:focus-within, .psc-wm-ai-input:focus-within {
+  border: 1px solid rgba(222, 191, 122, 0.9) !important;
+}
+.wm-ai-input input, .psc-wm-ai-input input {
+  color: #F3EEE7;
+  background: transparent;
+  border: none;
+  outline: none;
+  height: 100%;
+  padding: 0 4px;
+  font-size: 14px;
+}
+.wm-ai-input input::placeholder, .psc-wm-ai-input input::placeholder {
+  color: rgba(243, 238, 231, 0.40);
+}
+
+/* ---------- scroll area (custom thin gold scrollbar) ---------------- */
+
+.wm-ai-scroll, .psc-wm-ai-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(212, 168, 99, 0.55) transparent;
+}
+.wm-ai-scroll::-webkit-scrollbar, .psc-wm-ai-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.wm-ai-scroll::-webkit-scrollbar-track, .psc-wm-ai-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.wm-ai-scroll::-webkit-scrollbar-thumb, .psc-wm-ai-scroll::-webkit-scrollbar-thumb {
+  background: rgba(212, 168, 99, 0.55);
+  border-radius: 3px;
+}
+.wm-ai-scroll::-webkit-scrollbar-thumb:hover, .psc-wm-ai-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(212, 168, 99, 0.85);
+}
+
+
+
+/* =============================================================================
+   Workmate stylesheet addition - email "Busy Emailing..." spinner
+   File:    stylesheet_email_spin_v1_0_0.css  (snippet - paste into the
+            project stylesheet, do NOT replace the whole file)
+   Version: 1.0.0
+   Author:  Adriaan
+   Used by: POEmailInput v2.1.0 - btnSend icon gets props.style.classes
+            'email-spin' while view.custom.emailBusy is true. Perspective
+            prefixes class names with psc- on the DOM, so the selector is
+            .psc-email-spin (NOT .email-spin).
+   Note:    @keyframes MUST live at stylesheet top level, never inside :root{}.
+   ============================================================================= */
+
+@keyframes wmEmailSpin {
+	from { transform: rotate(0deg); }
+	to   { transform: rotate(360deg); }
+}
+
+/* the icon component renders an inner <div><svg>; spin the svg */
+.psc-email-spin div svg {
+	animation: wmEmailSpin 1.1s linear infinite;
+	transform-origin: 50% 50%;
+}
+
+
+
+
+
+
+/* =============================================================================
+   Workmate stylesheet addition - STEM ENGINE / ECHO DATA chip  (v1.4.0)
+   PASTE into the project stylesheet (do NOT replace the whole file).
+   REPLACES any earlier stem-engine css snippet.
+
+   v1.2.0: classes are now correctly applied via props.style.classes on each
+   component (the v1.1.0 bug was classes under meta -> never hit the DOM).
+   The gear Icons get class se-gear-main / se-gear-aux; this spins them.
+   Selectors are deliberately broad so they match whatever wrapper the Icon
+   component renders (element itself, or an inner svg/div>svg).
+
+   @keyframes MUST be top level (never inside :root{}).
+   ============================================================================= */
+
+@keyframes seSpin    { to { transform: rotate(360deg); } }
+@keyframes seSpinR   { to { transform: rotate(-360deg); } }
+@keyframes sePulse   { 0%,100% { opacity:.25; } 50% { opacity:1; } }
+@keyframes seFlowX   { 0% { transform: translateX(0); } 100% { transform: translateX(150px); } }
+@keyframes seBreathe { 0%,100% { opacity:.30; } 50% { opacity:.6; } }
+
+/* --- GEARS: spin whatever the icon renders. Cover element + inner svg. ---
+   transform-box:fill-box keeps the rotation centred on the glyph. */
+.psc-se-gear-main, .psc-se-gear-main svg, .psc-se-gear-main div svg,
+.se-gear-main,     .se-gear-main svg,     .se-gear-main div svg {
+    animation: seSpin 3.2s linear infinite;
+    transform-origin: 50% 50%;
+    transform-box: fill-box;
+}
+.psc-se-gear-aux, .psc-se-gear-aux svg, .psc-se-gear-aux div svg,
+.se-gear-aux,     .se-gear-aux svg,     .se-gear-aux div svg {
+    animation: seSpinR 2.1s linear infinite;
+    transform-origin: 50% 50%;
+    transform-box: fill-box;
+}
+
+/* --- flowing stem dot on the conveyor --- */
+.psc-se-flow, .se-flow { animation: seFlowX 1.4s linear infinite; }
+
+/* --- breathing halo --- */
+.psc-se-halo, .se-halo { animation: seBreathe 2.6s ease-in-out infinite; }
+
+/* --- the three feed dots --- */
+.psc-se-t1, .se-t1 { animation: sePulse 1.4s ease-in-out infinite;       }
+.psc-se-t2, .se-t2 { animation: sePulse 1.4s ease-in-out infinite .45s;  }
+.psc-se-t3, .se-t3 { animation: sePulse 1.4s ease-in-out infinite .9s;   }
+
+/* --- STOPPED state: root carries se-stopped -> freeze everything ---
+   Perspective prefixes user classes with psc-, so the rendered DOM is
+   .psc-se-stopped (ancestor) ... .psc-se-gear-main (descendant). The freeze
+   MUST pair the psc- ancestor with the psc- descendant - the earlier version
+   only paired psc-ancestor with the BARE descendant (.se-gear-main), which
+   never matched, so the gears kept spinning while STOPPED. All four
+   ancestor x descendant prefix combinations are listed for safety. */
+.psc-se-stopped .psc-se-gear-main, .psc-se-stopped .psc-se-gear-main svg, .psc-se-stopped .psc-se-gear-main div svg,
+.psc-se-stopped .psc-se-gear-aux,  .psc-se-stopped .psc-se-gear-aux svg,  .psc-se-stopped .psc-se-gear-aux div svg,
+.psc-se-stopped .psc-se-flow, .psc-se-stopped .psc-se-halo,
+.psc-se-stopped .psc-se-t1, .psc-se-stopped .psc-se-t2, .psc-se-stopped .psc-se-t3,
+.psc-se-stopped .se-gear-main, .psc-se-stopped .se-gear-main svg, .psc-se-stopped .se-gear-main div svg,
+.psc-se-stopped .se-gear-aux,  .psc-se-stopped .se-gear-aux svg,  .psc-se-stopped .se-gear-aux div svg,
+.psc-se-stopped .se-flow, .psc-se-stopped .se-halo,
+.psc-se-stopped .se-t1, .psc-se-stopped .se-t2, .psc-se-stopped .se-t3,
+.se-stopped .psc-se-gear-main, .se-stopped .psc-se-gear-main svg, .se-stopped .psc-se-gear-main div svg,
+.se-stopped .psc-se-gear-aux,  .se-stopped .psc-se-gear-aux svg,  .se-stopped .psc-se-gear-aux div svg,
+.se-stopped .psc-se-flow, .se-stopped .psc-se-halo,
+.se-stopped .psc-se-t1, .se-stopped .psc-se-t2, .se-stopped .psc-se-t3,
+.se-stopped .se-gear-main, .se-stopped .se-gear-main svg, .se-stopped .se-gear-main div svg,
+.se-stopped .se-gear-aux,  .se-stopped .se-gear-aux svg,  .se-stopped .se-gear-aux div svg,
+.se-stopped .se-flow, .se-stopped .se-halo,
+.se-stopped .se-t1, .se-stopped .se-t2, .se-stopped .se-t3 {
+    animation: none !important;
+}
+
+/* --- chip hover (it opens the popup) --- */
+.psc-stem-eng-chip { cursor: pointer; transition: border-color .16s ease, box-shadow .16s ease, transform .16s ease; }
+.psc-stem-eng-chip:hover {
+    border-color: rgba(92,166,196,0.55) !important;
+    box-shadow: 0 6px 22px rgba(54,102,74,0.28);
+    transform: translateY(-1px);
+}
+
+/* v2.29: The Stem Engine chip is a LIVE status indicator (spinning gears =
+   engine RUNNING). It must animate even when the client OS / Workstation
+   reports prefers-reduced-motion, otherwise a frozen chip reads as STOPPED.
+   So the se- classes are intentionally NOT disabled here. The genuine
+   STOPPED freeze is handled by the .se-stopped block above (state-driven,
+   not motion-preference driven). This media block is kept as the hook for
+   any future DECORATIVE animations that should honour reduced-motion. */
+@media (prefers-reduced-motion: reduce) {
+    /* (no decorative animations registered yet) */
+}
+
+/* =============================================================================
+   Glassy "liquid glass" buttons for the Stem Engine popup (v1.2.0 add-on)
+   Apply class: psc-gbtn + one accent (psc-gbtn-gold / -water / -forest)
+   On the Perspective button set props.style.classes = "gbtn gbtn-gold" etc,
+   and clear its inline backgroundColor/color so these show through.
+   ============================================================================= */
+.psc-gbtn, .gbtn {
+    position: relative;
+    border-radius: 12px !important;
+    font-weight: 650;
+    letter-spacing: .2px;
+    color: #F3EEE7 !important;
+    background: rgba(255,255,255,0.04) !important;
+    backdrop-filter: blur(8px) saturate(140%);
+    -webkit-backdrop-filter: blur(8px) saturate(140%);
+    border: 1px solid rgba(255,255,255,0.14) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.10), 0 2px 10px rgba(0,0,0,0.35);
+    transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+    overflow: hidden;
+}
+.psc-gbtn::before, .gbtn::before {
+    content: ""; position: absolute; inset: 0; border-radius: 12px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0) 42%);
+    pointer-events: none;
+}
+.psc-gbtn:hover, .gbtn:hover {
+    transform: translateY(-1px);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.16), 0 6px 18px rgba(0,0,0,0.45);
+}
+.psc-gbtn:active, .gbtn:active { transform: translateY(0); filter: brightness(.95); }
+
+.psc-gbtn-gold, .gbtn-gold {
+    border-color: rgba(235,196,82,0.55) !important;
+    background: linear-gradient(180deg, rgba(235,196,82,0.16), rgba(235,196,82,0.05)) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 0 0 1px rgba(235,196,82,0.10), 0 4px 14px rgba(235,196,82,0.12);
+    color: #F6E6B8 !important;
+}
+.psc-gbtn-water, .gbtn-water {
+    border-color: rgba(92,166,196,0.55) !important;
+    background: linear-gradient(180deg, rgba(92,166,196,0.16), rgba(92,166,196,0.05)) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 0 0 1px rgba(92,166,196,0.10), 0 4px 14px rgba(92,166,196,0.12);
+    color: #CDE7F1 !important;
+}
+.psc-gbtn-forest, .gbtn-forest {
+    border-color: rgba(120,166,153,0.55) !important;
+    background: linear-gradient(180deg, rgba(120,166,153,0.16), rgba(120,166,153,0.05)) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 0 0 1px rgba(120,166,153,0.10), 0 4px 14px rgba(120,166,153,0.12);
+    color: #D2E5DE !important;
+}
+
+/* =============================================================================
+   Compact message-log table for the Stem Engine popup (v1.3.0 add-on)
+   Replicates the Workmate "wm-compact-table" density: small text, tight rows,
+   thin borders, subtle header. Class on the table = se-msglog.
+   ============================================================================= */
+.psc-se-msglog, .se-msglog { font-size: 11px; }
+
+/* header row: small, bold, muted, thin underline */
+.psc-se-msglog .ia_table__head, .se-msglog .ia_table__head,
+.psc-se-msglog .t-header,        .se-msglog .t-header {
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    letter-spacing: .4px;
+    text-transform: none;
+}
+.psc-se-msglog .ia_table__head__cell, .se-msglog .ia_table__head__cell {
+    padding: 4px 8px !important;
+    background-color: #2A3537 !important;
+    color: #8A9BA0 !important;
+    border-bottom: 1px solid rgba(92,166,196,0.25) !important;
+}
+
+/* body cells: tight padding, compact line height, monospace for the log feel */
+.psc-se-msglog .ia_table__cell, .se-msglog .ia_table__cell,
+.psc-se-msglog .t-cell,         .se-msglog .t-cell {
+    padding: 3px 8px !important;
+    font-size: 11px !important;
+    line-height: 1.25 !important;
+    font-family: 'Consolas','Menlo','monospace';
+}
+
+/* rows: tight height + subtle zebra so dense logs stay readable */
+.psc-se-msglog .ia_table__row, .se-msglog .ia_table__row { min-height: 24px !important; }
+.psc-se-msglog .ia_table__row:nth-child(even), .se-msglog .ia_table__row:nth-child(even) {
+    background-color: rgba(255,255,255,0.02) !important;
+}
+.psc-se-msglog .ia_table__row:hover, .se-msglog .ia_table__row:hover {
+    background-color: rgba(92,166,196,0.08) !important;
+}
+
+
+/* ============================================================
+   v2.19 — KPP Daily Report status-chip glow ring
+   Used by:  ShiftStatusChipLight (gold), StemEngineChipLight (teal)
+   The coloured glow ring + bevel live INLINE on each chip root so
+   each chip rings in its own accent (like the wm-btn-shadow-*
+   buttons). This class is chip-agnostic: it only adds the smooth
+   transition and a raise-on-hover; the inline coloured glow rides
+   along with the lift. No effect in print (chips are excluded).
+   ============================================================ */
+.psc-kpp-chip-glow {
+    transition: transform 160ms ease, box-shadow 160ms ease !important;
+    will-change: transform;
+}
+.psc-kpp-chip-glow:hover {
+    transform: translateY(-2px) !important;
+}
+
+/* ============================================================
+   SHIFTSUMMARY — personalised report text classes  (v2.24 — spacing fixed at flex level; band drawn by view (v2.26))
+   ------------------------------------------------------------
+   Compact, high-density type ramp for the KPP Daily Report
+   "Production Summary" panel. Sizes reduced for fit; line-height
+   tightened so every row fits without clipping. Section bands are
+   visually emphasised (heavier, tinted band, top rule) so the eye
+   can find each group quickly. Font: Aptos w/ graceful fallback.
+   Apply via meta.classes (renders as .psc-ss-*). Numbers use
+   tabular figures so Day / Night align digit-for-digit.
+   ============================================================ */
+
+.psc-ss-title,
+.psc-ss-section,
+.psc-ss-col-head,
+.psc-ss-line-item,
+.psc-ss-line-value {
+    font-family: 'Aptos','Segoe UI',system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif !important;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+/* Panel title — "Production Summary" */
+.psc-ss-title {
+    font-size: 16px !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.3px !important;
+    line-height: 1.3 !important;
+    color: #1C2729 !important;
+    margin-bottom: 3px !important;
+}
+
+/* Section bands — stand out: bigger than rows, bold, tinted, top rule */
+.psc-ss-section {
+    font-size: 12px !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.6px !important;
+    line-height: 1.2 !important;
+    text-transform: uppercase;
+    color: #1F5A4C !important;
+}
+
+/* Day / Night column headers */
+.psc-ss-col-head {
+    font-size: 11.5px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.4px !important;
+    line-height: 1.1 !important;
+    text-transform: uppercase;
+    color: #5A6A6D !important;
+}
+
+/* Row label, left column */
+.psc-ss-line-item {
+    font-size: 12.5px !important;
+    font-weight: 600 !important;
+    line-height: 1.1 !important;
+    color: #243034 !important;
+    white-space: nowrap;
+    overflow: visible;
+}
+
+/* Row value, Day / Night */
+.psc-ss-line-value {
+    font-size: 12.5px !important;
+    font-weight: 600 !important;
+    line-height: 1.1 !important;
+    color: #1F2A2C !important;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1, "lnum" 1;
+    white-space: nowrap;
+}
+
+
+
+/* =============================================================================
+   KPP Grade Dashboard — dark table + panel theme  (v1.0.1)
+   PASTE INTO: Project > Perspective > Styles > stylesheet.css  (append at end)
+   REPLACES the v1.0.0 snippet if you pasted it (search "kpp-grade-table" and
+   swap the block).  Apply via props.style.classes = "kpp-grade-table".
+   Author: Claude / Adriaan · 2026-06-29
+
+   v1.0.1: the v1.0.0 block themed the header + scrollbar but the BODY stayed
+   white — the row/cell selectors didn't match this Perspective build's DOM.
+   This version paints every level of the table DOM (root → viewport → rows →
+   cells), uses very broad selectors, and forces the body dark. Per the
+   VolumeMatrix note, a cell's *inline* background can resist override, so we
+   also set the wrapping row/viewport dark behind transparent cells.
+   ============================================================================= */
+
+/* ---- ROOT + every container: force KT dark, kill white -------------------- */
+.psc-kpp-grade-table,
+.psc-kpp-grade-table * {
+    /* default text colour for everything inside the table */
+    color: #F3EEE7;
+}
+
+.psc-kpp-grade-table,
+.psc-kpp-grade-table .ia_table,
+.psc-kpp-grade-table .ia_tableComponent,
+.psc-kpp-grade-table .ia_table__body,
+.psc-kpp-grade-table .ia_table__bodyContainer,
+.psc-kpp-grade-table .ia_tableComponent__body,
+.psc-kpp-grade-table .ia_table__viewport,
+.psc-kpp-grade-table [class*="bodyContainer"],
+.psc-kpp-grade-table [class*="viewport"],
+.psc-kpp-grade-table [class*="tableContainer"] {
+    background-color: rgba(36,46,48,0.55) !important;
+}
+
+/* ---- HEADER -------------------------------------------------------------- */
+.psc-kpp-grade-table .ia_table__head,
+.psc-kpp-grade-table .ia_table__headContainer,
+.psc-kpp-grade-table [class*="headContainer"] {
+    background-color: rgba(36,46,48,0.95) !important;
+    border-bottom: 2px solid #DEBF7A !important;
+}
+.psc-kpp-grade-table .ia_table__head__cell,
+.psc-kpp-grade-table [class*="head__cell"] {
+    background-color: transparent !important;
+    color: #F3EEE7 !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.3px !important;
+    border-bottom: none !important;
+}
+.psc-kpp-grade-table .ia_table__head__cell svg,
+.psc-kpp-grade-table [class*="head__cell"] svg {
+    color: #DEBF7A !important;
+    fill: #DEBF7A !important;
+}
+
+/* ---- ROWS: paint the row element dark (cell sits transparent on top) ------ */
+.psc-kpp-grade-table .ia_table__row,
+.psc-kpp-grade-table .ia_tableComponent__body__row,
+.psc-kpp-grade-table [class*="body__row"],
+.psc-kpp-grade-table [class*="__row"] {
+    background-color: rgba(36,46,48,0.0) !important;
+}
+/* zebra: even rows a touch lighter */
+.psc-kpp-grade-table .ia_tableComponent__body__row:nth-child(even),
+.psc-kpp-grade-table [class*="body__row"]:nth-child(even) {
+    background-color: rgba(36,46,48,0.55) !important;
+}
+.psc-kpp-grade-table .ia_tableComponent__body__row:nth-child(odd),
+.psc-kpp-grade-table [class*="body__row"]:nth-child(odd) {
+    background-color: rgba(20,28,30,0.55) !important;
+}
+
+/* ---- CELLS: transparent so the dark row shows; text warm-white ----------- */
+.psc-kpp-grade-table .ia_table__cell,
+.psc-kpp-grade-table [class*="__cell"]:not([class*="head"]) {
+    background-color: transparent !important;
+    color: #F3EEE7 !important;
+    font-size: 13px !important;
+    line-height: 1.6 !important;
+    border-bottom: 1px solid rgba(128,135,138,0.18) !important;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1, "lnum" 1;
+}
+
+/* ---- HOVER: gold outline frame (outline beats inline bg, per vm-grid note) - */
+.psc-kpp-grade-table .ia_tableComponent__body__row--hovered,
+.psc-kpp-grade-table [class*="body__row--hovered"] {
+    outline: 2px solid #D4A863 !important;
+    outline-offset: -2px;
+    z-index: 1;
+    position: relative;
+}
+
+/* ---- FOOTER / PAGER ------------------------------------------------------ */
+.psc-kpp-grade-table .ia_table__footContainer,
+.psc-kpp-grade-table [class*="footContainer"],
+.psc-kpp-grade-table [class*="pager"] {
+    background-color: rgba(36,46,48,0.95) !important;
+    color: #C2C7C7 !important;
+    border-top: 1px solid rgba(92,166,196,0.25) !important;
+}
+/* pager dropdown ("25 rows") + page number readability on dark */
+.psc-kpp-grade-table [class*="pager"] select,
+.psc-kpp-grade-table [class*="pager"] input {
+    background-color: rgba(20,28,30,0.9) !important;
+    color: #F3EEE7 !important;
+    border: 1px solid rgba(92,166,196,0.35) !important;
+}
+
+/* ---- thin gold scrollbar ------------------------------------------------- */
+.psc-kpp-grade-table .ia_table__body,
+.psc-kpp-grade-table [class*="bodyContainer"] {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(212,168,99,0.55) transparent;
+}
+.psc-kpp-grade-table .ia_table__body::-webkit-scrollbar,
+.psc-kpp-grade-table [class*="bodyContainer"]::-webkit-scrollbar { width: 8px; }
+.psc-kpp-grade-table .ia_table__body::-webkit-scrollbar-track,
+.psc-kpp-grade-table [class*="bodyContainer"]::-webkit-scrollbar-track { background: transparent; }
+.psc-kpp-grade-table .ia_table__body::-webkit-scrollbar-thumb,
+.psc-kpp-grade-table [class*="bodyContainer"]::-webkit-scrollbar-thumb {
+    background: rgba(212,168,99,0.55); border-radius: 4px;
+}
+
+/* ---- hero panel gold top-accent (optional helper) ------------------------ */
+.psc-kpp-hero-accent { border-top: 3px solid #DEBF7A !important; }
+
+/* ============================================================================
+ * v2.30 — KPP period-segment buttons (Stem Grade Dashboard time-range row)
+ * ----------------------------------------------------------------------------
+ * Subtle "liquid glass" segmented control for the Yesterday / Today / 7 Days /
+ * 30 Days / MTD labels (meta.name per_*). Calmer than .gbtn: a lighter frost,
+ * thinner bevel, a small raise on hover. Pairs with the Plant Safety look
+ * (rgba(36,46,48,*) base + water-blue hairline) but reads as glass, not a flat
+ * chip. The ACTIVE segment carries the KT gold via .psc-kpp-seg--active, bound
+ * to params.Period in the view (replaces the old inline backgroundColor expr).
+ *
+ * On each label set props.style.classes = "kpp-seg" (+ a bound
+ * "kpp-seg kpp-seg--active" when selected) and clear the inline
+ * backgroundColor / textStyle.color so these show through.
+ * ==========================================================================*/
+.psc-kpp-seg, .kpp-seg {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px !important;
+    cursor: pointer;
+    user-select: none;
+    color: #E7E0D6 !important;
+    font-weight: 600;
+    letter-spacing: .2px;
+    /* light frosted glass over the dark plant-safety base */
+    background: rgba(36,46,48,0.55) !important;
+    backdrop-filter: blur(6px) saturate(130%);
+    -webkit-backdrop-filter: blur(6px) saturate(130%);
+    border: 1px solid rgba(92,166,196,0.22) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.06),
+                0 1px 4px rgba(0,0,0,0.25);
+    transition: transform .16s ease, box-shadow .16s ease,
+                background-color .16s ease, color .16s ease;
+}
+/* faint top sheen — the "glass" highlight */
+.psc-kpp-seg::before, .kpp-seg::before {
+    content: ""; position: absolute; inset: 0; border-radius: 8px;
+    background: linear-gradient(180deg,
+                rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 46%);
+    pointer-events: none;
+}
+.psc-kpp-seg:hover, .kpp-seg:hover {
+    transform: translateY(-1px);
+    background: rgba(48,60,62,0.62) !important;
+    border-color: rgba(92,166,196,0.38) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.10),
+                0 4px 12px rgba(0,0,0,0.35);
+}
+.psc-kpp-seg:active, .kpp-seg:active {
+    transform: translateY(0);
+    filter: brightness(.97);
+}
+
+/* ACTIVE segment — KT gold, still glassy (tinted frost, not a flat fill) */
+.psc-kpp-seg--active, .kpp-seg--active {
+    color: #20262B !important;
+    font-weight: 650;
+    background: linear-gradient(180deg,
+                rgba(222,191,122,0.92), rgba(212,168,99,0.82)) !important;
+    border-color: rgba(222,191,122,0.85) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.30),
+                0 0 0 1px rgba(222,191,122,0.20),
+                0 3px 12px rgba(222,191,122,0.22);
+}
+.psc-kpp-seg--active::before, .kpp-seg--active::before {
+    background: linear-gradient(180deg,
+                rgba(255,255,255,0.28) 0%, rgba(255,255,255,0) 50%);
+}
+.psc-kpp-seg--active:hover, .kpp-seg--active:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.02);
+    border-color: rgba(222,191,122,0.95) !important;
+}
+
+
+/* ============================================================================
+ * v2.31 — KPP LIVE button (Stem Grade Dashboard, Recent Stems header)
+ * ----------------------------------------------------------------------------
+ * "Liquid glass" toggle, dial turned UP vs the v2.30 kpp-seg segments:
+ * heavier frost (blur 12px), a brighter top sheen + a moving specular streak,
+ * a thicker bevel and a larger lift on hover. Green accent (KT live/go).
+ *   .kpp-live        idle  — translucent green glass
+ *   .kpp-live--on    active— saturated green glass, soft outer glow + pulse
+ * On the label set props.style.classes (bound to custom.liveMode) and clear
+ * the inline backgroundColor / textStyle.color so the glass shows through.
+ * ==========================================================================*/
+.psc-kpp-live, .kpp-live {
+    position: relative;
+    overflow: hidden;
+    border-radius: 9px !important;
+    cursor: pointer;
+    user-select: none;
+    font-weight: 700;
+    letter-spacing: .6px;
+    color: #DDEFE2 !important;
+    /* heavier frosted glass, green-tinted */
+    background: linear-gradient(180deg,
+                rgba(10,115,58,0.30), rgba(10,115,58,0.12)) !important;
+    backdrop-filter: blur(12px) saturate(170%);
+    -webkit-backdrop-filter: blur(12px) saturate(170%);
+    border: 1px solid rgba(120,205,160,0.42) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.18),
+                inset 0 -8px 14px rgba(0,0,0,0.20),
+                0 3px 12px rgba(0,0,0,0.38);
+    transition: transform .18s ease, box-shadow .18s ease,
+                background-color .18s ease, color .18s ease, filter .18s ease;
+}
+/* bright top sheen — stronger than the segments */
+.psc-kpp-live::before, .kpp-live::before {
+    content: ""; position: absolute; inset: 0; border-radius: 9px;
+    background: linear-gradient(180deg,
+                rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.04) 40%,
+                rgba(255,255,255,0) 60%);
+    pointer-events: none;
+}
+/* diagonal specular streak that sweeps across (the "liquid" glint) */
+.psc-kpp-live::after, .kpp-live::after {
+    content: ""; position: absolute; top: -60%; left: -30%;
+    width: 40%; height: 220%;
+    transform: rotate(18deg);
+    background: linear-gradient(90deg,
+                rgba(255,255,255,0) 0%, rgba(255,255,255,0.30) 50%,
+                rgba(255,255,255,0) 100%);
+    pointer-events: none; opacity: 0;
+    transition: opacity .2s ease;
+}
+.psc-kpp-live:hover, .kpp-live:hover {
+    transform: translateY(-2px);
+    border-color: rgba(120,205,160,0.60) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.24),
+                0 8px 20px rgba(0,0,0,0.45),
+                0 0 0 1px rgba(120,205,160,0.20);
+}
+.psc-kpp-live:active, .kpp-live:active { transform: translateY(0); filter: brightness(.96); }
+
+/* ---- ON state: saturated green glass, outer glow + slow pulse ------------- */
+.psc-kpp-live--on, .kpp-live--on {
+    color: #082A18 !important;
+    background: linear-gradient(180deg,
+                rgba(36,200,110,0.92), rgba(10,150,74,0.86)) !important;
+    border-color: rgba(150,235,185,0.85) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.45),
+                inset 0 -8px 16px rgba(0,60,30,0.25),
+                0 0 0 1px rgba(36,200,110,0.25),
+                0 4px 16px rgba(20,160,90,0.45);
+    animation: kpp-live-pulse 2.4s ease-in-out infinite;
+}
+.psc-kpp-live--on::before, .kpp-live--on::before {
+    background: linear-gradient(180deg,
+                rgba(255,255,255,0.42) 0%, rgba(255,255,255,0.06) 46%,
+                rgba(255,255,255,0) 64%);
+}
+/* the glint runs only while ON, looping across the chip */
+.psc-kpp-live--on::after, .kpp-live--on::after {
+    opacity: 1;
+    animation: kpp-live-glint 2.8s ease-in-out infinite;
+}
+.psc-kpp-live--on:hover, .kpp-live--on:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.03);
+}
+
+@keyframes kpp-live-pulse {
+    0%,100% { box-shadow: inset 0 1px 0 rgba(255,255,255,0.45),
+                          inset 0 -8px 16px rgba(0,60,30,0.25),
+                          0 0 0 1px rgba(36,200,110,0.25),
+                          0 4px 16px rgba(20,160,90,0.40); }
+    50%     { box-shadow: inset 0 1px 0 rgba(255,255,255,0.50),
+                          inset 0 -8px 16px rgba(0,60,30,0.25),
+                          0 0 0 1px rgba(36,200,110,0.45),
+                          0 6px 22px rgba(20,180,100,0.62); }
+}
+@keyframes kpp-live-glint {
+    0%   { left: -30%; }
+    55%  { left: 130%; }
+    100% { left: 130%; }
+}
+
+/* live status indicator: the pulse stays even with reduced-motion (it signals
+   a live data feed, not decoration) but we calm the glint sweep. */
+@media (prefers-reduced-motion: reduce) {
+    .psc-kpp-live--on::after, .kpp-live--on::after { animation: none; opacity: .5; }
+}
+
+
+/* ============================================================================
+ * v2.32 — KPP metric-segment buttons (Stem Grade Dashboard, Production by Grade)
+ * ----------------------------------------------------------------------------
+ * Glassy segmented control for Volume / Value / Pieces (meta.name m_*).
+ * Dial sits a notch ABOVE the v2.30 kpp-seg period buttons: thicker frost
+ * (blur 9px), a brighter top sheen, a soft specular streak that sweeps on
+ * hover, and a slightly deeper bevel. ACTIVE segment is KT gold glass with a
+ * soft outer glow (calmer than the LIVE pulse — no animation at rest).
+ *   .kpp-mseg          idle
+ *   .kpp-mseg--active  selected (bound to custom.metric in the view)
+ * On each label set props.style.classes (bound) + clear inline
+ * backgroundColor / textStyle.color so the glass shows through.
+ * ==========================================================================*/
+.psc-kpp-mseg, .kpp-mseg {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px !important;
+    cursor: pointer;
+    user-select: none;
+    color: #EAE3D8 !important;
+    font-weight: 600;
+    letter-spacing: .25px;
+    /* thicker frost than kpp-seg, faint water-blue tint */
+    background: linear-gradient(180deg,
+                rgba(92,166,196,0.14), rgba(36,46,48,0.50)) !important;
+    backdrop-filter: blur(9px) saturate(150%);
+    -webkit-backdrop-filter: blur(9px) saturate(150%);
+    border: 1px solid rgba(92,166,196,0.28) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.10),
+                inset 0 -6px 12px rgba(0,0,0,0.18),
+                0 2px 8px rgba(0,0,0,0.30);
+    transition: transform .16s ease, box-shadow .16s ease,
+                background-color .16s ease, color .16s ease, filter .16s ease;
+}
+/* brighter top sheen than the period segments */
+.psc-kpp-mseg::before, .kpp-mseg::before {
+    content: ""; position: absolute; inset: 0; border-radius: 8px;
+    background: linear-gradient(180deg,
+                rgba(255,255,255,0.16) 0%, rgba(255,255,255,0.02) 44%,
+                rgba(255,255,255,0) 62%);
+    pointer-events: none;
+}
+/* specular streak — hidden at rest, sweeps across on hover (the glass glint) */
+.psc-kpp-mseg::after, .kpp-mseg::after {
+    content: ""; position: absolute; top: -60%; left: -40%;
+    width: 38%; height: 220%;
+    transform: rotate(18deg);
+    background: linear-gradient(90deg,
+                rgba(255,255,255,0) 0%, rgba(255,255,255,0.26) 50%,
+                rgba(255,255,255,0) 100%);
+    pointer-events: none; opacity: 0;
+}
+.psc-kpp-mseg:hover, .kpp-mseg:hover {
+    transform: translateY(-1px);
+    border-color: rgba(92,166,196,0.45) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.14),
+                0 5px 14px rgba(0,0,0,0.38);
+}
+.psc-kpp-mseg:hover::after, .kpp-mseg:hover::after {
+    opacity: 1;
+    animation: kpp-mseg-glint .7s ease-out;
+}
+.psc-kpp-mseg:active, .kpp-mseg:active { transform: translateY(0); filter: brightness(.97); }
+
+/* ACTIVE — gold glass + soft glow (no pulse; reserved for LIVE) */
+.psc-kpp-mseg--active, .kpp-mseg--active {
+    color: #20262B !important;
+    font-weight: 650;
+    background: linear-gradient(180deg,
+                rgba(235,196,82,0.94), rgba(212,168,99,0.84)) !important;
+    border-color: rgba(235,196,82,0.85) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.38),
+                inset 0 -6px 12px rgba(90,60,0,0.18),
+                0 0 0 1px rgba(235,196,82,0.22),
+                0 4px 14px rgba(222,168,99,0.34);
+}
+.psc-kpp-mseg--active::before, .kpp-mseg--active::before {
+    background: linear-gradient(180deg,
+                rgba(255,255,255,0.40) 0%, rgba(255,255,255,0.06) 48%,
+                rgba(255,255,255,0) 64%);
+}
+.psc-kpp-mseg--active:hover, .kpp-mseg--active:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.03);
+    border-color: rgba(235,196,82,0.95) !important;
+}
+
+@keyframes kpp-mseg-glint {
+    0%   { left: -40%; }
+    100% { left: 130%; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .psc-kpp-mseg:hover::after, .kpp-mseg:hover::after { animation: none; opacity: .4; }
+}
+/* ==========================================================================
+ *  v2.34: kpp-trina-glass (darker/more prominent gold) — subtle light-theme frosted-gold button glass for
+ *         the "Trina's Report" Excel button on the USNR Product view.
+ *         Set props.style.classes = "kpp-trina-glass" and clear inline bg.
+ * ==========================================================================*/
+.psc-kpp-trina-glass, .kpp-trina-glass {
+    position: relative;
+    overflow: hidden;
+    border-radius: 6px !important;
+    cursor: pointer;
+    color: #242E30 !important;
+    font-weight: 700;
+    letter-spacing: .3px;
+    background: linear-gradient(180deg,
+                rgba(235,196,82,0.55), rgba(201,168,76,0.45)) !important;
+    backdrop-filter: blur(7px) saturate(155%);
+    -webkit-backdrop-filter: blur(7px) saturate(155%);
+    border: 1px solid rgba(201,168,76,0.85) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.55),
+                inset 0 -5px 12px rgba(158,120,40,0.22),
+                0 3px 8px rgba(36,46,48,0.22);
+    transition: transform .16s ease, box-shadow .16s ease,
+                background-color .16s ease, filter .16s ease;
+}
+.psc-kpp-trina-glass:hover, .kpp-trina-glass:hover {
+    transform: translateY(-1px);
+    background: linear-gradient(180deg,
+                rgba(255,255,255,0.70), rgba(235,196,82,0.30)) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.80),
+                inset 0 -4px 10px rgba(201,168,76,0.14),
+                0 4px 12px rgba(36,46,48,0.18),
+                0 0 10px rgba(235,196,82,0.35);
+}
+/* specular sheen sweep on hover */
+.psc-kpp-trina-glass::after, .kpp-trina-glass::after {
+    content: "";
+    position: absolute;
+    top: 0; left: -130%;
+    width: 60%; height: 100%;
+    background: linear-gradient(100deg,
+                rgba(255,255,255,0) 0%,
+                rgba(255,255,255,0.55) 50%,
+                rgba(255,255,255,0) 100%);
+    transform: skewX(-18deg);
+    opacity: 0;
+}
+.psc-kpp-trina-glass:hover::after, .kpp-trina-glass:hover::after {
+    opacity: 1;
+    animation: kpp-trina-sheen 0.9s ease;
+}
+@keyframes kpp-trina-sheen {
+    0%   { left: -130%; }
+    100% { left: 130%; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .psc-kpp-trina-glass:hover, .kpp-trina-glass:hover { transform: none; }
+    .psc-kpp-trina-glass:hover::after, .kpp-trina-glass:hover::after { animation: none; opacity: .4; }
+}
+
+/* ==========================================================================
+ *  v2.35: kpp-kr-scan — Knight Rider scanner bar (dot sweeps L->R->L with a
+ *         glowing comet trail). Use on a thin full-width element shown while
+ *         a view/chart binding is loading. KT water-blue -> gold sheen.
+ * ==========================================================================*/
+@keyframes kpp-kr-sweep {
+    0%   { left: 0%;   transform: translateX(0%); }
+    50%  { left: 100%; transform: translateX(-100%); }
+    100% { left: 0%;   transform: translateX(0%); }
+}
+@keyframes kpp-kr-flip {
+    0%,49%   { background: linear-gradient(90deg,
+                rgba(0,64,99,0) 0%, rgba(0,64,99,0.75) 45%, #00a8e8 80%, #004063 100%); }
+    50%,100% { background: linear-gradient(270deg,
+                rgba(0,64,99,0) 0%, rgba(0,64,99,0.75) 45%, #00a8e8 80%, #004063 100%); }
+}
+.psc-kpp-kr-scan, .kpp-kr-scan {
+    position: relative;
+    height: 5px;
+    width: 100%;
+    border-radius: 3px;
+    overflow: hidden;
+    background: linear-gradient(180deg, rgba(0,64,99,0.18), rgba(10,24,36,0.28));
+    backdrop-filter: blur(4px) saturate(140%);
+    -webkit-backdrop-filter: blur(4px) saturate(140%);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.15),
+                inset 0 -3px 6px rgba(0,0,0,0.25);
+}
+.psc-kpp-kr-scan::before, .kpp-kr-scan::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 22%;
+    border-radius: 3px;
+    animation: kpp-kr-sweep 1.4s ease-in-out infinite,
+               kpp-kr-flip  2.8s linear infinite;
+    box-shadow: 0 0 10px 2px rgba(0,168,232,0.55), inset 0 1px 0 rgba(255,255,255,0.35);
+}
+@media (prefers-reduced-motion: reduce) {
+    .psc-kpp-kr-scan::before, .kpp-kr-scan::before { animation: none; opacity:.6; }
+}
+
+/* =============================================================================
+   v2.33 — Workmate Compact Table Standard v1.0.0 (header band)
+   Body cell size/padding + header text come from table props
+   (props.cells.style + columns[].header.style). The fixed ~30px header BAND
+   height is the one thing props cannot reach — this rule collapses it to 24px
+   on every table carrying the wm-compact-table class.
+   Source: IA forum perspective-change-table-header-size/34792.
+   ============================================================================= */
+.psc-wm-compact-table.ia_tableComponent div.th-container.ia_table__headContainer {
+    height: 24px;
+    min-height: 24px;
+}
+
+/* =============================================================================
+   v2.67 — Compact Table Standard: header TEXT for auto-column tables
+   (re-land of the July v2.42 rule, lost in the v2.4x-v2.6x reorganisation.)
+   Explorer's LocResTable / ResTable build their columns from the data (no
+   columns[] in props), so the standard's per-column header.style route has
+   nowhere to live. Enforce the 10px / 700 header text in CSS, scoped to the
+   header band of wm-compact-table tables only. Pairs with the v2.33 band
+   rule above.
+   ============================================================================= */
+.psc-wm-compact-table.ia_tableComponent div.th-container.ia_table__headContainer,
+.psc-wm-compact-table.ia_tableComponent div.th-container.ia_table__headContainer * {
+    font-size: 10px;
+    font-weight: 700;
+}
+
+
+/* =============================================================================
+   v2.34 — Grow-on-focus field wraps (ActionMaint pattern)
+   Put class wm-dd-growrow on a field WRAP inside a flex ROW where every wrap
+   has flex-grow 1. When anything inside the wrap has focus (the dropdown or
+   its search input), the wrap grows to 4 shares and the siblings compress -
+   full option text becomes readable without leaving the row.
+   !important is required: Perspective writes flex inline on the element.
+   ============================================================================= */
+.psc-wm-dd-growrow {
+    transition: flex-grow 0.25s ease;
+    min-width: 90px;
+    overflow: hidden;
+}
+.psc-wm-dd-growrow:focus-within {
+    flex-grow: 4 !important;
+}
+
+/* =============================================================================
+   v2.36 — Compact dropdown OPEN menu (global, portal-safe)
+   IA (react-select) portals the open menu to <body>, outside any component
+   class scope - so descendant rules like ".psc-x .option" never match it.
+   Target the emitted option class GLOBALLY instead. The closed-value 10px
+   still comes from each dropdown's inline fontSize (set on the components).
+   If a specific view needs a different menu size later, scope by wrapping
+   the menu via the dropdown's menuId; global 10px matches every compact
+   table + editor in the app today.
+   ============================================================================= */
+div[class*="iaDropdownCommon_option"] {
+    font-size: 10px !important;
+    padding-top: 4px !important;
+    padding-bottom: 4px !important;
+    min-height: 22px !important;
+}
+
+
+/* =============================================================================
+   v2.37 — Taller header band modifier (wm-th-34)
+   Pair with wm-compact-table when the 24px band is too tight for sort
+   arrows (PO DetailTable). Later rule + same specificity wins over v2.33.
+   ============================================================================= */
+.psc-wm-th-34.ia_tableComponent div.th-container.ia_table__headContainer {
+    height: 34px;
+    min-height: 34px;
+}
+
+
+/* ============================================================
+ * Workmate brand — breathing A (v1.1)
+ * Supersedes v1.0 block. Keyframes OUTSIDE :root {} (Perspective rule).
+ * Starts at the MMS grey (#9AA3A7) and breathes up to luminous gold
+ * with an expanding halo — same cadence family as the WM_AI orb
+ * (wmAiBreathe 3.4s / wmAiGlowPulse 3.2s).
+ * ============================================================ */
+@keyframes wmBrandABreathe {
+  0%   { color: #9AA3A7; text-shadow: 0 0 0 rgba(235,196,82,0); }
+  45%  { color: #F0DFB4; text-shadow: 0 0 6px rgba(240,223,180,0.85),
+                                       0 0 14px rgba(235,196,82,0.55),
+                                       0 0 22px rgba(212,168,99,0.30); }
+  60%  { color: #EBC452; text-shadow: 0 0 8px rgba(240,223,180,0.90),
+                                       0 0 18px rgba(235,196,82,0.65),
+                                       0 0 26px rgba(212,168,99,0.35); }
+  100% { color: #9AA3A7; text-shadow: 0 0 0 rgba(235,196,82,0); }
+}
+.psc-wm-brand-a-glow, .wm-brand-a-glow {
+  animation: wmBrandABreathe 3.4s ease-in-out infinite;
+}
+
+
+/* =============================================================================
+   File:      Workmate_Print_Styles_v1_0_0.css
+   Version:   1.0.0
+   Type:      Stylesheet addition - APPEND to the Workmate advanced stylesheet
+   Author:    Adriaan
+   ----------------------------------------------------------------------------
+   Changelog (newest first):
+     1.0.0  PO printable multi-page fix. Perspective's Request Print / browser
+            print only captures what is rendered; content inside a scrolling
+            container clips at one viewport (known platform gap - IA forum
+            45409 / feature idea "Perspective print view/page"). Pairs with
+            POPrintable v1.8.0, which makes the view a flowing document
+            (root height auto + class wm-print-doc). This block cleans the
+            paper output: white background, no shadows, overflow visible so
+            the browser paginates, sensible page margins.
+   ----------------------------------------------------------------------------
+   Scope: .psc-wm-print-doc = the POPrintable root (Perspective prefixes
+   style classes with "psc-"). Screen rendering is untouched except that the
+   page now scrolls the document instead of an inner container.
+   ========================================================================== */
+
+@page {
+    /* v2.41: no size property - a fixed size makes Chrome hide the
+       Portrait/Landscape choice and force Custom paper. Margins only. */
+    margin: 10mm;
+}
+
+@media print {
+    /* let the browser paginate - nothing inside the print doc may scroll */
+    .psc-wm-print-doc,
+    .psc-wm-print-doc * {
+        overflow: visible !important;
+        box-shadow: none !important;
+    }
+
+    /* paper is white; the grey app backdrop must not print */
+    .psc-wm-print-doc {
+        background: #FFFFFF !important;
+        padding: 0 !important;
+        min-height: 0 !important;
+    }
+
+    /* keep a line row together rather than splitting across a page edge */
+    /* v2.39: psc- prefix was missing - selector matched nothing */
+    .psc-wm-print-doc .psc-wm-po-line-row {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    /* v2.39: break-inside is not honoured reliably on flex items. The
+       LinesRepeater (wm-po-lines, POPrintable v1.8.1) and its instance
+       wrappers become block boxes in print, so the row-level avoid above
+       always binds. Row INTERNALS keep their own flex layout untouched. */
+    .psc-wm-print-doc .psc-wm-po-lines {
+        display: block !important;
+        height: auto !important;
+    }
+    /* v2.40: the repeater's direct children ARE the row roots - forcing
+       block stacked their cells. Flex restored; break-inside still binds
+       because these are now block-level boxes (block parent above). */
+    .psc-wm-print-doc .psc-wm-po-lines > div {
+        display: flex !important;
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    /* v2.39: status badges + coding keep their colour on paper */
+    .psc-wm-print-doc * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+}
+
+
+
+
+/* =============================================================================
+   v2.43 — PO Preview tab attractor  (SUPERSEDES v2.42)
+   -----------------------------------------------------------------------------
+   REPLACES the whole v2.42 block. If v2.42 was already appended, delete it
+   and paste this instead - do not keep both.
+
+   What changed and why:
+     - wm-tab-new  : unchanged, working, kept as-is.
+     - wm-po-preview-print / body.wm-printing-po-preview : REMOVED.
+       That block depended on system.perspective.runJavaScript to arm a body
+       class. That function does not exist in this Perspective build, so the
+       handler threw AttributeError and the CSS could never fire - dead code.
+       PurchaseOrder v5.72.0 instead navigates to Workmate/Reports/POPrintable
+       in a new tab, which is the project's existing print route and already
+       carries the mature print CSS (.psc-wm-print-doc, v2.5 + v2.39-v2.41).
+       No new print CSS is needed.
+
+   RETIREMENT (v2.46): AUTOMATED - do not strip this class by hand. Expiry is
+   driven by the shared.whatsnew registry; the view binds props.style.classes
+   to an expression that returns "" once the item's window has passed. To
+   retire it early, change the date in shared.whatsnew.NEW_ITEMS.
+   A permanent pulse on a permanent feature teaches people to ignore glowing
+   things - which is exactly why this is no longer a manual TODO.
+   ============================================================================= */
+
+@keyframes wmTabNewGlow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(235, 196, 82, 0.00),
+                           0 0 6px 1px rgba(235, 196, 82, 0.30); }
+    50%      { box-shadow: 0 0 0 4px rgba(235, 196, 82, 0.10),
+                           0 0 14px 3px rgba(235, 196, 82, 0.55); }
+}
+
+.psc-wm-tab-new {
+    position: relative;
+    border-radius: 4px;
+    animation: wmTabNewGlow 2.6s ease-in-out infinite;
+}
+
+/* "NEW" pip. Clear of the text; pointer-events off so it never eats the
+   click the tab button needs. */
+.psc-wm-tab-new::after {
+    content: "NEW";
+    position: absolute;
+    top: -3px;
+    right: -6px;
+    padding: 1px 4px;
+    border-radius: 6px;
+    background: #EBC452;
+    color: #2B2B2B;
+    font-size: 7px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    line-height: 1.4;
+    pointer-events: none;
+}
+
+/* Hover settles the halo - once they've found it, stop shouting. */
+.psc-wm-tab-new:hover {
+    animation: none;
+    box-shadow: 0 0 10px 2px rgba(235, 196, 82, 0.45);
+}
+
+/* Decorative, unlike the Stem Engine chip (v2.29) which signals live plant
+   state - so this one DOES respect the OS reduced-motion flag. The pip alone
+   still carries the "new" message with no movement at all. */
+@media (prefers-reduced-motion: reduce) {
+    .psc-wm-tab-new { animation: none; box-shadow: 0 0 8px 1px rgba(235, 196, 82, 0.40); }
+}
+
+/* Never let the attractor bleed onto paper. */
+@media print {
+    .psc-wm-tab-new { animation: none !important; box-shadow: none !important; }
+    .psc-wm-tab-new::after { display: none !important; }
+}
+/* =============================================================================
+   wm-field-glow  -  attractor glow for high-value input fields (ViewBuilder
+   Title/Comments typeahead). Gold pulse like wm-tab-new, NO "NEW" pip.
+   Tight halo (no large spread) so it can't bleed across wide/empty containers.
+   Perspective prefixes user classes with .psc-
+   ============================================================================= */
+@keyframes wmFieldGlow {
+    0%, 100% { box-shadow: 0 0 4px 0 rgba(235, 196, 82, 0.35); }
+    50%      { box-shadow: 0 0 8px 1px rgba(235, 196, 82, 0.55); }
+}
+.psc-wm-field-glow {
+    border: 1px solid rgba(235, 196, 82, 0.70) !important;
+    border-radius: 4px;
+    animation: wmFieldGlow 2.6s ease-in-out infinite;
+}
+.psc-wm-field-glow:focus,
+.psc-wm-field-glow:focus-within {
+    animation: none;
+    box-shadow: 0 0 7px 1px rgba(235, 196, 82, 0.45);
+    border-color: rgba(235, 196, 82, 0.90) !important;
+}
+@media (prefers-reduced-motion: reduce) {
+    .psc-wm-field-glow { animation: none; box-shadow: 0 0 5px 0 rgba(235, 196, 82, 0.35); }
+}
+@media print {
+    .psc-wm-field-glow { animation: none !important; box-shadow: none !important; }
+}
+
+
+
+
+/* =============================================================================
+   v2.44 - Hub side menu NEW-item attractor (MLY + Yard)
+   -----------------------------------------------------------------------------
+   APPEND to stylesheet.css after the v2.43 block. Sibling of wm-tab-new
+   (v2.43) tuned for the 50px dark rail:
+     - tight halo only (max 6px blur, no spread ring) so the glow cannot
+       clip against the dock edges
+     - smaller NEW pip kept inside the item bounds
+     - hover settles the pulse; reduced-motion falls back to static halo
+       plus pip; print strips everything
+   Apply via props.style.classes = "hub-menu-new" on the MenuItem containers
+   (Hubsidemenu v1.4.0 binds it on MenuItem_MLY and MenuItem_Yard).
+
+   RETIREMENT (v2.46): AUTOMATED - do not strip this class by hand. Both
+   MenuItem containers bind props.style.classes to the shared.whatsnew
+   registry (keys "yard" and "mly"), which returns "" once the window has
+   passed and the badge, halo and pulse all disappear together.
+   Applied to: Hubsidemenu v1.4.0 MenuItem_Yard and MenuItem_MLY.
+   ============================================================================= */
+
+@keyframes hubMenuNewGlow {
+    0%, 100% { box-shadow: inset 0 0 4px 0 rgba(235, 196, 82, 0.25),
+                           0 0 4px 0 rgba(235, 196, 82, 0.20); }
+    50%      { box-shadow: inset 0 0 7px 1px rgba(235, 196, 82, 0.45),
+                           0 0 6px 1px rgba(235, 196, 82, 0.40); }
+}
+
+.psc-hub-menu-new {
+    position: relative;
+    border-radius: 4px;
+    animation: hubMenuNewGlow 2.6s ease-in-out infinite;
+}
+
+/* NEW pip - inside the 50px rail, pointer-events off so the item click
+   always lands. */
+.psc-hub-menu-new::after {
+    content: "NEW";
+    position: absolute;
+    top: 1px;
+    right: 2px;
+    padding: 0px 3px;
+    border-radius: 5px;
+    background: #EBC452;
+    color: #2B2B2B;
+    font-size: 6px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    line-height: 1.5;
+    pointer-events: none;
+}
+
+/* Hover settles the halo - once they have found it, stop shouting. */
+.psc-hub-menu-new:hover {
+    animation: none;
+    box-shadow: inset 0 0 6px 1px rgba(235, 196, 82, 0.35),
+                0 0 5px 1px rgba(235, 196, 82, 0.30);
+}
+
+/* Decorative attractor - respect the OS reduced-motion flag. The pip alone
+   still carries the message with no movement. */
+@media (prefers-reduced-motion: reduce) {
+    .psc-hub-menu-new { animation: none;
+                        box-shadow: 0 0 5px 1px rgba(235, 196, 82, 0.35); }
+}
+
+/* Never on paper. */
+@media print {
+    .psc-hub-menu-new { animation: none !important; box-shadow: none !important; }
+    .psc-hub-menu-new::after { display: none !important; }
+}
+
+
+
+/* =============================================================================
+   v2.45 - Report tab NEW pip + rail "content changed" dot
+   -----------------------------------------------------------------------------
+   APPEND to stylesheet.css after the v2.44 block.
+
+   Two classes, deliberately different signals:
+
+     kpp-tab-new    -> the tab button that IS the new thing.
+                       Gold pulse + "NEW" pip. Sibling of wm-tab-new (v2.43),
+                       retuned for the KPP report tab strip (light #FFFFFF
+                       strip, 10px/16px padding - the pip clears it).
+                       Applied to: Production v2.13.0 containers Tab_chipstem,
+                       Tab_kppsed, Tab_buttcuts, Tab_boothcalls.
+
+     hub-menu-dot   -> a rail item that is NOT new but now CONTAINS something
+                       new. Small pulsing gold dot, no text. Says "look inside"
+                       without claiming the section itself is new, and stays
+                       legible in the 50px rail where a 6px word does not.
+                       Applied to: Hubsidemenu MenuItem_Reports.
+
+   Pairing matters: the dot draws the eye to the rail, the pip on the tab tells
+   them exactly which report is new. A "NEW" label on Reports itself would be
+   untrue - Reports has been there all along.
+
+   RETIREMENT (v2.46): AUTOMATED - do not strip these classes by hand. Both
+   bind to the shared.whatsnew registry. hub-menu-dot is derived, not listed:
+   it lights whenever ANY item with parent "production" is still inside its
+   window (see PARENT_TO_MENU), so the rail dot goes dark by itself when the
+   last tab pip expires.
+   ============================================================================= */
+
+/* ---- kpp-tab-new : the new report tab ------------------------------------- */
+
+@keyframes kppTabNewGlow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(235, 196, 82, 0.00),
+                           0 0 6px 1px rgba(235, 196, 82, 0.30); }
+    50%      { box-shadow: 0 0 0 4px rgba(235, 196, 82, 0.10),
+                           0 0 14px 3px rgba(235, 196, 82, 0.55); }
+}
+
+.psc-kpp-tab-new {
+    position: relative;
+    border-radius: 3px;
+    animation: kppTabNewGlow 2.6s ease-in-out infinite;
+}
+
+/* Pip sits clear of the label; pointer-events off so it never eats the click. */
+.psc-kpp-tab-new::after {
+    content: "NEW";
+    position: absolute;
+    top: -3px;
+    right: -6px;
+    padding: 1px 4px;
+    border-radius: 6px;
+    background: #EBC452;
+    color: #2B2B2B;
+    font-size: 7px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    line-height: 1.4;
+    pointer-events: none;
+}
+
+.psc-kpp-tab-new:hover {
+    animation: none;
+    box-shadow: 0 0 10px 2px rgba(235, 196, 82, 0.45);
+}
+
+/* ---- hub-menu-dot : rail item with new content inside --------------------- */
+
+@keyframes hubMenuDot {
+    0%, 100% { transform: scale(1);    opacity: 0.75;
+               box-shadow: 0 0 3px 0 rgba(235, 196, 82, 0.40); }
+    50%      { transform: scale(1.25); opacity: 1;
+               box-shadow: 0 0 6px 1px rgba(235, 196, 82, 0.70); }
+}
+
+.psc-hub-menu-dot {
+    position: relative;
+}
+
+.psc-hub-menu-dot::after {
+    content: "";
+    position: absolute;
+    top: 5px;
+    right: 7px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #EBC452;
+    animation: hubMenuDot 2.2s ease-in-out infinite;
+    pointer-events: none;
+}
+
+/* ---- shared fallbacks ----------------------------------------------------- */
+
+/* Decorative attractors - respect the OS reduced-motion flag. Both keep a
+   static mark so the message survives with no movement. */
+@media (prefers-reduced-motion: reduce) {
+    .psc-kpp-tab-new  { animation: none;
+                        box-shadow: 0 0 8px 1px rgba(235, 196, 82, 0.40); }
+    .psc-hub-menu-dot::after { animation: none; opacity: 1;
+                        box-shadow: 0 0 4px 0 rgba(235, 196, 82, 0.50); }
+}
+
+/* Never on paper. */
+@media print {
+    .psc-kpp-tab-new { animation: none !important; box-shadow: none !important; }
+    .psc-kpp-tab-new::after  { display: none !important; }
+    .psc-hub-menu-dot::after { display: none !important; }
+}
+
+
+/* =============================================================================
+   v2.46 - NEW-badge expiry moved from a comment to a registry
+   -----------------------------------------------------------------------------
+   No new classes and no visual change. This block records WHY the RETIREMENT
+   notes above changed, so the next person does not go hunting for components
+   to strip by hand.
+
+   The problem: v2.43, v2.44 and v2.45 each shipped a temporary attractor with
+   a "strip it in ~2 weeks" comment. Nothing enforced that. Three undated TODOs
+   in a 2,700-line stylesheet is how a temporary pulse becomes permanent, and
+   a permanent pulse teaches people to ignore every badge that follows it.
+
+   The fix: shared.whatsnew holds one line per new item (key, label, ship date,
+   parent). Views resolve it once into a view custom property and each
+   component binds props.style.classes to an expression such as:
+
+       if(indexOf({view.custom.newKeys}, ",yard,") >= 0, "hub-menu-new", "")
+
+   Past the window the expression returns "", the class is not applied, and
+   because every badge here is a ::after pseudo-element on the class, the pip,
+   the halo and the animation all vanish together. Nothing to remember.
+
+   DEFAULT_DAYS is 14, matching the "~2 weeks" the notes above always intended.
+   These are pulsing attractors on a 24/7 control-room screen, so the window
+   should stay short - lengthen it per item only with a reason.
+
+   TO ADD A BADGE: add a line to shared.whatsnew.NEW_ITEMS and bind the
+   component's classes. Do NOT hardcode the class string - a hardcoded class
+   never expires and puts us straight back where v2.43 started.
+   ============================================================================= */
+
+
+
+
+
+
+
+
+
+   /* =============================================================================
+   File:      Workmate_Stylesheet_Append_v2_47_BrandGlass.css
+   Version:   2.47
+   Type:      Stylesheet addition - APPEND to the Workmate advanced stylesheet
+              (Designer > Project > Perspective > Styles > stylesheet.css).
+              After pasting, bump the header comment at the top of the
+              stylesheet to v2.47.
+   Author:    Adriaan
+   ----------------------------------------------------------------------------
+   Changelog (newest first):
+     2.47  BRAND-B1 (Bakels demo / Azztec Enterprise go-forward brand):
+           wm-brand-glass        glassy lift pill for the HeaderToolbar
+                                 BrandBlock - translucent liquid-glass base,
+                                 hairline inset border, raise-on-hover with a
+                                 water-blue glow and a diagonal sheen sweep
+                                 (IA features-demo card feel).
+           wm-brand-logo-lift    hover lift + glow for the 48px brand logo
+                                 (applied to BOTH Workmate + Azztec logos).
+           wm-brand-azztec-shine rolling light sweep across the Azztec
+                                 wordmark's blue-metal gradient text. The
+                                 gradient itself lives inline on the label
+                                 (identical fallback if this class is absent);
+                                 this class only animates layer 1's position.
+   ============================================================================= */
+
+/* ---- glass pill around the brand block ------------------------------------ */
+.psc-wm-brand-glass, .wm-brand-glass {
+  position: relative;
+  border-radius: 10px;
+  padding: 3px 10px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.085) 0%, rgba(255,255,255,0.028) 55%, rgba(96,196,220,0.06) 100%);
+  -webkit-backdrop-filter: blur(8px) saturate(135%);
+  backdrop-filter: blur(8px) saturate(135%);
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.12),
+    inset 0 1px 0 rgba(255,255,255,0.22),
+    0 1px 2px rgba(0,0,0,0.25);
+  transition: transform 0.18s ease, box-shadow 0.28s ease;
+}
+.psc-wm-brand-glass:hover, .wm-brand-glass:hover {
+  transform: translateY(-1.5px);
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.18),
+    inset 0 1px 0 rgba(255,255,255,0.30),
+    0 6px 16px rgba(0,0,0,0.38),
+    0 0 18px rgba(96,196,220,0.30);
+}
+/* diagonal sheen that sweeps across the pill on hover */
+.psc-wm-brand-glass::after, .wm-brand-glass::after {
+  content: "";
+  position: absolute;
+  top: 0; bottom: 0;
+  left: -60%;
+  width: 55%;
+  background: linear-gradient(105deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.20) 50%, rgba(255,255,255,0) 100%);
+  transform: skewX(-18deg) translateX(-160%);
+  transition: transform 0.7s ease;
+  pointer-events: none;
+}
+.psc-wm-brand-glass:hover::after, .wm-brand-glass:hover::after {
+  transform: skewX(-18deg) translateX(420%);
+}
+
+/* ---- brand logo lift ------------------------------------------------------- */
+.psc-wm-brand-logo-lift, .wm-brand-logo-lift {
+  transition: transform 0.18s ease, filter 0.28s ease;
+}
+.psc-wm-brand-logo-lift:hover, .wm-brand-logo-lift:hover {
+  transform: translateY(-1px) scale(1.05);
+  filter: drop-shadow(0 3px 9px rgba(96,196,220,0.50));
+}
+
+/* ---- Azztec wordmark rolling sheen ------------------------------------------
+   The label's inline style carries TWO background layers, both clipped to the
+   text:  layer 1 = the moving highlight,  layer 2 = the static blue metal.
+   Animating layer 1's background-position rolls the light along the letters.
+   CSS animations outrank inline declarations, so this works with the gradient
+   defined inline. */
+.psc-wm-brand-azztec-shine, .wm-brand-azztec-shine {
+  animation: wmAzztecSheen 5.6s ease-in-out infinite;
+}
+@keyframes wmAzztecSheen {
+  0%, 14%   { background-position: -140% 0%, 0% 0%; }
+  60%, 100% { background-position: 240% 0%, 0% 0%; }
+}
+
+
+
+/* =============================================================================
+   File:      Workmate_Stylesheet_Append_v2_51_AzztecGold_Brighter.css
+   Version:   2.51
+   Type:      Stylesheet addition - APPEND to the Workmate advanced stylesheet
+              (Designer > Project > Perspective > Styles > stylesheet.css).
+              FIRST delete the v2.50 block, THEN append this block, THEN bump
+              the header comment at the top of the stylesheet to v2.51.
+              Self-contained: class rule + keyframes together.
+   Author:    Adriaan
+   ----------------------------------------------------------------------------
+   Changelog (newest first):
+     2.51  Brighter. Resting brightness 1.00 -> 1.06, shimmer peak
+           1.30 -> 1.45. Same 3.2s breathe, same crisp no-halo look.
+           Pairs with HeaderToolbar v16.42.
+   ============================================================================= */
+
+.psc-wm-brand-azztec-gold, .wm-brand-azztec-gold {
+  animation: wmAzztecGoldPulse 3.2s ease-in-out infinite;
+}
+@keyframes wmAzztecGoldPulse {
+  0%, 100% {
+    filter: drop-shadow(0 2px 3px rgba(0,0,0,0.35)) brightness(1.06);
+  }
+  50% {
+    filter: drop-shadow(0 2px 3px rgba(0,0,0,0.35)) brightness(1.45);
+  }
+}
+
+
+
+/* =============================================================================
+   hub-chip-new - v1.2.0  2026-08-16
+
+   Chip-scale sibling of .psc-hub-menu-new. Marks a single module chip as new
+   inside a card, rather than lighting the whole card. Same halo, same
+   auto-retirement, sized for a 10px chip.
+
+   Apply via props.style.classes on the chip label, bound to the registry:
+     if(indexOf({view.custom.newKeys}, ',timberpay,') >= 0, 'hub-chip-new', '')
+
+   The colour rules carry !important because Perspective writes the chip's
+   resting colours as inline styles, which would otherwise win. When the key
+   expires the binding returns "" and the chip drops back to its normal style.
+
+   v1.2.0 - NEW moved out of the chip and onto it: a small pip riding the
+            top-right corner, the same idea as the rail badge, instead of an
+            inline tag that made the chip look wider and busier than its
+            neighbours. Sits in the gap above the chip row, so it needs no
+            extra height and cannot push the card taller.
+   v1.1.0 - stopped the inline tag wrapping onto a second line.
+
+   RETIREMENT: AUTOMATED - do not strip this class by hand.
+   Applied to: Hub v1.15.0 businessLink / bChip1 (TimberPay).
+
+   SUPERSEDES: hub-card-new, which put the badge on the whole Business
+   Systems card. That block was removed from this stylesheet in v2.47 -
+   do not reinstate it.
+   ============================================================================= */
+
+@keyframes hubChipNewGlow {
+    0%, 100% { box-shadow: 0 0 4px 0 rgba(235, 196, 82, 0.35); }
+    50%      { box-shadow: 0 0 9px 2px rgba(235, 196, 82, 0.70); }
+}
+
+.psc-hub-chip-new {
+    position: relative;
+    background-color: rgba(235, 196, 82, 0.16) !important;
+    border: 1px solid rgba(235, 196, 82, 0.75) !important;
+    color: #8A6D1F !important;
+    border-radius: 10px;
+    white-space: nowrap;
+    overflow: visible;
+    animation: hubChipNewGlow 2.6s ease-in-out infinite;
+}
+
+/* NEW pip - rides the top-right corner of the chip, pointer-events off so
+   the card click always lands. */
+.psc-hub-chip-new::after {
+    content: "NEW";
+    position: absolute;
+    top: -7px;
+    right: -5px;
+    padding: 0px 4px;
+    border-radius: 6px;
+    background: #EBC452;
+    color: #2B2B2B;
+    font-size: 7px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    line-height: 1.6;
+    box-shadow: 0 1px 2px rgba(28, 32, 40, 0.20);
+    pointer-events: none;
+}
+
+/* Hover settles the halo - once they have found it, stop shouting. */
+.psc-hub-chip-new:hover {
+    animation: none;
+    box-shadow: 0 0 7px 1px rgba(235, 196, 82, 0.55);
+}
+
+/* Decorative attractor - respect the OS reduced-motion flag. */
+@media (prefers-reduced-motion: reduce) {
+    .psc-hub-chip-new { animation: none;
+                        box-shadow: 0 0 6px 1px rgba(235, 196, 82, 0.50); }
+}
+
+/* Never on paper. */
+@media print {
+    .psc-hub-chip-new { animation: none !important; box-shadow: none !important; }
+    .psc-hub-chip-new::after { display: none !important; }
+}
+
+
+/* =============================================================================
+   v2.49 - WOPrintable job-card print sizing (board #9)
+   -----------------------------------------------------------------------------
+   Pairs with WOPrintable v2.0.5+ (cards carry "po-card wo-card": po-card
+   gives the v2.5 shadow/border/page-break treatment; wo-card below adds
+   the full-page sizing the PO card never needed). NO page-size rule here -
+   the margins-only rule of the wm-print-doc system (v2.41) stands so the
+   person keeps the Portrait/Landscape choice in the print dialog.
+   The WO form is PORTRAIT-designed; landscape paginates onto two pages.
+   ============================================================================= */
+@media print {
+
+    .psc-wo-card {
+        max-width: none !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 6mm 8mm !important;
+        min-height: 248mm !important;  /* v2.55: was 262mm - exact-fit blank page */
+        box-shadow: none !important;
+        border: none !important;
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    /* keep the dark asset banner / blue WO number on paper */
+    .psc-wo-card * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+}
+
+
+
+
+
+/* ============================================================================
+ * v2.50: docks (HeaderToolbar rail + SideMenu) are hidden ON PAPER, but
+ *          ONLY while a wm-print-doc view (POPrintable / WOPrintable) is
+ *          the page's primary view - scoped with :has() so normal pages
+ *          print untouched. Fixes the nav chrome printing around the WO
+ *          job card (and the PO document, same-day parity for free).
+ *
+ * Selector note: Perspective renders docked views inside ".docked-view"
+ * containers. If chrome still prints after this, inspect a dock in
+ * devtools (F12 -> pick the rail) and swap the class below for whatever
+ * wrapper class this Perspective build uses - the :has() scoping stays.
+ * ==========================================================================*/
+@media print {
+
+    body:has(.psc-wm-print-doc) .docked-view {
+        display: none !important;
+    }
+}
+
+/* ============================================================================
+ * v2.54: honour Perspective's OWN print opt-out. DOM inspection
+ *          (2026-08-17, WOPrintable page) shows the platform tags its
+ *          chrome with a literal, unprefixed "no-print" class:
+ *            .app-modal-wrapper no-print
+ *            .app-bar bar-closed --standard no-print
+ *            .action-panel-overlay no-print overlay-hidden   <- the
+ *              session-status popup that kept printing as page 2; it is
+ *              hidden on screen by bottom:-15rem / z-index, mechanisms
+ *              the print renderer ignores.
+ *          Our stylesheet only ever targeted .psc-no-print (the Designer
+ *          style-class form), so the platform contract was never wired.
+ *          This rule wires it - one line, global on purpose: Perspective
+ *          only puts "no-print" on things that must never reach paper.
+ * ==========================================================================*/
+@media print {
+
+    .no-print {
+        display: none !important;
+    }
+}
+
+
+
+
+
+/* =============================================================================
+   v2.56: browser-extension elements never print
+   -----------------------------------------------------------------------------
+   Extensions (Grammarly, writer tools, passkey managers) inject elements
+   into <body> as siblings of #app-container. They are invisible or
+   off-screen on the monitor, but the print renderer paginates them - the
+   observed symptom was a persistent blank second sheet behind the WO job
+   card. On paper, ONLY the app root renders. Matches every element type,
+   not just <div> (extensions use custom tags).
+   v2.57: #printWindow (request-print iframe) exempted.
+   ============================================================================= */
+@media print {
+
+    /* v2.57: #printWindow is Perspective's own request-print iframe -
+       body-level by design; hiding it blanks every print preview.
+       v2.58: :has(> #app-container) arms this only in the main app
+       document - the print iframe clones this stylesheet, and without
+       the scope the rule hid the print document from within. */
+    body:has(> #app-container) > *:not(#app-container):not(#printWindow) {
+        display: none !important;
+    }
+}
+
+
+/* ============================================================================
+   KPP DAILY REPORT PRINT LAYOUT (v2.59)
+   kt-print-only - rendered ONLY on paper (print-only report header on
+   KPPDailyReport v1.13+). v2.61: the v2.59/60 kt-print-stack and
+   shell-unlock experiments are retired - the report prints in its
+   native side-by-side layout, fit-to-sheet by the browser.
+   ============================================================================ */
+
+.psc-kt-print-only {
+    display: none !important;
+}
+
+@media print {
+
+    .psc-kt-print-only {
+        display: flex !important;
+    }
+}
+
+
+/* ============================================================================
+   FIXED-WIDTH PRINT PAGES (v2.62)
+   For printers built as a single A4-sized card: ScorecardPrinter's
+   .psc-kt-print-page (794 px = A4 width at 96 dpi).
+
+   Everything here is double-scoped and cannot leak:
+     body:not(:has(> #app-container))  -> only inside the request-print
+                                          iframe (see v2.58)
+     :has(.psc-kt-print-page)          -> only documents that carry a
+                                          fixed-width print page
+   ============================================================================ */
+
+@media print {
+
+    /* Strip the cloned app-shell wrappers out of layout entirely - with
+       no boxes they cannot impose their pixel widths, and the card
+       becomes a direct flow child of the print page box. */
+    body:not(:has(> #app-container)):has(.psc-kt-print-page) > *,
+    body:not(:has(> #app-container)):has(.psc-kt-print-page) .client-root,
+    body:not(:has(> #app-container)):has(.psc-kt-print-page) .center-column,
+    body:not(:has(> #app-container)):has(.psc-kt-print-page) .view-parent,
+    body:not(:has(> #app-container)):has(.psc-kt-print-page) .ia_container--root,
+    body:not(:has(> #app-container)):has(.psc-kt-print-page) .psc-kt-print-area {
+        display: contents !important;
+    }
+
+    body:not(:has(> #app-container)):has(.psc-kt-print-page) {
+        width: auto !important;
+        min-width: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: visible !important;
+    }
+
+    body:has(.psc-kt-print-page) .psc-kt-print-area {
+        padding: 0 !important;
+    }
+
+    .psc-kt-print-page {
+        width: 794px !important;
+        max-width: 794px !important;
+        margin: 0 !important;
+        /* v2.63: ignore the on-screen preview zoom when printing. */
+        transform: none !important;
+    }
+
+    /* Design height is 1180 px; A4 is 1123 px at 96 dpi. Capping the
+       embedded card at 1100 px clears the sheet at Default, Minimum and
+       None margins - the card's internal spacer absorbs the difference. */
+    .psc-kt-print-page > * {
+        flex-basis: 1100px !important;
+        max-height: 1100px !important;
+    }
+}
+
+
+/* =============================================================================
+ * Workmate Advanced Stylesheet snippet - wm-glow-crit
+ * File: Workmate_Stylesheet_wm-glow-crit_v1_0_1.css   Version: 1.0.1
+ *
+ * v1.0.1 SELECTOR FIX: Perspective renders props.style.classes tokens as
+ *        DOM class "psc-<name>" (house proof: .psc-wm-btn-shadow-grey,
+ *        .psc-se-msglog). v1.0.0 targeted bare .wm-glow-crit, which never
+ *        exists in the DOM - the rule could not match. Now targets BOTH
+ *        forms per the house belt-and-braces pattern (stylesheet.css:1852).
+ *
+ * Install: REPLACE the v1.0.0 block if pasted, else append to
+ *   Perspective > Styles > Advanced Stylesheet. Add the ledger line below
+ *   to the version comment block at the top, then Ctrl+F5 the session.
+ *
+ *   ledger:  v2.68: wm-glow-crit - pulsing INSET red glow for the
+ *            InsightsHub critical-stock KPI cell (outer shadows are
+ *            clipped by the strip's overflow:hidden).
+ * ========================================================================== */
+.psc-wm-glow-crit,
+.wm-glow-crit {
+	animation: wmCritPulse 2.2s ease-in-out infinite;
+}
+@keyframes wmCritPulse {
+	0%, 100% { box-shadow: inset 0 0 6px rgba(220, 53, 69, 0.25); }
+	50%      { box-shadow: inset 0 0 18px rgba(220, 53, 69, 0.60); }
+}
+
+
+/* =============================================================================
+ * Workmate Advanced Stylesheet snippet - wm-print-doc PAGINATION
+ * Origin: Workmate_Stylesheet_PrintDoc_Paginate_v1_0_0.css (integrated v2.69)
+ * Author: Adriaan
+ * -----------------------------------------------------------------------------
+ * Changelog (newest first):
+ *   1.0.0  2026-09-03  Multi-PO / multi-WO print clipped to ONE sheet
+ *          (POPrintable v1.10.0 smoke, K-260903-001..003: "1 sheet of
+ *          paper", cards stacked, a scrollbar printed on the sheet).
+ * -----------------------------------------------------------------------------
+ * ROOT CAUSE
+ *   Native browser print (Ctrl+P) paginates the DOCUMENT. Perspective's app
+ *   shell locks the document to one viewport: html/body 100% + overflow
+ *   hidden, and the wrapper chain
+ *       body > #app-container > .client-root > .center-column > .view-parent
+ *   (measured on THIS gateway, 2026-08-19 - see v2.62-v2.65) holds the
+ *   primary view in a fixed-height scroller. The printed page is therefore
+ *   exactly one viewport tall; whatever the scroller hides is lost and the
+ *   scroller's own scrollbar is painted onto the sheet. A single PO/WO fit
+ *   inside the viewport, so this never showed until several were printed
+ *   together. Known platform gap - IA forum 45409 / 103535, ideas-page item
+ *   "Perspective print view/page" still Planned; the forum has no native
+ *   answer, only the CSS route below.
+ *
+ * FIX
+ *   On paper, and ONLY while a wm-print-doc view (POPrintable / WOPrintable)
+ *   is the page's primary view in the MAIN app document:
+ *     1. html/body release their viewport lock (height auto, overflow
+ *        visible).
+ *     2. The four shell wrappers get display:contents - the v2.65 proven
+ *        hammer on this build: no box means no height, no overflow clip, no
+ *        position trap. The print document becomes a direct flow child of
+ *        body and the browser paginates it.
+ *     3. The print-doc root and its PrintableArea become BLOCK containers
+ *        so every card is a block-level box whose forced page break
+ *        (inline page-break-before from the view script + .psc-po-card +
+ *        .psc-po-card, v2.5) binds reliably (the v2.39/v2.40 lesson).
+ *   Scoping: body:has(> #app-container) = main document only (the
+ *   request-print iframe clone drops the id - v2.58); :has(.psc-wm-print-doc)
+ *   = only pages whose primary view is a print document. Every other page
+ *   in the project prints exactly as before. Same :has() dependency as
+ *   v2.50 / v2.56 (Chromium 105+).
+ *
+ * VERIFY (if a print still clips): DevTools > More tools > Rendering >
+ *   "Emulate CSS media type: print", then in the Console:
+ *     getComputedStyle(document.querySelector('.view-parent')).display
+ *   must read "contents". If a wrapper name has changed in a later
+ *   Perspective build, pick the scrolling ancestor in Elements and add its
+ *   class to the selector list below - the scoping stays.
+ *
+ * Integrated as v2.69 (see ledger at the top of the file).
+ * ========================================================================== */
+
+@media print {
+
+    /* 1. viewport lock off - the document may be taller than one sheet */
+    html:has(.psc-wm-print-doc),
+    body:has(> #app-container):has(.psc-wm-print-doc) {
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        overflow: visible !important;
+        position: static !important;
+    }
+
+    /* 2. shell wrappers lose their boxes (v2.65 pattern, main document) */
+    body:has(> #app-container):has(.psc-wm-print-doc) > #app-container,
+    body:has(> #app-container):has(.psc-wm-print-doc) .client-root,
+    body:has(> #app-container):has(.psc-wm-print-doc) .center-column,
+    body:has(> #app-container):has(.psc-wm-print-doc) .view-parent {
+        display: contents !important;
+    }
+
+    /* 3. print document flows as blocks; cards become block-level boxes */
+    body:has(> #app-container) .psc-wm-print-doc {
+        display: block !important;
+        height: auto !important;
+        width: 100% !important;
+        position: static !important;
+    }
+    body:has(> #app-container) .psc-wm-print-doc .psc-printable-area {
+        display: block !important;
+        height: auto !important;
+    }
+
+    /* belt and braces: the forced break lives on the card itself as well
+       as on the v2.5 sibling rule - both forms, every card after the first */
+    body:has(> #app-container) .psc-wm-print-doc .psc-po-card + .psc-po-card {
+        page-break-before: always !important;
+        break-before: page !important;
+    }
+}

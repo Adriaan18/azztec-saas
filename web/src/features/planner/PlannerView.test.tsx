@@ -1,6 +1,6 @@
 /**
- * Azztec_SaaS_web_planner_PlannerView_test_v1_1_0.tsx  ->  web/src/features/planner/PlannerView.test.tsx
- * Version:  1.1.0   Date: 2026-09-13   Author: Adriaan
+ * Azztec_SaaS_web_planner_PlannerView_test_v1_2_1.tsx  ->  web/src/features/planner/PlannerView.test.tsx
+ * Version:  1.2.1   Date: 2026-09-20   Author: Adriaan
  * Spec:     Azztec_SaaS_S1f_Grid_Chunk_Spec_v1_0_0.md §6 (planner.route.test.tsx row) · OD-29;
  *           Azztec_SaaS_S1g_Readonly_Chunk_Spec_v1_0_0.md §6 (PlannerView.test.tsx row) · OD-30
  *
@@ -20,11 +20,20 @@
  * The Zustand store is module-global, so beforeEach resets the fields these cases touch.
  *
  * Changelog:
+ *   1.2.1  Smoke fix, before the tag. `importOriginal<typeof import('...')>()` is an inline import()
+ *          type, which the repo forbids (consistent-type-imports). The module is imported as a
+ *          type-only namespace at the top instead, and the generic points at that. Same mock.
+ *   1.2.0  W1b: SelectedWOCard's Open button became a Link (OD-5 closed), so this file's two card
+ *          cases started throwing on useLinkProps - a real regression from that change, not a flake.
+ *          Link is mocked below. No case's meaning moved; the card still renders and Escape, the
+ *          selection and the day dialog are asserted exactly as they were.
  *   1.1.0  S1g: fixture-backed stub, store reset, the OD-30 abort case, keyboard nav, Escape, day head.
  *   1.0.0  Initial S1f.
  */
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
+import type { ReactNode } from 'react';
+import type * as ReactRouter from '@tanstack/react-router';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { client } from '../../api/client/client.gen';
@@ -34,7 +43,33 @@ import { DEFAULT_CATS, DEFAULT_FILTERS } from './rules';
 import { usePlannerStore } from './store';
 import { navAnchor, todayIso, windowFor } from '../../lib/dates';
 
-export const TEST_VERSION = '1.1.0';
+/**
+ * W1b: PlannerView renders SelectedWOCard, whose Open control is now a <Link> to /workorders/$id -
+ * and a Link needs a RouterProvider this file deliberately does not stand up. importOriginal keeps
+ * every other export real; only Link is swapped, for the same plain <a> SelectedWOCard.test uses.
+ * The alternative was a memory router here, which would make a wire test depend on the route tree.
+ */
+vi.mock('@tanstack/react-router', async (importOriginal) => ({
+  ...(await importOriginal<typeof ReactRouter>()),
+  Link: ({
+    children,
+    to,
+    params,
+    className,
+    ...rest
+  }: {
+    children: ReactNode;
+    to: string;
+    params: Record<string, string>;
+    className?: string;
+  }) => (
+    <a className={className} data-params={JSON.stringify(params)} data-to={to} href="#" {...rest}>
+      {children}
+    </a>
+  ),
+}));
+
+export const TEST_VERSION = '1.2.1';
 
 const BASE = 'http://test.local';
 

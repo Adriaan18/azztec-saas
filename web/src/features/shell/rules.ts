@@ -1,6 +1,6 @@
 /**
- * Azztec_SaaS_web_shell_rules_v1_0_0.ts  ->  web/src/features/shell/rules.ts
- * Version:  1.0.0   Date: 2026-09-16   Author: Adriaan
+ * Azztec_SaaS_web_shell_rules_v1_1_0.ts  ->  web/src/features/shell/rules.ts
+ * Version:  1.1.0   Date: 2026-09-20   Author: Adriaan
  * Spec:     Azztec_SaaS_S1k_Shell_Chunk_Spec_v1_0_1.md s3.1 . OD-50, OD-51, OD-52, OD-53
  * Oracle:   Workmate/Navigation/HeaderToolbar v16.47 and Workmate/Navigation/SideMenu v4.20
  *           (docs/reference/HeaderToolbar_2026-09-16_view.json, SideMenu_2026-09-16_view.json) - every
@@ -15,9 +15,13 @@
  * navigator bridge, the legacy toolbar-state handlers, nav-active messaging (spec s1, cut at the audit).
  *
  * Changelog:
+ *   1.1.0  W1b: ACTIVE_KEY_BY_PATH gains /workorders, and the lookup gains a prefix arm so
+ *          /workorders/662704 lights WO Maint too. The planner's row stays an exact match - a
+ *          prefix there would light Plannex on any future /planner-something route. Nothing else
+ *          in this file moved; the tables, the four expression bindings and printTarget are S1k's.
  *   1.0.0  Initial S1k.
  */
-export const VERSION = '1.0.0';
+export const VERSION = '1.1.0';
 
 export type BrandMode = 'AZZTEC' | 'WORKMATE';
 
@@ -362,11 +366,22 @@ export function gateOpen(gate: RailItem['gate']): boolean {
  * session.custom.activePage, derived from the router path instead of set by each button's onClick.
  * One row per page this build can draw; a module port lights itself by adding its row here.
  */
-const ACTIVE_KEY_BY_PATH: ReadonlyArray<readonly [string, string]> = [['/planner', 'plannex']];
+/**
+ * The router path replaces KT's session.custom.activePage. `prefix` marks a route with children:
+ * /workorders/662704 is still the WO Maint module, while /planner is exact on purpose - a prefix
+ * there would light Plannex on any later route that merely starts with the word.
+ */
+const ACTIVE_KEY_BY_PATH: ReadonlyArray<readonly [string, string, boolean]> = [
+  ['/planner', 'plannex', false],
+  ['/workorders', 'womaint', true],
+];
 
 export function activeKeyFor(pathname: string): string {
   const path = pathname.length > 1 && pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
-  for (const [p, key] of ACTIVE_KEY_BY_PATH) if (p === path) return key;
+  for (const [p, key, prefix] of ACTIVE_KEY_BY_PATH) {
+    if (p === path) return key;
+    if (prefix && path.startsWith(`${p}/`)) return key;
+  }
   return '';
 }
 

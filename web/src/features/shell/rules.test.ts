@@ -1,12 +1,16 @@
 /**
- * Azztec_SaaS_web_shell_rules_test_v1_0_1.ts  ->  web/src/features/shell/rules.test.ts
- * Version:  1.0.1   Date: 2026-09-19   Author: Adriaan
- * Spec:     Azztec_SaaS_S1k_Shell_Chunk_Spec_v1_0_1.md s5 . pair of rules.ts 1.0.0
+ * Azztec_SaaS_web_shell_rules_test_v1_0_2.ts  ->  web/src/features/shell/rules.test.ts
+ * Version:  1.0.2   Date: 2026-09-20   Author: Adriaan
+ * Spec:     Azztec_SaaS_S1k_Shell_Chunk_Spec_v1_0_1.md s5 . pair of rules.ts 1.1.0
+ *           W1b: Azztec_SaaS_W1b_WOMaint_Page_Chunk_Spec_v1_0_0.md s3.13
  *
  * Zero network, zero DOM. The tables are asserted against the two view files' values (spec s2.2 / s2.3)
  * - name, key, glyph, colour, basis - so a typo in the port is a red test, not a screenshot diff.
  *
  * Changelog:
+ *   1.0.2  W1b: rules.ts is 1.1.0 and activeKeyFor now has a prefix arm. The /planner case is
+ *          unchanged and still asserts EXACT matching - that is the guard against the new arm
+ *          being applied to the wrong row. Two cases added (14).
  *   1.0.1  Smoke fix, before the tag: the glyph assertion demanded an absolute moveto, but four of
  *          the 22 - build, construction, handyman, insights - open with a relative 'm' in the library.
  *          It now asserts a path command letter, which is what the claim was meant to be. The tables,
@@ -37,11 +41,11 @@ import {
   underline,
 } from './rules';
 
-export const TEST_VERSION = '1.0.1';
+export const TEST_VERSION = '1.0.2';
 
 describe('shell rules - the two views as data', () => {
   it('carries its version, and the icons module its own', () => {
-    expect(VERSION).toBe('1.0.0');
+    expect(VERSION).toBe('1.1.0');
     expect(ICONS_VERSION).toBe('1.0.0');
   });
 
@@ -128,6 +132,18 @@ describe('shell rules - the two views as data', () => {
     expect(activeKeyFor('/')).toBe('');
     expect(activeKeyFor('/plannerx')).toBe('');
     expect(activeKeyFor('')).toBe('');
+  });
+
+  it('activeKeyFor: /workorders and /workorders/<id> both light womaint (W1b)', () => {
+    expect(activeKeyFor('/workorders')).toBe('womaint');
+    expect(activeKeyFor('/workorders/')).toBe('womaint');
+    expect(activeKeyFor('/workorders/662704')).toBe('womaint');
+    expect(activeKeyFor('/workordersx')).toBe('');
+  });
+
+  it('activeKeyFor: the prefix arm belongs to /workorders only - /planner stays exact', () => {
+    expect(activeKeyFor('/planner/662704')).toBe('');
+    expect(activeKeyFor('/planner/anything')).toBe('');
   });
 
   it('printTarget is the SideMenu dispatcher: PO, the four WO spellings, and the browser for the rest', () => {

@@ -1,0 +1,661 @@
+/**
+ * Azztec_SaaS_web_workorders_css_v1_0_1.css  ->  web/src/features/workorders/wo.css
+ * Version:  1.0.1   Date: 2026-09-20   Author: Adriaan
+ * Spec:     Azztec_SaaS_W1b_WOMaint_Page_Chunk_Spec_v1_0_0.md §3.3 · OD-27, OD-54, OD-76, OD-79
+ * Oracle:   WOMaint_2026-09-19_view.json v16.28.3 inline styles (measured, not remembered) +
+ *           stylesheet v2.69 (docs/reference/Workmate_Stylesheet_2026-09-20_v2_69.css): the token
+ *           block and the SEVEN live wm-* classes, ported by what they do. The five dead classes
+ *           (wm-seg-9px, wm-tabs, wm-tabs-sub, wm-panel-header, wm-btn-tertiary) are dropped -
+ *           OD-76: they never applied in the oracle, so porting them would change the pixels.
+ *           No .psc-* names here - that prefix is Ignition's DOM contract, not ours.
+ *
+ * Scope: everything under .wm-wo (the planner's .wm-planner precedent, OD-27). Tokens live on
+ * .wm-wo, NOT :root - the shell and planner must not inherit them. Two deliberate fills are
+ * marked HOUSE below where the export carries no value (table row selection, inert controls);
+ * everything else is the export's own number.
+ *
+ * Changelog:
+ *   1.0.1  Smoke fix, before the tag. .wo-badge was never written - symbols.tsx said "the static half
+ *          lives in wo.css" and nothing did. With no background-size/-position/-repeat the two layers
+ *          fall back to auto / 0% 0% / repeat, so the progress underline filled the whole badge at
+ *          0.95 alpha and hid the text: every WO number in the list rendered as a solid colour block.
+ *          Spec trap 5 named this exact failure. The rule below is the oracle's static half verbatim;
+ *          the two-entry lists MUST stay two entries, because badgeStyle always emits two layers.
+ *   1.0.0  Initial W1b.
+ */
+
+/* ------------------------------------------------------------------ tokens (stylesheet v2.69 verbatim) */
+
+.wm-wo {
+  --wo-rgb-request: 255, 193, 7;
+  --wo-rgb-planned: 23, 162, 184;
+  --wo-rgb-pending: 93, 173, 226;
+  --wo-rgb-acknowledged: 111, 66, 193;
+  --wo-rgb-approved: 11, 94, 215;
+  --wo-rgb-active: 40, 167, 69;
+  --wo-rgb-closed: 220, 53, 69;
+  --wo-rgb-cancelled: 108, 117, 125;
+  --wo-rgb-deferred: 255, 152, 0;
+  --wo-archive-rgb: 93, 110, 113; /* FilterChip_Archive's literal - deliberately not a v2.69 token */
+  --wm-gold-shadow:
+    0 4px 5px 0 rgba(235, 196, 82, 0.14),
+    0 1px 10px 0 rgba(235, 196, 82, 0.12),
+    0 2px 4px -1px rgba(235, 196, 82, 0.2);
+}
+
+/* ------------------------------------------------------------------ page frame (OD-54) */
+
+.wm-wo {
+  background: #ffffff;
+  color: #242e30;
+  display: flex;
+  flex-direction: column;
+  font-family: inherit;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.wm-wo .wo-main {
+  display: flex;
+  flex: 1;
+  gap: 10px;
+  min-height: 0;
+  overflow: hidden;
+  padding: 10px 16px 16px 16px;
+}
+
+/* ------------------------------------------------------------------ list panel */
+
+.wm-wo .wo-list {
+  background: #ffffff;
+  border: 1px solid #c8cece;
+  border-radius: 8px;
+  border-right: 2px solid #b0b0b0;
+  display: flex;
+  flex: 0 0 400px;
+  flex-direction: column;
+  min-width: 450px;
+  overflow: hidden;
+  width: 450px;
+}
+
+.wm-wo .wo-list-head {
+  align-items: center;
+  background: linear-gradient(180deg, #242e30 0%, #2f3b3d 100%);
+  border-bottom: 2px solid #ebc452;
+  border-radius: 8px 8px 0 0;
+  display: flex;
+  flex: none;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 12px;
+}
+
+.wm-wo .wo-list-title {
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  text-align: center;
+}
+
+.wm-wo .wo-typechips {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.wm-wo .wo-chip {
+  background: rgba(222, 191, 122, 0.08);
+  border: 1px solid rgba(222, 191, 122, 0.45);
+  border-radius: 10px;
+  color: #c0c8ca;
+  cursor: pointer;
+  flex: none; /* Landmines §C: chips squash in a flex row without it */
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 9px;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.wm-wo .wo-chip.on {
+  background: #debf7a;
+  color: #1a2224;
+}
+
+/* the list table - the wm-compact-table port (v2.33 band + v2.67 text), re-scoped */
+
+.wm-wo .wo-list-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+.wm-wo .wo-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.wm-wo .wo-table thead th {
+  background: #fafafa;
+  border-bottom: 1px solid #c8cece;
+  font-size: 10px;
+  font-weight: 700;
+  height: 24px; /* the collapsed header band wm-compact-table exists for */
+  min-height: 24px;
+  padding: 0 10px;
+  position: sticky;
+  text-align: left;
+  top: 0;
+  z-index: 1;
+}
+
+.wm-wo .wo-table tbody td {
+  border-bottom: 1px solid #eef0f0;
+  font-size: 10px;
+  height: 42px;
+  padding: 6px 10px;
+  vertical-align: middle;
+}
+
+.wm-wo .wo-table tbody tr {
+  cursor: pointer;
+}
+
+/* HOUSE: the export carries no selection colour (Perspective's own default paints it). */
+.wm-wo .wo-table tbody tr:hover {
+  background: rgba(0, 64, 99, 0.04);
+}
+
+.wm-wo .wo-table tbody tr.on {
+  background: rgba(0, 64, 99, 0.1);
+}
+
+.wm-wo .wo-foot {
+  background: #ffffff;
+  border-radius: 0 0 8px 8px;
+  border-top: 1.5px solid #debf7a;
+  color: #5d6e71;
+  flex: none;
+  font-size: 10px;
+  line-height: 26px;
+  padding-left: 12px;
+}
+
+.wm-wo .wo-loadmore {
+  background: #ffffff;
+  border: 1px solid #196690;
+  border-radius: 4px;
+  color: #196690;
+  cursor: pointer;
+  font-size: 10px;
+  margin: 4px auto;
+  padding: 3px 10px;
+}
+
+/* ------------------------------------------------------------------ WONumBadge static half */
+
+/*
+ * The oracle's non-dynamic props, verbatim. backgroundColor / color / backgroundImage arrive inline
+ * from rules.badgeStyle(); everything here is fixed. The two-entry background-size and -position
+ * lists pair with those two layers in order: layer 1 the 7x7 PO dot at the top right, layer 2 the
+ * 100%-wide 3px underline at the bottom. Drop a layer or an entry and they misalign - the dot
+ * becomes a bar, or the underline becomes a square.
+ */
+.wm-wo .wo-badge {
+  background-position: right 3px top 3px, left bottom;
+  background-repeat: no-repeat, no-repeat;
+  background-size: 7px 7px, 100% 3px;
+  border-radius: 4px;
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  padding: 3px 7px 5px 7px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------------ detail panel + filter row */
+
+.wm-wo .wo-detail {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.wm-wo .wo-filters {
+  align-items: center;
+  background: #f0f0f0;
+  border-bottom: 1.5px solid #debf7a;
+  display: flex;
+  flex: none;
+  gap: 4px;
+  padding: 4px 12px;
+}
+
+.wm-wo .wo-search {
+  background: #f7fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  flex: 0 1 240px;
+  font-size: 11px;
+  height: 28px;
+  padding: 0 8px;
+}
+
+.wm-wo .wo-search::placeholder {
+  font-size: 12px; /* wm-input-sm-placeholder, re-scoped */
+  opacity: 1;
+}
+
+/* the two mode chips - lit/unlit straight from the FilterChip expressions */
+
+.wm-wo .wo-modechip {
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  padding: 3px 7px;
+  text-align: center;
+  transform: scale(1);
+  transition: all 0.3s ease;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.wm-wo .wo-modechip.closed {
+  background-color: rgba(var(--wo-rgb-closed), 0.1);
+  color: rgba(var(--wo-rgb-closed), 0.85);
+}
+
+.wm-wo .wo-modechip.closed.on {
+  background-color: rgba(var(--wo-rgb-closed), 1);
+  box-shadow: 0 2px 10px rgba(var(--wo-rgb-closed), 0.55);
+  color: #ffffff;
+  font-weight: 700;
+  transform: scale(1.1);
+}
+
+.wm-wo .wo-modechip.archive {
+  background-color: rgba(var(--wo-archive-rgb), 0.1);
+  color: rgba(var(--wo-archive-rgb), 0.85);
+}
+
+.wm-wo .wo-modechip.archive.on {
+  background-color: rgba(var(--wo-archive-rgb), 1);
+  box-shadow: 0 2px 10px rgba(var(--wo-archive-rgb), 0.55);
+  color: #ffffff;
+  font-weight: 700;
+  transform: scale(1.1);
+}
+
+/* the 30x28 grey icon buttons (btnEditWO family) - wm-btn-shadow-* ported below */
+
+.wm-wo .wo-btn {
+  align-items: center;
+  background: #eaecec;
+  border: 1px solid #d0d4d4;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  height: 28px;
+  justify-content: center;
+  padding: 0;
+  transition: box-shadow 140ms ease-out, transform 80ms ease;
+  width: 30px;
+}
+
+.wm-wo .wo-shadow-grey {
+  box-shadow: 0 2px 8px 1px rgba(128, 135, 138, 0.38);
+}
+.wm-wo .wo-shadow-grey:hover {
+  box-shadow: 0 5px 15px 3px rgba(128, 135, 138, 0.62);
+}
+.wm-wo .wo-shadow-grey:active {
+  box-shadow: 0 1px 5px rgba(128, 135, 138, 0.35);
+  transform: translateY(1px);
+}
+
+.wm-wo .wo-shadow-blue {
+  box-shadow: 0 2px 9px 1px rgba(0, 64, 99, 0.42);
+}
+.wm-wo .wo-shadow-blue:hover {
+  box-shadow: 0 5px 16px 3px rgba(0, 64, 99, 0.68);
+}
+.wm-wo .wo-shadow-blue:active {
+  box-shadow: 0 1px 5px rgba(0, 64, 99, 0.38);
+  transform: translateY(1px);
+}
+
+.wm-wo .wo-shadow-gold {
+  box-shadow: 0 2px 9px 1px rgba(201, 145, 51, 0.42);
+}
+.wm-wo .wo-shadow-gold:hover {
+  box-shadow: 0 5px 16px 3px rgba(201, 145, 51, 0.68);
+}
+.wm-wo .wo-shadow-gold:active {
+  box-shadow: 0 1px 5px rgba(201, 145, 51, 0.38);
+  transform: translateY(1px);
+}
+
+.wm-wo .wo-shadow-forest {
+  box-shadow: 0 2px 9px 1px rgba(54, 102, 74, 0.42);
+}
+.wm-wo .wo-shadow-forest:hover {
+  box-shadow: 0 5px 16px 3px rgba(54, 102, 74, 0.68);
+}
+.wm-wo .wo-shadow-forest:active {
+  box-shadow: 0 1px 5px rgba(54, 102, 74, 0.35);
+  transform: translateY(1px);
+}
+
+/* HOUSE (S1k): inert write controls - drawn, never disabled-greyed into invisibility, no handler */
+.wm-wo [aria-disabled='true'] {
+  cursor: default;
+  opacity: 0.55;
+}
+.wm-wo [aria-disabled='true']:hover {
+  box-shadow: none;
+}
+.wm-wo [aria-disabled='true']:active {
+  transform: none;
+}
+
+/* ------------------------------------------------------------------ tabs (hand-built buttons, as the oracle's) */
+
+.wm-wo .wo-tabbox {
+  background: #f5f5f5;
+  border: 1px solid #c8cece;
+  border-radius: 8px;
+  box-shadow: var(--wm-gold-shadow);
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.wm-wo .wo-tabrow {
+  background: #fafafa;
+  border-bottom: 1px solid #c8cece;
+  display: flex;
+  flex: none;
+  gap: 0;
+  overflow-x: auto;
+}
+
+.wm-wo .wo-tab {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  color: #8a9698;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 14px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.wm-wo .wo-tab.on {
+  border-bottom: 2px solid #ebc452;
+  color: #004063;
+}
+
+.wm-wo .wo-subtab {
+  font-size: 11px;
+  padding: 5px 12px;
+}
+
+.wm-wo .wo-tabbody {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 0;
+  overflow: auto;
+  padding: 4px;
+}
+
+/* ------------------------------------------------------------------ cards */
+
+.wm-wo .wo-card {
+  background: #ffffff;
+  border: 1px solid #c8cece;
+  border-radius: 8px;
+  box-shadow: var(--wm-gold-shadow);
+  padding: 8px 12px;
+}
+
+.wm-wo .wo-card.head {
+  flex: none;
+  min-height: 130px;
+  padding: 14px 18px;
+}
+
+.wm-wo .wo-schedrow {
+  display: flex;
+  flex: none;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.wm-wo .wo-card.sched {
+  flex: 0.9 0 0px;
+  min-width: 320px;
+}
+
+.wm-wo .wo-card.res {
+  flex: 1 0 0px;
+  min-width: 340px;
+}
+
+/* header card left block */
+
+.wm-wo .wo-frow {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  margin: 3px 0;
+}
+
+.wm-wo .wo-flabel {
+  color: #5d6e71;
+  flex: none;
+  font-size: 12px;
+  font-weight: bold;
+  min-width: 100px;
+  text-align: right;
+  width: 100px;
+}
+
+.wm-wo .wo-idpill {
+  border: 1px solid #c8cece;
+  border-radius: 4px;
+  font-size: 15px;
+  font-weight: bold;
+  height: 36px;
+  line-height: 34px;
+  text-align: center;
+  width: 220px;
+}
+
+.wm-wo .wo-titlefield {
+  border: 1px solid #c8cece;
+  border-radius: 4px;
+  font-size: 11px;
+  min-width: 250px;
+  padding: 6px 8px;
+  width: 350px;
+}
+
+.wm-wo .wo-small {
+  color: #333;
+  font-size: 11px;
+}
+
+.wm-wo .wo-symbols {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-left: auto;
+}
+
+/* status / progress card frames - lit colours arrive inline from rules.ts tables */
+
+.wm-wo .wo-symrow {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+  min-height: 58px;
+}
+
+.wm-wo .wo-symcard {
+  align-items: center;
+  background: transparent;
+  border: 1px solid #8a9698;
+  border-radius: 8px;
+  color: #5d6e71;
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  height: 58px;
+  justify-content: center;
+  width: 68px;
+}
+
+.wm-wo .wo-symlabel {
+  font-size: 10px;
+  padding-bottom: 4px;
+}
+
+/* segment - CompleteWithinSeg self-styles; wm-seg-9px is dead and dropped (OD-76, item 54 closed) */
+
+.wm-wo .wo-seg {
+  background: #eaecec;
+  border-radius: 8px;
+  display: inline-flex;
+  gap: 0;
+  min-height: 34px;
+  padding: 3px;
+}
+
+.wm-wo .wo-seg-item {
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: #5d6e71;
+  font-size: 11px;
+  font-weight: 400;
+  padding: 6px 6px;
+  transition: background-color 0.15s, box-shadow 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.wm-wo .wo-seg-item.on {
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  color: #242e30;
+  font-weight: 500;
+}
+
+/* small read-only value fields (Schedule / Assignment / stamps) */
+
+.wm-wo .wo-val {
+  background: #ffffff;
+  border: 1px solid #c8cece;
+  border-radius: 4px;
+  font-size: 11px;
+  min-width: 120px;
+  padding: 4px 8px;
+}
+
+.wm-wo .wo-val.ro {
+  background: #f0f0f0;
+}
+
+.wm-wo .wo-val.resp {
+  background: #f7f6f2;
+  border-color: #d8d6ce;
+  color: #5d6e71;
+  min-width: 160px;
+  width: 160px;
+}
+
+.wm-wo .wo-cardtitle {
+  color: #242e30;
+  font-size: 11px;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.wm-wo .wo-resline {
+  color: #242e30;
+  font-size: 10px;
+  font-weight: bold;
+  overflow: hidden;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------------ Details sub-tab */
+
+.wm-wo .wo-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.wm-wo .wo-col-left {
+  min-width: 380px;
+}
+
+.wm-wo .wo-col-mid {
+  min-width: 300px;
+}
+
+.wm-wo .wo-col-right {
+  flex: 1;
+  min-width: 280px;
+}
+
+.wm-wo .wo-desc {
+  color: #5d6e71;
+  font-size: 10px;
+}
+
+.wm-wo .wo-notes {
+  border: 1px solid #c8cece;
+  border-radius: 4px;
+  font-size: 11px;
+  margin-top: 8px;
+  min-height: 60px;
+  padding: 6px 8px;
+  resize: vertical;
+  width: 100%;
+}
+
+/* ------------------------------------------------------------------ states */
+
+.wm-wo .wo-empty {
+  color: #5d6e71;
+  font-size: 12px;
+  padding: 24px;
+  text-align: center;
+}
+
+.wm-wo .wo-error {
+  color: #b02a37;
+  font-size: 12px;
+  padding: 24px;
+  text-align: center;
+}

@@ -1,6 +1,6 @@
 /**
- * Azztec_SaaS_web_planner_SelectedWOCard_test_v1_0_1.tsx  ->  web/src/features/planner/SelectedWOCard.test.tsx
- * Version:  1.0.1   Date: 2026-09-13   Author: Adriaan
+ * Azztec_SaaS_web_planner_SelectedWOCard_test_v1_1_2.tsx  ->  web/src/features/planner/SelectedWOCard.test.tsx
+ * Version:  1.1.2   Date: 2026-09-20   Author: Adriaan
  * Spec:     Azztec_SaaS_S1g_Readonly_Chunk_Spec_v1_0_0.md §6 (SelectedWOCard.test.tsx row) · OD-5, OD-34
  *
  * Zero network, zero fetch by import graph. Explicit cleanup(), plain DOM assertions. The absent
@@ -8,18 +8,59 @@
  * surface in a read-only slice.
  *
  * Changelog:
+ *   1.1.2  Smoke fix, before the tag. `importOriginal<typeof import('...')>()` is an inline import()
+ *          type, which the repo forbids (consistent-type-imports). The module is imported as a
+ *          type-only namespace at the top instead, and the generic points at that. Same mock.
+ *   1.1.1  Smoke fix, before the tag. The vi.mock sat between the imports, which put three imports
+ *          after a statement (import/first, 3 lint errors). vi.mock is hoisted by Vitest regardless
+ *          of where it is written, so it lives below the import block now. It also spreads
+ *          importOriginal, so nothing but Link is replaced.
+ *   1.1.0  W1b: the Open control is a Link now, so OD-5's disabled case is replaced by a live-link
+ *          case. @tanstack/react-router is mocked to a plain <a> rather than standing a memory
+ *          router up: this is a unit test of one card, and the mock lets it assert the `to` and
+ *          `params` the card hands the router - which is the actual contract - without the route
+ *          tree. The router's own resolution is covered by the smoke's click-through (spec s7.7).
  *   1.0.1  Lint: Element.textContent is `string` on TS 6 lib.dom, so `?? ''` was an unnecessary
  *          condition. getAttribute() is still `string | null`; that `??` stays.
  *   1.0.0  Initial S1g.
  */
 import { cleanup, fireEvent, render } from '@testing-library/react';
+import type { ReactNode } from 'react';
+import type * as ReactRouter from '@tanstack/react-router';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { OPEN_TITLE, SelectedWOCard, VERSION } from './SelectedWOCard';
+
+import { SelectedWOCard, VERSION } from './SelectedWOCard';
 import { PIN_105, PM_102, RANGE, REQ_103, WORKERS, WO_101 } from './range.fixture';
 import { indexWorkers } from './rules';
 
-export const TEST_VERSION = '1.0.1';
+/**
+ * Link needs a RouterProvider and there is none here by design. importOriginal keeps every other
+ * export real, so only Link is swapped - for a plain <a> carrying `to` and `params` as data
+ * attributes, which is the contract the card owes the router. The router's own resolution is
+ * covered by the smoke's click-through.
+ */
+vi.mock('@tanstack/react-router', async (importOriginal) => ({
+  ...(await importOriginal<typeof ReactRouter>()),
+  Link: ({
+    children,
+    to,
+    params,
+    className,
+    ...rest
+  }: {
+    children: ReactNode;
+    to: string;
+    params: Record<string, string>;
+    className?: string;
+  }) => (
+    <a className={className} data-params={JSON.stringify(params)} data-to={to} href="#" {...rest}>
+      {children}
+    </a>
+  ),
+}));
+
+export const TEST_VERSION = '1.1.2';
 
 afterEach(() => {
   cleanup();
@@ -41,8 +82,7 @@ function kv(root: ParentNode): Record<string, string> {
 
 describe('SelectedWOCard - the read-only card (oracle renderSelected)', () => {
   it('carries its version', () => {
-    expect(VERSION).toBe('1.0.0');
-    expect(OPEN_TITLE).toBe('arrives with the WO module (OD-5)');
+    expect(VERSION).toBe('1.1.0');
   });
 
   it('nothing selected: the oracle empty line, no kv, no actions', () => {
@@ -123,17 +163,31 @@ describe('SelectedWOCard - the read-only card (oracle renderSelected)', () => {
     expect(kv(r2.container)).toMatchObject({ priority: 'N/A', hours: '2h (estimate)', status: 'Request' });
   });
 
-  it('Open in WO Maintenance is disabled with the OD-5 reason; Clear calls onClear', () => {
+  it('Clear calls onClear and is now the only button in .actions', () => {
     const onClear = vi.fn();
     const { container } = render(<SelectedWOCard wo={WO_101} labour={RANGE.labour} byId={byId} onClear={onClear} />);
     const buttons = container.querySelectorAll('.actions button');
-    expect(buttons).toHaveLength(2);
-    const open = buttons[0] as HTMLButtonElement;
-    expect(open.textContent).toBe('Open in WO Maintenance');
-    expect(open.disabled).toBe(true);
-    expect(open.getAttribute('title')).toBe(OPEN_TITLE);
-    expect(open.className).toBe('gold');
-    fireEvent.click(buttons[1]);
+    expect(buttons).toHaveLength(1);
+    fireEvent.click(buttons[0]);
     expect(onClear).toHaveBeenCalledTimes(1);
+  });
+
+  it('Open in WO Maintenance is a live link to /workorders/$id - OD-5 closed', () => {
+    const { container } = render(
+      <SelectedWOCard wo={WO_101} labour={RANGE.labour} byId={byId} onClear={vi.fn()} />,
+    );
+    const open = must(container, '.actions a');
+    expect(open.textContent).toBe('Open in WO Maintenance');
+    expect(open.className).toBe('gold');
+    expect(open.getAttribute('data-to')).toBe('/workorders/$id');
+    expect(open.getAttribute('data-params')).toBe(JSON.stringify({ id: String(WO_101.id) }));
+    expect(open.getAttribute('data-open-wo')).toBe(String(WO_101.id));
+  });
+
+  it('the Open link is no longer disabled chrome - no disabled button remains', () => {
+    const { container } = render(
+      <SelectedWOCard wo={WO_101} labour={RANGE.labour} byId={byId} onClear={vi.fn()} />,
+    );
+    expect(container.querySelectorAll('button[disabled]')).toHaveLength(0);
   });
 });

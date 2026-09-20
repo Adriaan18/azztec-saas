@@ -1,7 +1,8 @@
 /**
- * Azztec_SaaS_web_planner_SelectedWOCard_v1_0_0.tsx  ->  web/src/features/planner/SelectedWOCard.tsx
- * Version:  1.0.0   Date: 2026-09-13   Author: Adriaan
+ * Azztec_SaaS_web_planner_SelectedWOCard_v1_1_0.tsx  ->  web/src/features/planner/SelectedWOCard.tsx
+ * Version:  1.1.0   Date: 2026-09-20   Author: Adriaan
  * Spec:     Azztec_SaaS_S1g_Readonly_Chunk_Spec_v1_0_0.md §5.6 · OD-5, OD-34
+ *           W1b: Azztec_SaaS_W1b_WOMaint_Page_Chunk_Spec_v1_0_0.md §3.13 - OD-5 CLOSED
  * Oracle:   Planner_v1_8_1.html renderSelected (801-836)
  *
  * The SELECTED WO card under the workers rail. The strings come from rules.cardRows() so they are
@@ -9,20 +10,24 @@
  * PLANNED LABOUR list + .actions).
  *
  * Read-only, by the audit (OD-34): no `+ person`, no `x` on a labour row, no Unpin, no assistant orb -
- * those are S4 / S3 / S5b affordances and are absent, not disabled. The one disabled control is
- * `Open in WO Maintenance`: OD-5 says the WO module's route does not exist yet, and a greyed button
- * with that reason is more honest than a button that does nothing.
+ * those are S4 / S3 / S5b affordances and are absent, not disabled.
+ *
+ * `Open in WO Maintenance` was that one disabled control, greyed since S1g because OD-5's route did
+ * not exist. W1b built it, so the button is now a Link to /workorders/$id and OD-5 is closed. It is
+ * a <Link>, not a button with a navigate() handler: middle-click and Ctrl-click open a work order in
+ * a new tab, which is what a planner user does all day.
  *
  * Changelog:
+ *   1.1.0  W1b: the Open button is live - Link to /workorders/$id. OPEN_TITLE is gone with the
+ *          disabled state that needed it; the card is otherwise untouched.
  *   1.0.0  Initial S1g.
  */
+import { Link } from '@tanstack/react-router';
+
 import { cardRows } from './rules';
 import type { LabourRow, Wo, Worker } from '../../api/client/types.gen';
 
-export const VERSION = '1.0.0';
-
-/** OD-5: the handoff arrives with the WO module. */
-export const OPEN_TITLE = 'arrives with the WO module (OD-5)';
+export const VERSION = '1.1.0';
 
 export type SelectedWOCardProps = {
   wo: Wo | null;
@@ -133,9 +138,14 @@ export function SelectedWOCard({ wo, labour, byId, onClear }: SelectedWOCardProp
         <div className="empty">nobody planned yet</div>
       )}
       <div className="actions">
-        <button type="button" className="gold" disabled title={OPEN_TITLE}>
+        <Link
+          className="gold"
+          data-open-wo={wo.id}
+          params={{ id: String(wo.id) }}
+          to="/workorders/$id"
+        >
           Open in WO Maintenance
-        </button>
+        </Link>
         <button type="button" onClick={onClear}>
           Clear
         </button>

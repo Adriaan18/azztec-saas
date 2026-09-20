@@ -1,0 +1,97 @@
+{
+  "custom": {},
+  "params": {
+    "value": ""
+  },
+  "propConfig": {
+    "params.value": {
+      "paramDirection": "input",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 28,
+      "width": 100
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Badge"
+        },
+        "position": {
+          "shrink": 0
+        },
+        "propConfig": {
+          "props.style.backgroundColor": {
+            "binding": {
+              "config": {
+                "expression": "if(left({view.params.value},1) \u003d \u0027P\u0027, \u0027rgba(var(--po-rgb-pending),0.16)\u0027, if(left({view.params.value},1) \u003d \u0027W\u0027, \u0027rgba(var(--po-rgb-waiting),0.16)\u0027, if(left({view.params.value},1) \u003d \u0027A\u0027, \u0027rgba(var(--po-rgb-approved),0.16)\u0027, if(left({view.params.value},1) \u003d \u0027I\u0027, \u0027rgba(var(--po-rgb-issued),0.16)\u0027, if(left({view.params.value},1) \u003d \u0027R\u0027, \u0027rgba(var(--po-rgb-received),0.16)\u0027, if(left({view.params.value},1) \u003d \u0027T\u0027, \u0027rgba(var(--po-rgb-part-recv),0.16)\u0027, if(left({view.params.value},1) \u003d \u0027C\u0027, \u0027rgba(var(--po-rgb-completed),0.16)\u0027, if(left({view.params.value},1) \u003d \u0027X\u0027, \u0027rgba(var(--po-rgb-exported),0.16)\u0027, if(left({view.params.value},1) \u003d \u0027Q\u0027, \u0027rgba(var(--po-rgb-rfq),0.16)\u0027, if(left({view.params.value},1) \u003d \u0027D\u0027, \u0027rgba(var(--po-rgb-cancelled),0.16)\u0027, \u0027rgba(var(--po-rgb-cancelled),0.08)\u0027))))))))))"
+              },
+              "type": "expr"
+            }
+          },
+          "props.style.backgroundImage": {
+            "binding": {
+              "config": {
+                "expression": "if(len({view.params.value}) \u003e 1 \u0026\u0026 (substring({view.params.value}, 1, 2) \u003d \u0027w\u0027 || substring({view.params.value}, 1, 2) \u003d \u0027W\u0027), \u0027radial-gradient(circle 2.5px at calc(100% - 5px) 5px, #0B5ED7 99%, transparent 100%)\u0027, if(len({view.params.value}) \u003e 1 \u0026\u0026 (substring({view.params.value}, 1, 2) \u003d \u0027c\u0027 || substring({view.params.value}, 1, 2) \u003d \u0027C\u0027), \u0027radial-gradient(circle 2.5px at calc(100% - 5px) 5px, rgba(var(--wo-rgb-closed),1.0) 99%, transparent 100%)\u0027, \u0027none\u0027))"
+              },
+              "type": "expr"
+            }
+          },
+          "props.style.boxShadow": {
+            "binding": {
+              "config": {
+                "expression": "if(len({view.params.value}) \u003e 1 \u0026\u0026 (substring({view.params.value}, 1, 2) \u003d \u0027!\u0027 || substring({view.params.value}, 1, 2) \u003d \u0027W\u0027 || substring({view.params.value}, 1, 2) \u003d \u0027C\u0027), \u00270 0 0 2px #DC7323\u0027, \u0027none\u0027)"
+              },
+              "type": "expr"
+            }
+          },
+          "props.style.color": {
+            "binding": {
+              "config": {
+                "expression": "if(left({view.params.value},1) \u003d \u0027P\u0027, \u0027rgba(var(--po-rgb-pending),0.80)\u0027, if(left({view.params.value},1) \u003d \u0027W\u0027, \u0027rgba(var(--po-rgb-waiting),0.80)\u0027, if(left({view.params.value},1) \u003d \u0027I\u0027, \u0027rgba(var(--po-rgb-issued),0.80)\u0027, if(left({view.params.value},1) \u003d \u0027A\u0027, \u0027rgba(var(--po-rgb-approved),0.80)\u0027, if(left({view.params.value},1) \u003d \u0027R\u0027, \u0027rgba(var(--po-rgb-received),0.80)\u0027, if(left({view.params.value},1) \u003d \u0027T\u0027, \u0027rgba(var(--po-rgb-part-recv),0.80)\u0027, if(left({view.params.value},1) \u003d \u0027C\u0027, \u0027rgba(var(--po-rgb-completed),0.80)\u0027, if(left({view.params.value},1) \u003d \u0027X\u0027, \u0027rgba(var(--po-rgb-exported),0.80)\u0027, if(left({view.params.value},1) \u003d \u0027Q\u0027, \u0027rgba(var(--po-rgb-rfq),0.80)\u0027, if(left({view.params.value},1) \u003d \u0027D\u0027, \u0027rgba(var(--po-rgb-cancelled),0.80)\u0027, \u0027rgba(var(--po-rgb-cancelled),0.50)\u0027))))))))))"
+              },
+              "type": "expr"
+            }
+          },
+          "props.text": {
+            "binding": {
+              "config": {
+                "expression": "if(len({view.params.value}) \u003e 2, right({view.params.value}, len({view.params.value}) - 2), {view.params.value})"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "borderRadius": "4px",
+            "fontSize": "11px",
+            "fontWeight": "600",
+            "letterSpacing": "0.3px",
+            "paddingBottom": "3px",
+            "paddingLeft": "7px",
+            "paddingRight": "7px",
+            "paddingTop": "3px",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      }
+    ],
+    "meta": {
+      "name": "PONumBadge_v1_2_0"
+    },
+    "props": {
+      "alignItems": "center",
+      "justify": "center",
+      "style": {
+        "overflow": "hidden"
+      }
+    },
+    "type": "ia.container.flex"
+  }
+}
