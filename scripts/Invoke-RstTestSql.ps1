@@ -1,6 +1,6 @@
 # =============================================================================
-# Azztec_SaaS_scripts_Invoke_RstTestSql_v1_0_5.ps1  ->  scripts/Invoke-RstTestSql.ps1
-# Version:  1.0.5   Date: 2026-09-24   Author: Adriaan
+# Azztec_SaaS_scripts_Invoke_RstTestSql_v1_0_6.ps1  ->  scripts/Invoke-RstTestSql.ps1
+# Version:  1.0.6   Date: 2026-09-30   Author: Adriaan
 # Spec:     RST PM repair test, slices R2/R4 (chat 2026-09-23/24, OD-83/84). Runs one .sql file
 #           against dbWorkmate_RST_Test and nothing else.
 #
@@ -44,6 +44,11 @@
 # ASCII only (Ways of Working s2, Landmines sA). No colon inside a SQL comment.
 #
 # Changelog:
+#   1.0.6  Two summary bugs found by R3 v1.0.0 (2026-09-30). (1) The "Label : value" filter that keeps
+#          02's count lines out of the row count also threw away every result row holding a drive
+#          path (O:\...), so section A showed 0 rows while the log held them - the filter now only
+#          applies to lines without a column separator. (2) The Version line is found as
+#          "Version :" or "Version =" (the R3 probes keep colons out of SQL comments).
 #   1.0.5  A script's own CATCH ("ERROR - rolled back: ...") or a Msg line now makes the wrapper exit
 #          1. 03 v1.0.0 failed to compile in the rehearsal, its CATCH printed the error, sqlcmd
 #          exited 0, and the block chained on to the commit as if the dry run had passed.
@@ -71,7 +76,7 @@ param(
     [switch]   $OnDevReadOnly       # run against dev dbWorkmate, static-checked + wrapped in a rolled-back transaction
 )
 
-$script:VERSION = '1.0.5'
+$script:VERSION = '1.0.6'
 $ErrorActionPreference = 'Stop'
 $Database = if ($OnDevReadOnly) { 'dbWorkmate' } else { 'dbWorkmate_RST_Test' }   # PINNED on purpose - not a parameter
 $protected = @('dbWorkmate', 'dbWorkmate_KT', 'dbWorkmate_KT_RFID')
@@ -107,7 +112,7 @@ if ($code -match '(?im)^\s*USE\s') { Fail 'file contains a USE statement - it wo
 foreach ($p in $protected) {
     if ($code -match ('(?i)\b' + [regex]::Escape($p) + '\s*\.\s*(dbo|sys)\s*\.')) { Fail ("file references {0}.dbo. - a protected database. Refused." -f $p) }
 }
-$verLine = ($text -split "`r?`n" | Where-Object { $_ -match '^\s*Version\s*:' } | Select-Object -First 1)
+$verLine = ($text -split "`r?`n" | Where-Object { $_ -match '^\s*Version\s*[:=]' } | Select-Object -First 1)
 $verText = if ($verLine) { $verLine.Trim() } else { 'no Version line (unversioned file)' }
 Say 'F' ("file {0}  {1} B  {2}" -f $fi.Name, $fi.Length, $verText)
 if ($code -match '(?im)^\s*DECLARE\s+@Commit\s+bit\s*=\s*(\d)') { Say 'F' ("file declares @Commit = {0}" -f $Matches[1]) }
@@ -193,7 +198,7 @@ if ($sections.Count -eq 0) {
 } else {
     foreach ($k in $sections.Keys) {
         $body = @($sections[$k].Lines)
-        $data = @($body | Where-Object { $_.Trim() -ne '' -and $_ -notmatch '^[- |]+$' -and $_ -notmatch '^\(\d+ rows? affected\)' -and $_ -notmatch '^\s*Msg\s+\d+' -and $_ -notmatch '^[A-Za-z*].*\S\s*:\s*\S' })
+        $data = @($body | Where-Object { $_.Trim() -ne '' -and $_ -notmatch '^[- |]+$' -and $_ -notmatch '^\(\d+ rows? affected\)' -and $_ -notmatch '^\s*Msg\s+\d+' -and -not ($_ -notmatch '\|' -and $_ -match '^[A-Za-z*].*\S\s*:\s*\S') })
         $rows = @(); $seenNames = $false; $piped = $false
         foreach ($d in $data) {
             if (-not $seenNames) { if ($d -match '\|' -or $data.Count -eq 1) { $seenNames = $true; $piped = ($d -match '\|') }; continue }
