@@ -1,7 +1,8 @@
 /*
- * Azztec_SaaS_web_shell_css_v1_0_0.css  ->  web/src/features/shell/shell.css
- * Version:  1.0.0   Date: 2026-09-16   Author: Adriaan
- * Spec:     Azztec_SaaS_S1k_Shell_Chunk_Spec_v1_0_1.md s3.6 . OD-50, OD-51, OD-53
+ * Azztec_SaaS_web_shell_css_v1_1_0.css  ->  web/src/features/shell/shell.css
+ * Version:  1.1.0   Date: 2026-11-07   Author: Adriaan
+ * Spec:     Azztec_SaaS_S1k_Shell_Chunk_Spec_v1_0_1.md s3.6 . OD-50, OD-51, OD-53;
+ *           Azztec_SaaS_DP2_SignIn_Rights_Chunk_Spec_v1_0_1.md s6 (userLabel - not an oracle component)
  * Oracle:   HeaderToolbar v16.47 / SideMenu v4.20 props.style values (docs/reference/*_2026-09-16_view.json);
  *           page-config cornerPriority top-bottom (the header spans the rail); the Text/SubHeader style
  *           class (Verdana / bold - the view overrides its colour and size on the two clock labels).
@@ -19,6 +20,7 @@
  * comparison in the smoke is their check.
  *
  * Changelog:
+ *   1.1.0  DP2b: userLabel (.who) - the signed-in name and the page's "view only". Nothing else moved.
  *   1.0.0  Initial S1k.
  */
 
@@ -65,6 +67,12 @@
 
 /* RightControls: shrink 0, alignItems center, gap 8px, paddingRight 8px */
 .wm-shell .wm-hdr .right{flex:none;display:flex;align-items:center;gap:8px;padding-right:8px}
+
+/* userLabel (DP2b, ours - KT's userCoord stays unrendered): the name over a quiet gold "view only", right-aligned
+   against TipsToggle; a long name ends in an ellipsis rather than pushing the clock */
+.wm-shell .wm-hdr .who{flex:none;display:flex;flex-direction:column;align-items:flex-end;max-width:200px;min-width:0;line-height:1.2}
+.wm-shell .wm-hdr .who .nm{max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;color:#E7E4DC}
+.wm-shell .wm-hdr .who .ro{font-size:10px;color:#EBC452;letter-spacing:0.3px}
 
 /* TipsToggle: a 22px circle, marginRight 4px; the bound colour/shadow in its no-prefs state (showTips true) */
 .wm-shell .wm-hdr .tips{display:flex;align-items:center;justify-content:center;width:22px;min-width:22px;height:22px;border-radius:50%;margin-right:4px;

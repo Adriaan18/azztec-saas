@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PlannerRouteImport } from './routes/planner'
+import { Route as SigninRouteImport } from './routes/signin'
 import { Route as WorkordersIndexRouteImport } from './routes/workorders.index'
 import { Route as WorkordersIdRouteImport } from './routes/workorders.$id'
 
@@ -22,6 +23,11 @@ const IndexRoute = IndexRouteImport.update({
 const PlannerRoute = PlannerRouteImport.update({
   id: '/planner',
   path: '/planner',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SigninRoute = SigninRouteImport.update({
+  id: '/signin',
+  path: '/signin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const WorkordersIndexRoute = WorkordersIndexRouteImport.update({
@@ -38,12 +44,14 @@ const WorkordersIdRoute = WorkordersIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/planner': typeof PlannerRoute
+  '/signin': typeof SigninRoute
   '/workorders/$id': typeof WorkordersIdRoute
   '/workorders/': typeof WorkordersIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/planner': typeof PlannerRoute
+  '/signin': typeof SigninRoute
   '/workorders/$id': typeof WorkordersIdRoute
   '/workorders': typeof WorkordersIndexRoute
 }
@@ -51,20 +59,28 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/planner': typeof PlannerRoute
+  '/signin': typeof SigninRoute
   '/workorders/$id': typeof WorkordersIdRoute
   '/workorders/': typeof WorkordersIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/planner' | '/workorders/$id' | '/workorders/'
+  fullPaths: '/' | '/planner' | '/signin' | '/workorders/$id' | '/workorders/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/planner' | '/workorders/$id' | '/workorders'
-  id: '__root__' | '/' | '/planner' | '/workorders/$id' | '/workorders/'
+  to: '/' | '/planner' | '/signin' | '/workorders/$id' | '/workorders'
+  id:
+    | '__root__'
+    | '/'
+    | '/planner'
+    | '/signin'
+    | '/workorders/$id'
+    | '/workorders/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   PlannerRoute: typeof PlannerRoute
+  SigninRoute: typeof SigninRoute
   WorkordersIdRoute: typeof WorkordersIdRoute
   WorkordersIndexRoute: typeof WorkordersIndexRoute
 }
@@ -83,6 +99,13 @@ declare module '@tanstack/react-router' {
       path: '/planner'
       fullPath: '/planner'
       preLoaderRoute: typeof PlannerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/signin': {
+      id: '/signin'
+      path: '/signin'
+      fullPath: '/signin'
+      preLoaderRoute: typeof SigninRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/workorders/': {
@@ -105,6 +128,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   PlannerRoute: PlannerRoute,
+  SigninRoute: SigninRoute,
   WorkordersIdRoute: WorkordersIdRoute,
   WorkordersIndexRoute: WorkordersIndexRoute,
 }

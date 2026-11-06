@@ -1,0 +1,52 @@
+/*
+ * Azztec_SaaS_web_auth_css_v1_0_0.css  ->  web/src/features/auth/auth.css
+ * Version:  1.0.0   Date: 2026-11-07   Author: Adriaan
+ * Spec:     Azztec_SaaS_DP2_SignIn_Rights_Chunk_Spec_v1_0_1.md s6
+ *
+ * The sign-in page, the gate's two waits and the no-access page. The sign-in page and the waits stand
+ * alone (no shell around them), so they carry the shell's font stack, background and header gradient
+ * themselves; the no-access page sits in the shell's main cell and inherits from it. Every selector is
+ * scoped under its own root class, so Tailwind's preflight and the other pages are untouched. Imported
+ * by the three components - that import is what puts it in the build. ASCII only.
+ *
+ * Changelog:
+ *   1.0.0  Initial DP2b.
+ */
+
+/* ---- the sign-in page: the header's gradient as the backdrop, one card */
+.wm-signin{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;
+  background:linear-gradient(135deg, #242E30 0%, #242E30 55%, #003050 80%, #004063 100%);color:#E7E4DC;
+  font:13px/1.4 "Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif}
+.wm-signin *{box-sizing:border-box}
+.wm-signin .card{width:100%;max-width:340px;display:flex;flex-direction:column;gap:12px;padding:24px 24px 20px;
+  background:#24282C;border:1px solid rgba(255,255,255,0.12);border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,0.45)}
+.wm-signin .brand{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.wm-signin .brand img{display:block;width:40px;height:40px}
+/* the header's wordmark gradient, without its shadows */
+.wm-signin .wordmark{font-size:24px;font-weight:700;letter-spacing:0.8px;line-height:28px;
+  background:linear-gradient(180deg, #FFFFFF 0%, #FFF7D6 26%, #FFE08A 47%, #C8912F 51%, #A87718 70%, #FFE9A8 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
+.wm-signin h1{margin:0;font-size:18px;font-weight:600;color:#FFFFFF}
+.wm-signin .hint{margin:0;color:#C0C8CA}
+.wm-signin .field{display:flex;flex-direction:column;gap:4px;font-size:12px;color:#C0C8CA}
+.wm-signin input{width:100%;height:34px;padding:0 10px;font:inherit;font-size:14px;color:#1F1F1F;background:#FFFFFF;
+  border:1px solid #8A9499;border-radius:4px;outline:none}
+.wm-signin input:focus{border-color:#EBC452;box-shadow:0 0 0 2px rgba(235,196,82,0.35)}
+/* the one message line: its height is reserved, so the button does not jump when it fills */
+.wm-signin .msg{min-height:18px;margin:0;color:#FFB4A9}
+.wm-signin button{height:36px;font:inherit;font-size:14px;font-weight:600;color:#1F1F1F;background:#EBC452;
+  border:0;border-radius:4px;cursor:pointer}
+.wm-signin button:disabled{opacity:0.6;cursor:default}
+
+/* ---- the gate's waits: checking the sign-in, or the server is unreachable - full screen, before the shell */
+.wm-auth-wait{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
+  background:#24282C;color:#C0C8CA;font:13px/1.4 "Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif}
+.wm-auth-wait p{margin:0}
+.wm-auth-wait button{height:30px;padding:0 14px;font:inherit;font-weight:600;color:#1F1F1F;background:#EBC452;
+  border:0;border-radius:4px;cursor:pointer}
+
+/* ---- the no-access page, in the shell's main cell */
+.wm-noaccess{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+  padding:24px;text-align:center;color:#C0C8CA}
+.wm-noaccess h1{margin:0 0 6px;font-size:18px;font-weight:600;color:#FFFFFF}
+.wm-noaccess p{margin:0}

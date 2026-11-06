@@ -1,13 +1,16 @@
 /**
- * Azztec_SaaS_web_shell_AppShell_test_v1_0_0.tsx  ->  web/src/features/shell/AppShell.test.tsx
- * Version:  1.0.0   Date: 2026-09-16   Author: Adriaan
- * Spec:     Azztec_SaaS_S1k_Shell_Chunk_Spec_v1_0_1.md s5 . pair of AppShell.tsx 1.0.0
+ * Azztec_SaaS_web_shell_AppShell_test_v1_1_0.tsx  ->  web/src/features/shell/AppShell.test.tsx
+ * Version:  1.1.0   Date: 2026-11-07   Author: Adriaan
+ * Spec:     Azztec_SaaS_S1k_Shell_Chunk_Spec_v1_0_1.md s5 . pair of AppShell.tsx 1.1.0;
+ *           Azztec_SaaS_DP2_SignIn_Rights_Chunk_Spec_v1_0_1.md s6
  *
  * Zero network. jsdom has no Fullscreen API and window.print only logs "not implemented", so both are
  * stubbed on the test document / window (spec s4 trap 4). The clock runs on fake timers with the system
  * time set through the LOCAL constructor - never an ISO string, which is UTC midnight (Landmines s.C).
  *
  * Changelog:
+ *   1.1.0  DP2b: version 1.1.0; +2 cases (the three props reach the header; bare, it is the S1k shell).
+ *          8 cases.
  *   1.0.0  Initial S1k. 6 cases.
  */
 import { act, cleanup, fireEvent, render } from '@testing-library/react';
@@ -15,7 +18,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { AppShell, VERSION } from './AppShell';
 
-export const TEST_VERSION = '1.0.0';
+export const TEST_VERSION = '1.1.0';
 
 function must(root: HTMLElement, sel: string): HTMLElement {
   const el = root.querySelector(sel);
@@ -45,7 +48,7 @@ afterEach(() => {
 
 describe('AppShell - header + rail around the page', () => {
   it('carries its version', () => {
-    expect(VERSION).toBe('1.0.0');
+    expect(VERSION).toBe('1.1.0');
   });
 
   it('draws the header, the rail and the page in the main cell', () => {
@@ -120,5 +123,30 @@ describe('AppShell - header + rail around the page', () => {
     fireEvent.click(fs);
     expect(exitFullscreen).toHaveBeenCalledTimes(1);
     expect(requestFullscreen).toHaveBeenCalledTimes(1);
+  });
+
+  it('the name, view only and Sign out pass straight through to the header (DP2b)', () => {
+    const onSignOut = vi.fn();
+    const { container } = render(
+      <AppShell pathname="/planner" onPlannex={vi.fn()} userName="Azzmax logon" viewOnly onSignOut={onSignOut}>
+        <span />
+      </AppShell>,
+    );
+    expect(must(container, '[data-name="userLabel"] .nm').textContent).toBe('Azzmax logon');
+    expect(must(container, '[data-name="viewOnly"]').textContent).toBe('view only');
+    const logout = must(container, '[data-name="logoutBtn"]');
+    expect(logout.getAttribute('aria-disabled')).toBeNull();
+    fireEvent.click(logout);
+    expect(onSignOut).toHaveBeenCalledTimes(1);
+  });
+
+  it('bare, the shell is the one S1k shipped: no name, logout drawn and inert', () => {
+    const { container } = render(
+      <AppShell pathname="/planner" onPlannex={vi.fn()}>
+        <span />
+      </AppShell>,
+    );
+    expect(container.querySelector('[data-name="userLabel"]')).toBeNull();
+    expect(must(container, '[data-name="logoutBtn"]').getAttribute('aria-disabled')).toBe('true');
   });
 });

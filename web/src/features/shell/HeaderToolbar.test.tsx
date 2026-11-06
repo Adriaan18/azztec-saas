@@ -1,22 +1,29 @@
 /**
- * Azztec_SaaS_web_shell_HeaderToolbar_test_v1_0_0.tsx  ->  web/src/features/shell/HeaderToolbar.test.tsx
- * Version:  1.0.0   Date: 2026-09-16   Author: Adriaan
- * Spec:     Azztec_SaaS_S1k_Shell_Chunk_Spec_v1_0_1.md s5 . pair of HeaderToolbar.tsx 1.0.0
+ * Azztec_SaaS_web_shell_HeaderToolbar_test_v1_1_0.tsx  ->  web/src/features/shell/HeaderToolbar.test.tsx
+ * Version:  1.1.0   Date: 2026-11-07   Author: Adriaan
+ * Spec:     Azztec_SaaS_S1k_Shell_Chunk_Spec_v1_0_1.md s5 . pair of HeaderToolbar.tsx 1.1.0;
+ *           Azztec_SaaS_DP2_SignIn_Rights_Chunk_Spec_v1_0_1.md s6
  *
  * Zero network, zero fetch - nothing in the import graph reaches the client. The harness has no
  * setupFiles and no globals (Landmines s.C): explicit cleanup(), plain DOM assertions. jsdom reports a
  * colour set through a border shorthand on the longhand in rgb() form - asserted that way (S1i).
  *
+ * The S1k cases draw the header without the three DP2b props and stand unchanged: with no session the
+ * header is exactly the one S1k shipped, inert logout and all.
+ *
  * Changelog:
+ *   1.1.0  DP2b: version 1.1.0; draw() takes the three new props; +4 cases (the name, view only, a live
+ *          Sign out, no name no label). 12 cases.
  *   1.0.0  Initial S1k. 8 cases.
  */
 import { cleanup, fireEvent, render } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { HeaderToolbar, VERSION } from './HeaderToolbar';
+import { HeaderToolbar, SIGN_OUT_TITLE, VERSION } from './HeaderToolbar';
+import type { HeaderToolbarProps } from './HeaderToolbar';
 import { AZZTEC_LOGO_URI } from './icons';
 
-export const TEST_VERSION = '1.0.0';
+export const TEST_VERSION = '1.1.0';
 
 afterEach(() => {
   cleanup();
@@ -32,7 +39,10 @@ function names(root: HTMLElement, sel: string): Array<string> {
   return Array.from(root.querySelectorAll(sel)).map((e) => e.getAttribute('data-name') ?? '');
 }
 
-function draw(activeKey: string, onPlannex = vi.fn(), onFullscreen = vi.fn()) {
+/** the three DP2b props - absent in every S1k case */
+type Session = Pick<HeaderToolbarProps, 'onSignOut' | 'userName' | 'viewOnly'>;
+
+function draw(activeKey: string, onPlannex = vi.fn(), onFullscreen = vi.fn(), session: Session = {}) {
   const r = render(
     <HeaderToolbar
       activeKey={activeKey}
@@ -40,6 +50,7 @@ function draw(activeKey: string, onPlannex = vi.fn(), onFullscreen = vi.fn()) {
       timeText="13:08:06"
       onPlannex={onPlannex}
       onFullscreen={onFullscreen}
+      {...session}
     />,
   );
   return { ...r, onPlannex, onFullscreen };
@@ -47,7 +58,7 @@ function draw(activeKey: string, onPlannex = vi.fn(), onFullscreen = vi.fn()) {
 
 describe('HeaderToolbar - the top dock (HeaderToolbar v16.47)', () => {
   it('carries its version', () => {
-    expect(VERSION).toBe('1.0.0');
+    expect(VERSION).toBe('1.1.0');
   });
 
   it('renders the oracle components in view order, by data-name', () => {
@@ -159,5 +170,50 @@ describe('HeaderToolbar - the top dock (HeaderToolbar v16.47)', () => {
     expect(must(container, '[data-name="timeLabel"]').textContent).toBe('13:08:06');
     fireEvent.click(must(container, '[data-name="fsBtn"]'));
     expect(onFullscreen).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('HeaderToolbar - the signed-in person (DP2b)', () => {
+  it('a name leads RightControls; at full rights there is no view-only marker', () => {
+    const { container } = draw('plannex', vi.fn(), vi.fn(), { userName: 'Azzmax logon' });
+    expect(names(container, '[data-name="RightControls"] > [data-name]')).toEqual([
+      'userLabel',
+      'TipsToggle',
+      'ControlStack',
+    ]);
+    const who = must(container, '[data-name="userLabel"]');
+    expect(must(who, '.nm').textContent).toBe('Azzmax logon');
+    expect(who.getAttribute('title')).toBe('Azzmax logon');
+    expect(container.querySelector('[data-name="viewOnly"]')).toBeNull();
+  });
+
+  it('view only: a marker under the name, and the title says so', () => {
+    const { container } = draw('plannex', vi.fn(), vi.fn(), { userName: 'Azzmax logon', viewOnly: true });
+    const who = must(container, '[data-name="userLabel"]');
+    expect(Array.from(who.children).map((e) => e.className)).toEqual(['nm', 'ro']);
+    expect(must(who, '[data-name="viewOnly"]').textContent).toBe('view only');
+    expect(who.getAttribute('title')).toBe('Azzmax logon - view only on this page');
+  });
+
+  it('onSignOut makes logout live: not inert, no aria-disabled, titled Sign out, one call per click', () => {
+    const onSignOut = vi.fn();
+    const { container } = draw('', vi.fn(), vi.fn(), { onSignOut });
+    const btn = must(container, '[data-name="logoutBtn"]');
+    expect(btn.getAttribute('aria-disabled')).toBeNull();
+    expect(btn.className.split(' ')).not.toContain('inert');
+    expect(SIGN_OUT_TITLE).toBe('Sign out');
+    expect(btn.getAttribute('title')).toBe(SIGN_OUT_TITLE);
+    expect(btn.getAttribute('aria-label')).toBe('sign out');
+    fireEvent.click(btn);
+    expect(onSignOut).toHaveBeenCalledTimes(1);
+    fireEvent.click(btn);
+    expect(onSignOut).toHaveBeenCalledTimes(2);
+  });
+
+  it('no name, no label: an empty name, or viewOnly on its own, draws the S1k right side', () => {
+    const { container } = draw('', vi.fn(), vi.fn(), { userName: '', viewOnly: true });
+    expect(container.querySelector('[data-name="userLabel"]')).toBeNull();
+    expect(container.querySelector('[data-name="viewOnly"]')).toBeNull();
+    expect(names(container, '[data-name="RightControls"] > [data-name]')).toEqual(['TipsToggle', 'ControlStack']);
   });
 });

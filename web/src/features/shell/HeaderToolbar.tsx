@@ -1,24 +1,32 @@
 /**
- * Azztec_SaaS_web_shell_HeaderToolbar_v1_0_0.tsx  ->  web/src/features/shell/HeaderToolbar.tsx
- * Version:  1.0.0   Date: 2026-09-16   Author: Adriaan
- * Spec:     Azztec_SaaS_S1k_Shell_Chunk_Spec_v1_0_1.md s3.3 . OD-50, OD-51, OD-52, OD-53 (AZZTEC only)
+ * Azztec_SaaS_web_shell_HeaderToolbar_v1_1_0.tsx  ->  web/src/features/shell/HeaderToolbar.tsx
+ * Version:  1.1.0   Date: 2026-11-07   Author: Adriaan
+ * Spec:     Azztec_SaaS_S1k_Shell_Chunk_Spec_v1_0_1.md s3.3 . OD-50, OD-51, OD-52, OD-53 (AZZTEC only);
+ *           Azztec_SaaS_DP2_SignIn_Rights_Chunk_Spec_v1_0_1.md s6 (the name, view only, Sign out)
  * Oracle:   Workmate/Navigation/HeaderToolbar v16.47 (docs/reference/HeaderToolbar_2026-09-16_view.json)
  *
  * One element per oracle component, in the view's order, each carrying data-name="<meta.name>" so
  * DevTools, the screenshot and the JSON line up. Props-driven and router-free (the PlannerView
- * precedent): the active key, the brand, the clock strings and two callbacks come in; nothing here
+ * precedent): the active key, the brand, the clock strings and the callbacks come in; nothing here
  * imports a router or reads a URL.
  *
  * Not rendered, exactly as the oracle hides them on this session: the WORKMATE brand parts
  * (WorkmateLogo, AMMSSpine, lblBrandName - cut, OD-53: the logo PNG did not arrive and a missing image
- * is not a port), VXSearchPill and userCoord (OD-52 - rights and roles do not exist yet). Drawn and inert (OD-51 / OD-34): the two
- * logos, the three menus, every module button but Plannex, the tips toggle, logout - cursor default,
- * aria-disabled, a title that says what they wait for, no handler. Live: Plannex (click / Enter ->
- * onPlannex), fsBtn (-> onFullscreen), and the clock.
+ * is not a port), VXSearchPill and userCoord (OD-52 - KT gates them on roles this build does not
+ * carry). Drawn and inert (OD-51 / OD-34): the two logos, the three menus, every module button but
+ * Plannex, the tips toggle - cursor default, aria-disabled, a title that says what they wait for, no
+ * handler. Live: Plannex (click / Enter -> onPlannex), fsBtn (-> onFullscreen), and the clock.
+ *
+ * 1.1.0 (DP2b) - three optional props, so the header still draws exactly as before when they are absent:
+ *   - userName: the signed-in person, first in RightControls (data-name userLabel - not KT's userCoord,
+ *     which is an administrator's tool and stays unrendered).
+ *   - viewOnly: the page's right is RO - a quiet gold "view only" under the name.
+ *   - onSignOut: the logout button goes live (title "Sign out"); without it, it stays drawn and inert.
  *
  * Inline style only where the oracle BINDS a style (the underlines); every static value is in shell.css.
  *
  * Changelog:
+ *   1.1.0  DP2b: userName / viewOnly / onSignOut. Nothing else moved.
  *   1.0.0  Initial S1k.
  */
 import type { KeyboardEvent } from 'react';
@@ -36,7 +44,10 @@ import {
   underline,
 } from './rules';
 
-export const VERSION = '1.0.0';
+export const VERSION = '1.1.0';
+
+/** the live logout button's hover title (DP2b); the inert one keeps LOGOUT_TITLE */
+export const SIGN_OUT_TITLE = 'Sign out';
 
 export type HeaderToolbarProps = {
   /** the oracle's session.custom.activePage, derived from the router path (rules.activeKeyFor) */
@@ -47,6 +58,12 @@ export type HeaderToolbarProps = {
   timeText: string;
   onPlannex: () => void;
   onFullscreen: () => void;
+  /** DP2b: the signed-in person's name; absent or '' -> no label */
+  userName?: string | undefined;
+  /** DP2b: the active page's right is RO */
+  viewOnly?: boolean | undefined;
+  /** DP2b: Sign out; absent -> the logout button stays drawn and inert */
+  onSignOut?: (() => void) | undefined;
 };
 
 /** click or Enter on a role=link element */
@@ -62,6 +79,9 @@ export function HeaderToolbar({
   timeText,
   onPlannex,
   onFullscreen,
+  userName = '',
+  viewOnly = false,
+  onSignOut,
 }: HeaderToolbarProps) {
   return (
     <header className="wm-hdr" data-name="HeaderToolbar_v16_47">
@@ -136,6 +156,20 @@ export function HeaderToolbar({
       <span className="spacer" data-name="Spacer" />
 
       <div className="right" data-name="RightControls">
+        {userName !== '' ? (
+          <span
+            className="who"
+            data-name="userLabel"
+            title={viewOnly ? `${userName} - view only on this page` : userName}
+          >
+            <span className="nm">{userName}</span>
+            {viewOnly ? (
+              <span className="ro" data-name="viewOnly">
+                view only
+              </span>
+            ) : null}
+          </span>
+        ) : null}
         {/* VXSearchPill: not rendered - rights-gated at KT (OD-52) */}
         <span className="tips on inert" data-name="TipsToggle" title={TIPS_TITLE} aria-disabled="true">
           <Glyph paths={MATERIAL.help_outline} colour="#FFFFFF" px={16} />
@@ -155,16 +189,29 @@ export function HeaderToolbar({
               </button>
             </span>
             <span className="coord" data-name="logoutCoord">
-              <button
-                type="button"
-                className="sq inert"
-                data-name="logoutBtn"
-                title={LOGOUT_TITLE}
-                aria-label="logout"
-                aria-disabled="true"
-              >
-                <Glyph paths={LOGOUT} colour="#1F1F1F" px={14} />
-              </button>
+              {onSignOut ? (
+                <button
+                  type="button"
+                  className="sq"
+                  data-name="logoutBtn"
+                  title={SIGN_OUT_TITLE}
+                  aria-label="sign out"
+                  onClick={onSignOut}
+                >
+                  <Glyph paths={LOGOUT} colour="#1F1F1F" px={14} />
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="sq inert"
+                  data-name="logoutBtn"
+                  title={LOGOUT_TITLE}
+                  aria-label="logout"
+                  aria-disabled="true"
+                >
+                  <Glyph paths={LOGOUT} colour="#1F1F1F" px={14} />
+                </button>
+              )}
             </span>
             <span className="clk" data-name="dateLabel">
               {dateText}
