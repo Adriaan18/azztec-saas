@@ -1,8 +1,8 @@
 /* ============================================================================
    Azztec SaaS - client schema script
-   Version          = schema 0001 - generated on 2026-11-06 by scripts/deploy_sql.py 1.0.1
+   Version          = schema 0002 - generated on 2026-11-07 by scripts/deploy_sql.py 1.0.1
    DO NOT HAND-EDIT   it is re-rendered from the migrations whenever they change
-   Migrations       0001
+   Migrations       0001, 0002
    Needs            SQL Server 2016 or later
 
    WHEN    After every restore of the Workmate database, before the Azztec service starts.
@@ -20,10 +20,12 @@
               logins, which other accounts cannot see.
 
    WHAT IT ADDS - nothing else is touched
-     12 tables, 15 columns on existing tables, 15 indexes, and dbo.alembic_version
+     14 tables, 15 columns on existing tables, 18 indexes, and dbo.alembic_version
        table dbo.Account_WorkCode
        table dbo.Action_Event
        table dbo.Action_Header
+       table dbo.Auth_Event
+       table dbo.Auth_Session
        table dbo.Diag_Log
        table dbo.Diag_NightShift
        table dbo.Diag_PM_Engine_Run
@@ -55,6 +57,9 @@
        index dbo.Action_Header.IX_Action_Header_Promoted
        index dbo.Action_Header.IX_Action_Header_RaisedBy
        index dbo.Action_Header.IX_Action_Header_Status_Entry
+       index dbo.Auth_Event.IX_Auth_Event_IP
+       index dbo.Auth_Event.IX_Auth_Event_Login
+       index dbo.Auth_Session.IX_Auth_Session_User
        index dbo.Diag_Log.IX_Diag_Log_LoggedAt
        index dbo.Diag_Log.IX_Diag_Log_User_LoggedAt
        index dbo.Diag_NightShift.IX_Diag_NightShift_Run
@@ -79,7 +84,7 @@ DECLARE @AppLogin sysname = '';
 
 EXEC sp_set_session_context @key = N'azztec_app_login', @value = @AppLogin;
 EXEC sp_set_session_context @key = N'azztec_app_user', @value = NULL;
-PRINT CONCAT('azztec_schema 0001 - db=', DB_NAME(), ' server=', @@SERVERNAME, ' login=', SUSER_SNAME(),
+PRINT CONCAT('azztec_schema 0002 - db=', DB_NAME(), ' server=', @@SERVERNAME, ' login=', SUSER_SNAME(),
              ' at=', CONVERT(varchar(19), GETDATE(), 120));
 IF DB_NAME() IN (N'master', N'model', N'msdb', N'tempdb') OR OBJECT_ID(N'dbo.Users', N'U') IS NULL OR OBJECT_ID(N'dbo.WO_N_Header', N'U') IS NULL
 BEGIN
@@ -722,6 +727,83 @@ END
 ELSE PRINT 'present index dbo.PO_Email_Log.IX_PO_Email_Log_SentDate';
 GO
 
+IF OBJECT_ID(N'dbo.Auth_Session', N'U') IS NULL
+BEGIN
+    EXEC(N'CREATE TABLE dbo.Auth_Session (
+    Session_Hash char(64) NOT NULL,
+    User_ID numeric(18,0) NOT NULL,
+    Created_Utc datetime2(3) NOT NULL,
+    Last_Seen_Utc datetime2(3) NOT NULL,
+    Expires_Utc datetime2(3) NOT NULL,
+    Revoked_Utc datetime2(3) NULL,
+    Client_IP varchar(45) NULL,
+    User_Agent nvarchar(200) NULL,
+    CONSTRAINT PK_Auth_Session PRIMARY KEY (Session_Hash)
+)');
+    IF OBJECT_ID(N'dbo.Auth_Session', N'U') IS NULL
+        PRINT 'NOT CREATED table dbo.Auth_Session - read the error above';
+    ELSE
+        PRINT 'created table dbo.Auth_Session';
+END
+ELSE PRINT 'present table dbo.Auth_Session';
+GO
+
+IF OBJECT_ID(N'dbo.Auth_Event', N'U') IS NULL
+BEGIN
+    EXEC(N'CREATE TABLE dbo.Auth_Event (
+    Auth_Event_ID bigint IDENTITY(1,1) NOT NULL,
+    Event_At_Utc datetime2(3) NOT NULL,
+    Event_Type varchar(20) NOT NULL,
+    Reason varchar(40) NULL,
+    Login_Typed nvarchar(100) NULL,
+    Login_Key nvarchar(100) NULL,
+    User_ID numeric(18,0) NULL,
+    Client_IP varchar(45) NULL,
+    User_Agent nvarchar(200) NULL,
+    Request_Id varchar(36) NULL,
+    CONSTRAINT PK_Auth_Event PRIMARY KEY (Auth_Event_ID)
+)');
+    IF OBJECT_ID(N'dbo.Auth_Event', N'U') IS NULL
+        PRINT 'NOT CREATED table dbo.Auth_Event - read the error above';
+    ELSE
+        PRINT 'created table dbo.Auth_Event';
+END
+ELSE PRINT 'present table dbo.Auth_Event';
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.Auth_Session') AND name = N'IX_Auth_Session_User')
+BEGIN
+    EXEC(N'CREATE INDEX IX_Auth_Session_User ON dbo.Auth_Session (User_ID, Expires_Utc)');
+    IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.Auth_Session') AND name = N'IX_Auth_Session_User')
+        PRINT 'NOT CREATED index dbo.Auth_Session.IX_Auth_Session_User - read the error above';
+    ELSE
+        PRINT 'created index dbo.Auth_Session.IX_Auth_Session_User';
+END
+ELSE PRINT 'present index dbo.Auth_Session.IX_Auth_Session_User';
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.Auth_Event') AND name = N'IX_Auth_Event_Login')
+BEGIN
+    EXEC(N'CREATE INDEX IX_Auth_Event_Login ON dbo.Auth_Event (Login_Key, Event_At_Utc)');
+    IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.Auth_Event') AND name = N'IX_Auth_Event_Login')
+        PRINT 'NOT CREATED index dbo.Auth_Event.IX_Auth_Event_Login - read the error above';
+    ELSE
+        PRINT 'created index dbo.Auth_Event.IX_Auth_Event_Login';
+END
+ELSE PRINT 'present index dbo.Auth_Event.IX_Auth_Event_Login';
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.Auth_Event') AND name = N'IX_Auth_Event_IP')
+BEGIN
+    EXEC(N'CREATE INDEX IX_Auth_Event_IP ON dbo.Auth_Event (Client_IP, Event_At_Utc)');
+    IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.Auth_Event') AND name = N'IX_Auth_Event_IP')
+        PRINT 'NOT CREATED index dbo.Auth_Event.IX_Auth_Event_IP - read the error above';
+    ELSE
+        PRINT 'created index dbo.Auth_Event.IX_Auth_Event_IP';
+END
+ELSE PRINT 'present index dbo.Auth_Event.IX_Auth_Event_IP';
+GO
+
 -- Version stamp
 
 IF OBJECT_ID(N'dbo.alembic_version', N'U') IS NULL
@@ -736,13 +818,13 @@ ELSE PRINT 'present table dbo.alembic_version';
 GO
 DECLARE @cur varchar(32), @rows int;
 SELECT @rows = COUNT(*), @cur = MAX(version_num) FROM dbo.alembic_version;
-IF @rows = 1 AND @cur = '0001'
-    PRINT 'present version 0001';
-ELSE IF @rows = 0 OR (@rows = 1 AND @cur IN ('0001'))
+IF @rows = 1 AND @cur = '0002'
+    PRINT 'present version 0002';
+ELSE IF @rows = 0 OR (@rows = 1 AND @cur IN ('0001', '0002'))
 BEGIN
     DELETE FROM dbo.alembic_version;
-    INSERT INTO dbo.alembic_version (version_num) VALUES ('0001');
-    PRINT CONCAT('stamped version 0001 (was ', COALESCE(@cur, 'none'), ')');
+    INSERT INTO dbo.alembic_version (version_num) VALUES ('0002');
+    PRINT CONCAT('stamped version 0002 (was ', COALESCE(@cur, 'none'), ')');
 END
 ELSE
     PRINT CONCAT('NOT STAMPED - the database carries ', @rows, ' version row(s), latest ', COALESCE(@cur, 'none'),
@@ -889,10 +971,15 @@ IF NOT (NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.
 IF NOT (NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.Home_View') AND name = N'IX_Home_View_User')) SET @i += 1;
 IF NOT (NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.PO_Email_Log') AND name = N'IX_PO_Email_Log_PO_Id')) SET @i += 1;
 IF NOT (NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.PO_Email_Log') AND name = N'IX_PO_Email_Log_SentDate')) SET @i += 1;
+IF NOT (OBJECT_ID(N'dbo.Auth_Session', N'U') IS NULL) SET @t += 1;
+IF NOT (OBJECT_ID(N'dbo.Auth_Event', N'U') IS NULL) SET @t += 1;
+IF NOT (NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.Auth_Session') AND name = N'IX_Auth_Session_User')) SET @i += 1;
+IF NOT (NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.Auth_Event') AND name = N'IX_Auth_Event_Login')) SET @i += 1;
+IF NOT (NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.Auth_Event') AND name = N'IX_Auth_Event_IP')) SET @i += 1;
 IF OBJECT_ID(N'dbo.alembic_version', N'U') IS NOT NULL
     SELECT @v = MAX(version_num) FROM dbo.alembic_version;
-PRINT CONCAT('tables ', @t, '/12  columns ', @c, '/15  indexes ', @i, '/15  version ', COALESCE(@v, 'none'), '  app user ', COALESCE(@app, 'not run'));
-IF @t = 12 AND @c = 15 AND @i = 15 AND @v = '0001' AND @app IN ('ok', 'skipped')
+PRINT CONCAT('tables ', @t, '/14  columns ', @c, '/15  indexes ', @i, '/18  version ', COALESCE(@v, 'none'), '  app user ', COALESCE(@app, 'not run'));
+IF @t = 14 AND @c = 15 AND @i = 18 AND @v = '0002' AND @app IN ('ok', 'skipped')
     PRINT 'AZZTEC SCHEMA OK';
 ELSE
     PRINT 'AZZTEC SCHEMA INCOMPLETE - read the lines above';

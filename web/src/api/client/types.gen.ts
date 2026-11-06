@@ -29,6 +29,24 @@ export type ApiError = {
 }
 
 /**
+ * AuthUser
+ */
+export type AuthUser = {
+  /**
+   * Userid
+   */
+  userId: number
+  /**
+   * Shortid
+   */
+  shortId: string
+  /**
+   * Name
+   */
+  name: string
+}
+
+/**
  * Counts
  */
 export type Counts = {
@@ -288,6 +306,20 @@ export type LinkedRow = {
    * Selected
    */
   selected: boolean
+}
+
+/**
+ * PageRights
+ */
+export type PageRights = {
+  /**
+   * Planner
+   */
+  planner: 'RWD' | 'RW' | 'RO' | 'NA'
+  /**
+   * Womaint
+   */
+  womaint: 'RWD' | 'RW' | 'RO' | 'NA'
 }
 
 /**
@@ -667,6 +699,56 @@ export type SearchFilters = {
    * Offset
    */
   offset: number
+}
+
+/**
+ * SessionInfo
+ */
+export type SessionInfo = {
+  /**
+   * Ok
+   */
+  ok: boolean
+  user: AuthUser
+  rights: PageRights
+  /**
+   * Isadmin
+   */
+  isAdmin: boolean
+  /**
+   * Expiresat
+   *
+   * UTC, ISO 8601 with a Z
+   */
+  expiresAt: string
+}
+
+/**
+ * SignIn
+ */
+export type SignIn = {
+  /**
+   * Login
+   *
+   * the Workmate.NET login id
+   */
+  login: string
+  /**
+   * Password
+   *
+   * verified, never stored or logged
+   */
+  password: string
+}
+
+/**
+ * SignedOut
+ */
+export type SignedOut = {
+  /**
+   * Ok
+   */
+  ok: boolean
 }
 
 /**
@@ -1468,6 +1550,89 @@ export type DiagSelfTestApiV1DiagSelfTestGetResponses = {
 export type DiagSelfTestApiV1DiagSelfTestGetResponse =
   DiagSelfTestApiV1DiagSelfTestGetResponses[keyof DiagSelfTestApiV1DiagSelfTestGetResponses]
 
+export type SignInApiV1AuthSigninPostData = {
+  body: SignIn
+  path?: never
+  query?: never
+  url: '/api/v1/auth/signin'
+}
+
+export type SignInApiV1AuthSigninPostErrors = {
+  /**
+   * Unauthorized
+   */
+  401: ApiError
+  /**
+   * Forbidden
+   */
+  403: ApiError
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+  /**
+   * Locked
+   */
+  423: ApiError
+}
+
+export type SignInApiV1AuthSigninPostError =
+  SignInApiV1AuthSigninPostErrors[keyof SignInApiV1AuthSigninPostErrors]
+
+export type SignInApiV1AuthSigninPostResponses = {
+  /**
+   * Successful Response
+   */
+  200: SessionInfo
+}
+
+export type SignInApiV1AuthSigninPostResponse =
+  SignInApiV1AuthSigninPostResponses[keyof SignInApiV1AuthSigninPostResponses]
+
+export type SignOutApiV1AuthSignoutPostData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/api/v1/auth/signout'
+}
+
+export type SignOutApiV1AuthSignoutPostResponses = {
+  /**
+   * Successful Response
+   */
+  200: SignedOut
+}
+
+export type SignOutApiV1AuthSignoutPostResponse =
+  SignOutApiV1AuthSignoutPostResponses[keyof SignOutApiV1AuthSignoutPostResponses]
+
+export type MeApiV1AuthMeGetData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/api/v1/auth/me'
+}
+
+export type MeApiV1AuthMeGetErrors = {
+  /**
+   * Unauthorized
+   */
+  401: ApiError
+}
+
+export type MeApiV1AuthMeGetError =
+  MeApiV1AuthMeGetErrors[keyof MeApiV1AuthMeGetErrors]
+
+export type MeApiV1AuthMeGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: SessionInfo
+}
+
+export type MeApiV1AuthMeGetResponse =
+  MeApiV1AuthMeGetResponses[keyof MeApiV1AuthMeGetResponses]
+
 export type GetRangeApiV1PlannerRangeGetData = {
   body?: never
   path?: never
@@ -1497,6 +1662,10 @@ export type GetRangeApiV1PlannerRangeGetErrors = {
    * Unauthorized
    */
   401: ApiError
+  /**
+   * Forbidden
+   */
+  403: ApiError
   /**
    * Validation Error
    */
@@ -1566,6 +1735,10 @@ export type ListWorkordersApiV1WorkordersGetErrors = {
    */
   401: ApiError
   /**
+   * Forbidden
+   */
+  403: ApiError
+  /**
    * Validation Error
    */
   422: HttpValidationError
@@ -1603,6 +1776,10 @@ export type GetWorkorderApiV1WorkordersWoIdGetErrors = {
    * Unauthorized
    */
   401: ApiError
+  /**
+   * Forbidden
+   */
+  403: ApiError
   /**
    * Not Found
    */
@@ -1655,6 +1832,10 @@ export type GetEventsApiV1WorkordersWoIdEventsGetErrors = {
    */
   401: ApiError
   /**
+   * Forbidden
+   */
+  403: ApiError
+  /**
    * Not Found
    */
   404: ApiError
@@ -1696,6 +1877,10 @@ export type GetLinkedApiV1WorkordersWoIdLinkedGetErrors = {
    * Unauthorized
    */
   401: ApiError
+  /**
+   * Forbidden
+   */
+  403: ApiError
   /**
    * Not Found
    */
@@ -1739,6 +1924,10 @@ export type GetQueriesApiV1WorkordersWoIdQueriesGetErrors = {
    */
   401: ApiError
   /**
+   * Forbidden
+   */
+  403: ApiError
+  /**
    * Not Found
    */
   404: ApiError
@@ -1780,6 +1969,10 @@ export type GetPoLinesApiV1WorkordersWoIdPosGetErrors = {
    * Unauthorized
    */
   401: ApiError
+  /**
+   * Forbidden
+   */
+  403: ApiError
   /**
    * Not Found
    */

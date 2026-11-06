@@ -1,16 +1,32 @@
 """
-Azztec_SaaS_app_main_v1_0_8.py  ->  backend/app/main.py
-Version:  0.5.0   (app version reported by /api/v1/health, and info.version of the exported OpenAPI document)
-                  The card revision is 1.0.8.
+Azztec_SaaS_app_main_v1_0_9.py  ->  backend/app/main.py
+Version:  0.6.0   (app version reported by /api/v1/health, and info.version of the exported OpenAPI document)
+                  The card revision is 1.0.9.
 Author:   Adriaan
-Spec:     Azztec_SaaS_Architecture_and_Stack_v1_0_0.md (D-6, D-8, D-9), S1d chunk spec §5 (OD-19, OD-20)
+Spec:     Azztec_SaaS_Architecture_and_Stack_v1_0_0.md (D-6, D-8, D-9), S1d chunk spec §5 (OD-19, OD-20),
+          Azztec_SaaS_DP2_SignIn_Rights_Chunk_Spec_v1_0_1.md s5 (OD-97, OD-100, OD-103)
 
 App factory, lifespan (engine up/down + tz probe), request-id middleware with [F]/[G]/[E] outcome lines,
-/api/v1/health, /api/v1/_diag/self-test, the planner and workorders routers, and app.frontend() serving
-web/dist in prod.
+/api/v1/health, /api/v1/_diag/self-test, the auth, planner and workorders routers, and app.frontend()
+serving web/dist in prod.
 Run: uv run fastapi dev app/main.py
 
 Changelog:
+  0.6.0  DP2a (card 1.0.9). Sign-in and rights:
+         - deps.LOADER = auth.service.principal_from_request, so every gated request resolves one
+           session-backed principal (core still imports no feature package - the PERSIST_SQL pattern);
+         - the auth router under /api/v1/auth (signin, signout, me);
+         - the planner router behind require('planner', 'RO') and the workorders router behind
+           require('womaint', 'RO'), both with 403 documented - the routers themselves are untouched;
+         - the _diag router behind its own dev-only check FIRST and then require_admin (OD-100): outside
+           dev every _diag route is a 404 for everyone, so a probe learns nothing; in dev it needs a
+           signed-in Workmate administrator;
+         - 423 maps to LOCKED in the flat error handler;
+         - the self-test stamps actor 0: WORKMATE_DEV_USER_ID is no identity for any request (OD-103);
+         - /health versions gain auth and deps.
+         Three new published paths, so the app version is a minor bump (WoW §2): the export is
+         openapi_0_6_0.json and the 0.5.0 file leaves the tree in the same commit. /health, the
+         self-test and the SPA stay public.
   (card 1.0.8, app version unchanged)  FORMAT ONLY - the W1a smoke ran `ruff format --check` and this
          file was the one of 43 it would reflow: five lines that were already in card 1.0.5/1.0.6
          (SLOW_MS, a blank line before Conn, the diag-wired line, the INTERNAL JSONResponse, dbName).
@@ -76,24 +92,35 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.engine import Connection
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from app.core import config, db, diag
+from app.auth import router as auth_router
+from app.auth import service as auth_service
+from app.core import config, db, deps, diag
 from app.core.config import get_settings
 from app.diag import repo as diag_repo
 from app.diag import router as diag_router
 from app.diag import sql as diag_sql
 from app.planner import router as planner_router
 from app.planner import service as planner_service
+from app.planner.schemas import ApiError
 from app.workorders import router as workorders_router
 
-__version__ = "0.5.0"
+__version__ = "0.6.0"
 
-_HTTP_CODES = {401: "NO_IDENTITY", 403: "FORBIDDEN", 404: "NOT_FOUND", 405: "METHOD_NOT_ALLOWED"}
+_HTTP_CODES = {
+    401: "NO_IDENTITY",
+    403: "FORBIDDEN",
+    404: "NOT_FOUND",
+    405: "METHOD_NOT_ALLOWED",
+    423: "LOCKED",
+}
 
 SLOW_MS = (
     2000  # OD-59: a slow outcome line is worth a row even when it succeeded (Landmines: over 2 s is the box)
 )
 PURGE_FIRST_DELAY_S = 300
 PURGE_EVERY_S = 86_400
+
+_GATED = {403: {"model": ApiError}}  # documented on every route of a gated router (OD-100)
 
 
 def _purge_once() -> dict:
@@ -157,6 +184,15 @@ def create_app() -> FastAPI:
     if s.diag_persist and s.env != "test":
         diag.PERSIST_SQL = diag_sql.INSERT
     diag.log("F", f"diag persist={diag.persist_mode()}", source="main", persist=False)
+    # DP2a: the same pattern for identity - core's seam, the feature's loader (OD-97, OD-103).
+    deps.LOADER = auth_service.principal_from_request
+    diag.log(
+        "F",
+        f"auth wired cookie={s.session_cookie} secure={s.cookie_secure} "
+        f"hours={s.session_hours} idle={s.session_idle_minutes}m",
+        source="main",
+        persist=False,
+    )
 
     app = FastAPI(title="Workmate SaaS", version=__version__, lifespan=lifespan)
 
@@ -227,6 +263,8 @@ def create_app() -> FastAPI:
                 "db": db.__version__,
                 "diag": diag.__version__,
                 "config": config.__version__,  # read, never a literal - /health must not lie (WoW §2)
+                "deps": deps.__version__,
+                "auth": auth_router.__version__,
                 "planner": planner_router.__version__,
                 "workorders": workorders_router.__version__,
                 "diagApi": diag_router.__version__,
@@ -236,7 +274,7 @@ def create_app() -> FastAPI:
     @api.get("/_diag/self-test")
     def diag_self_test(request: Request, conn: Conn) -> dict:
         rid = getattr(request.state, "rid", "")
-        actor = s.dev_user_id if s.is_dev else 0
+        actor = 0  # OD-103: no request is acted for by WORKMATE_DEV_USER_ID any more
         rec = diag.log("F", "diag self-test", request_id=rid, actor=actor, dedupe=False)
         persisted, diag_id = False, 0
         if diag.PERSIST_SQL:
@@ -256,9 +294,19 @@ def create_app() -> FastAPI:
             "record": rec,
         }
 
-    api.include_router(planner_router.router)
-    api.include_router(workorders_router.router)
-    api.include_router(diag_router.router)  # dev-only, out of the schema (OD-61)
+    api.include_router(auth_router.router)
+    api.include_router(
+        planner_router.router, dependencies=[Depends(deps.require("planner", "RO"))], responses=_GATED
+    )
+    api.include_router(
+        workorders_router.router, dependencies=[Depends(deps.require("womaint", "RO"))], responses=_GATED
+    )
+    # out of the schema (OD-61). Dev-only runs first so a non-dev box answers 404 before any identity check;
+    # the route's own `_dev` parameter reuses the cached result.
+    api.include_router(
+        diag_router.router,
+        dependencies=[Depends(diag_router._dev_only), Depends(deps.require_admin)],
+    )
     app.include_router(api)
 
     # SPA: path operations always win; fallback serves index.html for browser navigations only.

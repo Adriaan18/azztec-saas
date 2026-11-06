@@ -5,6 +5,7 @@ import {
   type InfiniteData,
   infiniteQueryOptions,
   queryOptions,
+  type UseMutationOptions,
 } from '@tanstack/react-query'
 
 import { client } from '../client.gen'
@@ -18,7 +19,10 @@ import {
   getWorkorderApiV1WorkordersWoIdGet,
   healthApiV1HealthGet,
   listWorkordersApiV1WorkordersGet,
+  meApiV1AuthMeGet,
   type Options,
+  signInApiV1AuthSigninPost,
+  signOutApiV1AuthSignoutPost,
 } from '../sdk.gen'
 import type {
   DiagSelfTestApiV1DiagSelfTestGetData,
@@ -46,6 +50,14 @@ import type {
   ListWorkordersApiV1WorkordersGetData,
   ListWorkordersApiV1WorkordersGetError,
   ListWorkordersApiV1WorkordersGetResponse,
+  MeApiV1AuthMeGetData,
+  MeApiV1AuthMeGetError,
+  MeApiV1AuthMeGetResponse,
+  SignInApiV1AuthSigninPostData,
+  SignInApiV1AuthSigninPostError,
+  SignInApiV1AuthSigninPostResponse,
+  SignOutApiV1AuthSignoutPostData,
+  SignOutApiV1AuthSignoutPostResponse,
 } from '../types.gen'
 
 export type QueryKey<TOptions extends Options> = [
@@ -142,6 +154,88 @@ export const diagSelfTestApiV1DiagSelfTestGetOptions = (
       return data
     },
     queryKey: diagSelfTestApiV1DiagSelfTestGetQueryKey(options),
+  })
+
+/**
+ * Sign In
+ */
+export const signInApiV1AuthSigninPostMutation = (
+  options?: Partial<Options<SignInApiV1AuthSigninPostData>>,
+): UseMutationOptions<
+  SignInApiV1AuthSigninPostResponse,
+  SignInApiV1AuthSigninPostError,
+  Options<SignInApiV1AuthSigninPostData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    SignInApiV1AuthSigninPostResponse,
+    SignInApiV1AuthSigninPostError,
+    Options<SignInApiV1AuthSigninPostData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await signInApiV1AuthSigninPost({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      })
+      return data
+    },
+  }
+  return mutationOptions
+}
+
+/**
+ * Sign Out
+ */
+export const signOutApiV1AuthSignoutPostMutation = (
+  options?: Partial<Options<SignOutApiV1AuthSignoutPostData>>,
+): UseMutationOptions<
+  SignOutApiV1AuthSignoutPostResponse,
+  DefaultError,
+  Options<SignOutApiV1AuthSignoutPostData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    SignOutApiV1AuthSignoutPostResponse,
+    DefaultError,
+    Options<SignOutApiV1AuthSignoutPostData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await signOutApiV1AuthSignoutPost({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      })
+      return data
+    },
+  }
+  return mutationOptions
+}
+
+export const meApiV1AuthMeGetQueryKey = (
+  options?: Options<MeApiV1AuthMeGetData>,
+) => createQueryKey('meApiV1AuthMeGet', options)
+
+/**
+ * Me
+ */
+export const meApiV1AuthMeGetOptions = (
+  options?: Options<MeApiV1AuthMeGetData>,
+) =>
+  queryOptions<
+    MeApiV1AuthMeGetResponse,
+    MeApiV1AuthMeGetError,
+    MeApiV1AuthMeGetResponse,
+    ReturnType<typeof meApiV1AuthMeGetQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await meApiV1AuthMeGet({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      })
+      return data
+    },
+    queryKey: meApiV1AuthMeGetQueryKey(options),
   })
 
 export const getRangeApiV1PlannerRangeGetQueryKey = (

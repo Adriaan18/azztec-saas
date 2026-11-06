@@ -1,6 +1,6 @@
 """
-Azztec_SaaS_backend_tests_test_deploy_sql_v1_0_1.py  ->  backend/tests/test_deploy_sql.py
-Version:  1.0.1
+Azztec_SaaS_backend_tests_test_deploy_sql_v1_0_2.py  ->  backend/tests/test_deploy_sql.py
+Version:  1.0.2
 Author:   Adriaan
 Spec:     Azztec_SaaS_DP1_Deploy_Schema_Script_Chunk_Spec_v1_0_1.md s5.3 (OD-90..OD-95)
 Pair of:  scripts/deploy_sql.py 1.0.1
@@ -11,6 +11,8 @@ deploy/sql/azztec_schema.sql to a fresh render, so a hand edit to the client scr
 (the S1j precedent, OD-95).
 
 Changelog:
+  1.0.2  DP2a: migration 0002_auth_sessions is the head - two tables and three indexes, so the real
+         chain is 0001 -> 0002 with 14 tables, 15 columns, 18 indexes, 47 steps. Nothing else changed.
   1.0.1  24 cases. New - the header's Version line is the one Invoke-RstTestSql reads; the preflight
          sets the session options and resets the app-user outcome; the app-user ladder (sysadmin
          runner, missing login, sysadmin login, database owner, a user that belongs to another login,
@@ -284,11 +286,11 @@ def test_counts_line():
 # ---------------------------------------------------------------------------
 
 
-def test_the_real_migrations_load_to_head_0001_with_42_steps():
+def test_the_real_migrations_load_to_head_0002_with_47_steps():
     migs = deploy_sql.load_migrations(VERSIONS)
-    assert [m.revision for m in migs][-1] == "0001"
+    assert [m.revision for m in migs] == ["0001", "0002"]
     c = deploy_sql.counts(migs)
-    assert (c["tables"], c["columns"], c["indexes"], c["steps"]) == (12, 15, 15, 42)
+    assert (c["tables"], c["columns"], c["indexes"], c["steps"]) == (14, 15, 18, 47)
 
 
 def test_every_real_step_quotes_cleanly():

@@ -1,9 +1,10 @@
 """
-Azztec_SaaS_test_openapi_contract_v1_1_1.py  ->  backend/tests/test_openapi_contract.py
-Version:  1.1.1
+Azztec_SaaS_test_openapi_contract_v1_2_0.py  ->  backend/tests/test_openapi_contract.py
+Version:  1.2.0
 Author:   Adriaan
 Spec:     Azztec_SaaS_S1d_Diag_Chunk_Spec_v1_0_0.md §6
           Azztec_SaaS_W1a_WOMaint_Read_Api_Chunk_Spec_v1_0_0.md §3.6
+          Azztec_SaaS_DP2_SignIn_Rights_Chunk_Spec_v1_0_1.md s5
 
 Guards the PUBLISHED schema, not the runtime body. `from` is a Python keyword, so the contract key needs
 Field(alias="from") on the model AND Query(alias="from") on the route parameter - two independent
@@ -16,6 +17,9 @@ Reads app.openapi(). Never iterates router.routes - FastAPI 0.137 made that a tr
 (Landmines §A). Zero DB: building the schema opens no connection.
 
 Changelog:
+  1.2.0  DP2a. The three /auth paths: published with their methods, SignIn's two fields and no extras,
+         SessionInfo's key set, the 401/403/423 failure shapes. 403 documented on the range route and on
+         every /workorders path (the router gates, OD-100). info.version 0.6.0. Nothing above changed.
   1.1.1  W1a smoke: ruff SIM300 (Yoda condition) on the envelope subset assertion - operands swapped.
          No assertion change.
   1.1.0  W1a. The six /workorders paths: published, their parameters and bounds, the flat error shapes,
@@ -230,4 +234,53 @@ def test_workorders_no_from_underscore_anywhere(schema: dict[str, Any]) -> None:
 def test_info_version_is_the_app_version(schema: dict[str, Any]) -> None:
     from app.main import __version__ as app_version  # noqa: PLC0415 - after env is set
 
-    assert schema["info"]["version"] == app_version == "0.5.0"
+    assert schema["info"]["version"] == app_version == "0.6.0"
+
+
+# ---------------------------------------------------------------------------
+# DP2a - the three /auth paths and the router gates
+# ---------------------------------------------------------------------------
+
+AUTH = "/api/v1/auth"
+
+
+def _flat(schema: dict[str, Any], responses: dict[str, Any], code: str) -> set[str]:
+    ref = responses[code]["content"]["application/json"]["schema"]["$ref"]
+    return set(_resolve(schema, ref)["properties"])
+
+
+def test_auth_routes_are_published_with_their_methods(schema: dict[str, Any]) -> None:
+    assert set(schema["paths"][AUTH + "/signin"]) == {"post"}
+    assert set(schema["paths"][AUTH + "/signout"]) == {"post"}
+    assert set(schema["paths"][AUTH + "/me"]) == {"get"}
+
+
+def test_signin_body_is_login_and_password_only(schema: dict[str, Any]) -> None:
+    op = schema["paths"][AUTH + "/signin"]["post"]
+    ref = op["requestBody"]["content"]["application/json"]["schema"]["$ref"]
+    body = _resolve(schema, ref)
+    assert set(body["properties"]) == {"login", "password"} == set(body["required"])
+    assert body.get("additionalProperties") is False
+
+
+def test_session_info_shape_and_no_token_on_the_wire(schema: dict[str, Any]) -> None:
+    op = schema["paths"][AUTH + "/me"]["get"]
+    ref = op["responses"]["200"]["content"]["application/json"]["schema"]["$ref"]
+    body = _resolve(schema, ref)
+    assert set(body["properties"]) == {"ok", "user", "rights", "isAdmin", "expiresAt"}
+    assert body.get("additionalProperties") is False
+    assert "token" not in json.dumps(body).lower()
+
+
+def test_signin_failures_are_documented_flat(schema: dict[str, Any]) -> None:
+    responses = schema["paths"][AUTH + "/signin"]["post"]["responses"]
+    for code in ("401", "403", "423"):
+        assert {"ok", "code", "message"} <= _flat(schema, responses, code), code
+
+
+def test_every_gated_route_documents_403(schema: dict[str, Any]) -> None:
+    assert "403" in _range_get(schema)["responses"]
+    for path in WO_PATHS:
+        responses = _wo_get(schema, path)["responses"]
+        assert "403" in responses, path
+        assert {"ok", "code", "message"} <= _flat(schema, responses, "403"), path

@@ -1,17 +1,20 @@
 """
-Azztec_SaaS_test_workorders_api_v1_0_0.py  ->  backend/tests/test_workorders_api.py
-Version:  1.0.0
+Azztec_SaaS_test_workorders_api_v1_1_0.py  ->  backend/tests/test_workorders_api.py
+Version:  1.1.0
 Author:   Adriaan
-Spec:     Azztec_SaaS_W1a_WOMaint_Read_Api_Chunk_Spec_v1_0_0.md §5
-Pair of app/workorders/router.py 1.0.0 + schemas.py 1.0.0 (+ main.py 0.5.0).
+Spec:     Azztec_SaaS_W1a_WOMaint_Read_Api_Chunk_Spec_v1_0_0.md §5 · Azztec_SaaS_DP2_SignIn_Rights_Chunk_Spec_v1_0_1.md s5
+Pair of app/workorders/router.py 1.0.0 + schemas.py 1.0.0 (+ main.py 0.6.0, deps.py 1.2.0).
 TestClient over the real app, DB dependency overridden with one RST connection inside a transaction that
-is rolled back (D-10), actor dependency overridden (OD-12). WO 662704 is the newest live header on RST as
-restored 2026-09-19; the archive-only and detail-less ids come from control queries. Zero skips.
-Env trap: WORKMATE_ENV=test under pytest and get_settings() is lru_cached, so the un-overridden actor is a
-401 by design. Persistence is off under test, so `persist=False` (OD-69) is proven by a spy on diag.log,
-not by counting rows.
+is rolled back (D-10), principal dependency overridden (DP2a: deps.get_principal, read by the actor and by
+the router's womaint gate). WO 662704 is the newest live header on RST as restored; the archive-only and
+detail-less ids come from control queries. Zero skips.
+Without the override no cookie reaches the app, so the request is a 401 by design. Persistence is off
+under test, so `persist=False` (OD-69) is proven by a spy on diag.log, not by counting rows.
 
 Changelog:
+  1.1.0  DP2a. The fixture overrides deps.get_principal (an RWD principal for actor 21) instead of
+         deps.get_current_actor; test_401_without_actor pops that override (same 401 NO_IDENTITY); new
+         test_403_without_the_womaint_right; the health test expects app version 0.6.0. Nothing else.
   1.0.0  Initial W1a.
 """
 
@@ -33,12 +36,13 @@ from app.workorders import repo  # noqa: E402
 from app.workorders import router as wo_router  # noqa: E402
 from app.workorders.schemas import WoRecord  # noqa: E402
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 
 BASE = "/api/v1/workorders"
 WO = 662704
 NOT_A_WO = 999_999_999
-ACTOR = 21  # Azzmax logon - the dev actor (log 09-19 §7)
+ACTOR = 21  # Azzmax logon - Andrew's administrator login (log 09-19 §7)
+PRINCIPAL = deps.Principal(user_id=ACTOR, rights={"planner": "RWD", "womaint": "RWD"}, is_admin=True)
 
 ENVELOPE = {"ok", "apiVersion", "actor", "ms"}
 LIST_KEYS = {"rows", "count", "more", "filters"} | ENVELOPE
@@ -67,7 +71,7 @@ def client(conn: Connection) -> Iterator[TestClient]:
         yield conn
 
     app.dependency_overrides[db.get_conn] = _conn
-    app.dependency_overrides[deps.get_current_actor] = lambda: ACTOR
+    app.dependency_overrides[deps.get_principal] = lambda: PRINCIPAL
     with TestClient(app) as c:
         yield c
     app.dependency_overrides.clear()
@@ -279,11 +283,23 @@ def test_post_is_405(client: TestClient) -> None:
 
 def test_401_without_actor(client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("WORKMATE_ENV", "test")
-    saved = app.dependency_overrides.pop(deps.get_current_actor)
+    saved = app.dependency_overrides.pop(deps.get_principal)
     try:
         _assert_flat(client.get(BASE), 401, "NO_IDENTITY")
     finally:
-        app.dependency_overrides[deps.get_current_actor] = saved
+        app.dependency_overrides[deps.get_principal] = saved
+
+
+def test_403_without_the_womaint_right(client: TestClient) -> None:
+    """DP2a (OD-100): a planner-only principal is refused here, before the route runs."""
+    saved = app.dependency_overrides[deps.get_principal]
+    app.dependency_overrides[deps.get_principal] = lambda: deps.Principal(
+        user_id=ACTOR, rights={"planner": "RWD", "womaint": "NA"}
+    )
+    try:
+        _assert_flat(client.get(f"{BASE}/{WO}"), 403, "NO_RIGHT")
+    finally:
+        app.dependency_overrides[deps.get_principal] = saved
 
 
 def test_response_model_rejects_drift(client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -326,5 +342,5 @@ def test_forensic_line_once_and_not_persisted(
 
 def test_health_reports_the_workorders_version(client: TestClient) -> None:
     body = client.get("/api/v1/health").json()
-    assert body["version"] == "0.5.0"
+    assert body["version"] == "0.6.0"
     assert body["versions"]["workorders"] == wo_router.__version__

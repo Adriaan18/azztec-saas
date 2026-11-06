@@ -1,22 +1,28 @@
 """
-Azztec_SaaS_test_planner_api_v1_2_0.py  ->  backend/tests/test_planner_api.py
-Version:  1.2.0
+Azztec_SaaS_test_planner_api_v1_3_0.py  ->  backend/tests/test_planner_api.py
+Version:  1.3.0
 Author:   Adriaan
 Spec:     Azztec_SaaS_S1c_Api_Chunk_Spec_v1_0_0.md §7 · Azztec_SaaS_S1h_Priority_Initials_Chunk_Spec_v1_0_0.md §5.2
-          · Azztec_SaaS_S1j_KT_Uplift_Chunk_Spec_v1_0_0.md §3.4
-          Pair of router.py 1.1.1 + service.py 1.0.1 + schemas.py 1.1.0 + deps.py 1.0.0 + main.py 0.4.0.
+          · Azztec_SaaS_S1j_KT_Uplift_Chunk_Spec_v1_0_0.md §3.4 · Azztec_SaaS_DP2_SignIn_Rights_Chunk_Spec_v1_0_1.md s5
+          Pair of router.py 1.1.1 + service.py 1.0.1 + schemas.py 1.1.0 + deps.py 1.2.0 + main.py 0.6.0.
 
 TestClient over the real app, DB dependency overridden with one RST connection inside a transaction that is
-rolled back (D-10), actor dependency overridden (OD-12). Standing window 2026-09-14..2026-09-20 (Raw Log
-2026-09-11 §5). Zero skips - every assertion is written to hold on dbWorkmate as restored.
+rolled back (D-10), principal dependency overridden (DP2a: deps.get_principal, which get_current_actor and
+the router's planner gate both read). Standing window 2026-09-14..2026-09-20 (Raw Log 2026-09-11 §5). Zero
+skips - every assertion is written to hold on dbWorkmate as restored (and on dbWorkmate_DP1_Test, the
+fresh copy of the same backup).
 
-Twenty tests from spec §7 plus one for the [F] line (§9 acceptance), plus five from S1h §5.2 (priority colour). Env trap: WORKMATE_ENV=test under
-pytest and get_settings() is lru_cached, so the un-overridden actor is a 401 by design (§7.4 #19).
-Assumes dbWorkmate after migration 0001 (S1j): #12 asserts pinTable is True with the pin table EMPTY - OD-1 in
-its intended end state. Before 0001 it is red on purpose; after S2 pins a row the "every row unpinned" half
-moves (S2 owns that edit).
+Twenty tests from spec §7 plus one for the [F] line (§9 acceptance), plus five from S1h §5.2 (priority
+colour), plus one DP2a gate. Without the override no cookie reaches the app, so the request is a 401 by
+design (§7.4 #19).
+Assumes the database after migration 0001 (S1j): #12 asserts pinTable is True with the pin table EMPTY - OD-1
+in its intended end state. After S2 pins a row the "every row unpinned" half moves (S2 owns that edit).
 
 Changelog:
+  1.3.0  DP2a. The fixture overrides deps.get_principal with an RWD principal for actor 1 instead of
+         deps.get_current_actor (the planner router now sits behind require('planner', 'RO'), which
+         reads the principal). test_range_401_without_actor pops that override - same 401 NO_IDENTITY.
+         New: test_range_403_without_the_planner_right. Nothing else changed.
   1.2.0  S1j (OD-44). The OD-1 trip-wire flipped deliberately: test_range_pin_table_false_on_rst
          -> test_range_pin_table_true_after_0001. pinTable is True on RST once WO_N_Plan exists;
          with the table empty every row is still unpinned, and every engine-owned PM now reads
@@ -60,7 +66,8 @@ from app.planner.schemas import Priority  # noqa: E402 - after env is set
 
 RANGE = "/api/v1/planner/range"
 FROM, TO = "2026-09-14", "2026-09-20"
-ACTOR = 1  # only echoed as `actor` this slice; never stamped on anything until S2
+ACTOR = 1  # only echoed as `actor` here; the write slices stamp real people
+PRINCIPAL = deps.Principal(user_id=ACTOR, rights={"planner": "RWD", "womaint": "RWD"})
 
 CONTRACT_KEYS = frozenset(
     {
@@ -93,7 +100,7 @@ def client(conn: Connection) -> Iterator[TestClient]:
         yield conn
 
     app.dependency_overrides[db.get_conn] = _conn
-    app.dependency_overrides[deps.get_current_actor] = lambda: ACTOR
+    app.dependency_overrides[deps.get_principal] = lambda: PRINCIPAL
     with TestClient(app) as c:
         yield c
     app.dependency_overrides.clear()
@@ -251,15 +258,29 @@ def test_range_post_is_405(client: TestClient) -> None:
 def test_range_401_without_actor(client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("WORKMATE_ENV", "test")
     get_settings.cache_clear()
-    saved = app.dependency_overrides.pop(deps.get_current_actor)
+    saved = app.dependency_overrides.pop(deps.get_principal)
     try:
         r = client.get(RANGE, params={"from": FROM, "to": TO})
     finally:
-        app.dependency_overrides[deps.get_current_actor] = saved
+        app.dependency_overrides[deps.get_principal] = saved
         get_settings.cache_clear()
     assert r.status_code == 401, r.text
     b = r.json()
     assert b["ok"] is False and b["code"] == "NO_IDENTITY"
+
+
+def test_range_403_without_the_planner_right(client: TestClient) -> None:
+    """DP2a (OD-100): the router-level gate answers before the route runs."""
+    saved = app.dependency_overrides[deps.get_principal]
+    app.dependency_overrides[deps.get_principal] = lambda: deps.Principal(
+        user_id=ACTOR, rights={"planner": "NA", "womaint": "RWD"}
+    )
+    try:
+        r = client.get(RANGE, params={"from": FROM, "to": TO})
+    finally:
+        app.dependency_overrides[deps.get_principal] = saved
+    assert r.status_code == 403, r.text
+    assert r.json()["code"] == "NO_RIGHT"
 
 
 def test_range_response_model_rejects_drift(client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:

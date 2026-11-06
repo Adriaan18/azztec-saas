@@ -34,6 +34,14 @@ import type {
   ListWorkordersApiV1WorkordersGetData,
   ListWorkordersApiV1WorkordersGetErrors,
   ListWorkordersApiV1WorkordersGetResponses,
+  MeApiV1AuthMeGetData,
+  MeApiV1AuthMeGetErrors,
+  MeApiV1AuthMeGetResponses,
+  SignInApiV1AuthSigninPostData,
+  SignInApiV1AuthSigninPostErrors,
+  SignInApiV1AuthSigninPostResponses,
+  SignOutApiV1AuthSignoutPostData,
+  SignOutApiV1AuthSignoutPostResponses,
 } from './types.gen'
 
 export type Options<
@@ -83,6 +91,59 @@ export const diagSelfTestApiV1DiagSelfTestGet = <
     unknown,
     ThrowOnError
   >({ url: '/api/v1/_diag/self-test', ...options })
+
+/**
+ * Sign In
+ */
+export const signInApiV1AuthSigninPost = <ThrowOnError extends boolean = false>(
+  options: Options<SignInApiV1AuthSigninPostData, ThrowOnError>,
+): RequestResult<
+  SignInApiV1AuthSigninPostResponses,
+  SignInApiV1AuthSigninPostErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).post<
+    SignInApiV1AuthSigninPostResponses,
+    SignInApiV1AuthSigninPostErrors,
+    ThrowOnError
+  >({
+    url: '/api/v1/auth/signin',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  })
+
+/**
+ * Sign Out
+ */
+export const signOutApiV1AuthSignoutPost = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<SignOutApiV1AuthSignoutPostData, ThrowOnError>,
+): RequestResult<SignOutApiV1AuthSignoutPostResponses, unknown, ThrowOnError> =>
+  (options?.client ?? client).post<
+    SignOutApiV1AuthSignoutPostResponses,
+    unknown,
+    ThrowOnError
+  >({ url: '/api/v1/auth/signout', ...options })
+
+/**
+ * Me
+ */
+export const meApiV1AuthMeGet = <ThrowOnError extends boolean = false>(
+  options?: Options<MeApiV1AuthMeGetData, ThrowOnError>,
+): RequestResult<
+  MeApiV1AuthMeGetResponses,
+  MeApiV1AuthMeGetErrors,
+  ThrowOnError
+> =>
+  (options?.client ?? client).get<
+    MeApiV1AuthMeGetResponses,
+    MeApiV1AuthMeGetErrors,
+    ThrowOnError
+  >({ url: '/api/v1/auth/me', ...options })
 
 /**
  * Get Range
