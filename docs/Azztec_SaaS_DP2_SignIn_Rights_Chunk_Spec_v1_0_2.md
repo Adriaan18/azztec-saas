@@ -1,13 +1,13 @@
 # Azztec SaaS — DP2 Sign-in and Rights — Chunk Spec
 
-**File:** Azztec_SaaS_DP2_SignIn_Rights_Chunk_Spec_v1_0_1.md · **Version:** 1.0.1 · **Date:** 2026-11-06 · **Author:** Adriaan
-**Status:** Draft with Block DP2-E's numbers in (§3.4, 2026-11-06 18:12). Needs 🤙 on OD-96…OD-103.
+**File:** Azztec_SaaS_DP2_SignIn_Rights_Chunk_Spec_v1_0_2.md · **Version:** 1.0.2 · **Date:** 2026-11-07 · **Author:** Adriaan
+**Status:** Signed 🤙 2026-11-06 (OD-96…OD-103). **Built and shipped:** DP2a `1bc2f0a` (tag `dp2a-auth-1.0.0`, smoke 25/0) and DP2b `1eaf3de` (tag `dp2b-signin-1.0.0`, smoke 15/0), both 2026-11-07. 1.0.2 is the as-built re-cut: §11 records where the build reads the plan differently, and why. **No OD changed.**
 **Slice:** DP2, the second of four for the Redstag test drop. It builds as two slices:
 - **DP2a** (backend: migration 0002, sign-in, sessions, rights, gates)
 - **DP2b** (web: sign-in page, guard, sign-out, rights-aware screens)
 
 DP3 (Planner moves) needs DP2a only.
-**Target path:** `docs/` (+ project knowledge: add 1.0.1; 1.0.0 never goes in)
+**Target path:** `docs/` (replaces 1.0.1 there) + project knowledge: add 1.0.2. Neither 1.0.0 nor 1.0.1 goes in
 **Sits on:** `06618ae`, tag `dp1-schema-1.0.0` (DP1 smoke green 2026-11-06, pushed), migration head `0001`, backend 343 passed / 2 skipped, frontend 384 in 23 files.
 
 ---
@@ -95,7 +95,7 @@ All of these go into DP4's security notice for Redstag (Adriaan, 2026-11-06). Al
 | P6 refusals | SYS_USER 1, default password 7, **password = login id 25**, no group 29: **59** in all. | OD-98 rule 4 includes "password = login id". |
 | P7 Andrew (user 21, AZZ) | group 1 ADMIN, level RWD; Planner RWD; WOMaint RWD; administrator. | He can test everything, including `_diag`. |
 
-## 4. Decisions (🤙 required)
+## 4. Decisions (signed 🤙 2026-11-06)
 
 | OD | Decision | Why |
 |---|---|---|
@@ -109,6 +109,8 @@ All of these go into DP4's security notice for Redstag (Adriaan, 2026-11-06). Al
 | **OD-103** | **The dev identity seam leaves the HTTP path.** No request is ever acted for by `WORKMATE_DEV_USER_ID` again; tests override the dependency as they do now. Dev signs in like everyone else. DP2's smoke points the dev backend at `dbWorkmate_DP1_Test` with a known test password on one account there, and **never touches `dbWorkmate` or any real password**. | A fallback identity on the HTTP path would hide every auth bug in dev. A throwaway copy keeps the rule that the dev database's people and passwords are not ours to change. |
 
 ## 5. DP2a — backend (cards counted at the build, versions read from the files then)
+
+*As built: six differences from this plan, each with its reason, in §11.1.*
 
 1. `backend/alembic/versions/0002_auth_sessions.py`:
    - **`Auth_Session`:** `Session_Hash char(64)` PK, `User_ID numeric(18,0)`, `Created_At`, `Last_Seen_At`, `Expires_At` (`datetime2(3)`), `Revoked_At` NULL, `Client_IP varchar(45)`, `User_Agent nvarchar(200)`. Index (`User_ID`, `Expires_At`).
@@ -142,6 +144,8 @@ All of these go into DP4's security notice for Redstag (Adriaan, 2026-11-06). Al
 
 ## 6. DP2b — web
 
+*As built: §11.2.*
+
 - `routes/signin.tsx` and `features/auth/`:
   - `SignInPage`: user name and password; one message line; the generic failure text; the OD-98 reasons in plain words.
   - `useMe`: TanStack Query on `/auth/me`.
@@ -165,6 +169,8 @@ All of these go into DP4's security notice for Redstag (Adriaan, 2026-11-06). Al
 9. **112 RST login ids have a space inside** (P1). Normalising trims the ends and lowercases for the comparison only. It never collapses or strips an inner space, and the lookup and the lockout counter use the same normalisation.
 
 ## 8. Smoke (outline; exact blocks at the build)
+
+*Run 2026-11-07: DP2a 25/0, DP2b 15/0 on `dbWorkmate_DP1_Test` (§11; raw log 2026-11-07 §4).*
 
 1. **Gates:** ruff 0/0, backend N passed, web N passed.
 2. **Schema:** re-render to head `0002`, then run it on `dbWorkmate_DP1_Test`. Expect:
@@ -198,14 +204,63 @@ All of these go into DP4's security notice for Redstag (Adriaan, 2026-11-06). Al
 
 ## 10. What this hands DP3 and DP4
 
+*Updated by §11.3.*
+
 - **DP3:** a real actor on every write, and `require('planner', 'RW')` for move and undo.
 - **DP4:**
   - the service's login and `@AppLogin`
   - HTTPS for a LAN server (or the laptop-local browser)
   - the security notice: the four §3.3 findings (59 accounts refused today), the auth table, no purge yet, passwords still Workmate.NET's
 
-## 11. Changelog
+## 11. As built (1.0.2)
 
+DP2a shipped as `1bc2f0a`, tag `dp2a-auth-1.0.0` (26 paths, app **0.6.0**, smoke **25/0** on `dbWorkmate_DP1_Test`, 2026-11-07). DP2b shipped as `1eaf3de`, tag `dp2b-signin-1.0.0` (21 paths, smoke **15/0**, 2026-11-07). Both pushed to `Adriaan18/azztec-saas`. Raw log 2026-11-07 1.0.0 §4 has every smoke line.
+
+No decision changed. Where the build reads a signed OD or §5/§6's plan differently from the text, it is listed here, with why. Each was told to Adriaan before its commit.
+
+### 11.1 DP2a, against §5
+
+| # | §5 / OD text | As built | Why |
+|---|---|---|---|
+| 1 | `Created_At` / `Last_Seen_At` / `Expires_At` / `Revoked_At`; `Event_At … DEFAULT CURRENT_TIMESTAMP`; `Event`; lockout index on (`Login_Typed`, `Event_At`) (OD-101, OD-102) | `Created_Utc` / `Last_Seen_Utc` / `Expires_Utc` / `Revoked_Utc` / `Event_At_Utc`, **bound by the app from UTC, no `DEFAULT`**; the column is `Event_Type`; a new `Login_Key nvarchar(100)` (the login normalised exactly as the lookup normalises it, traps 7 and 9) carries the index (`Login_Key`, `Event_At_Utc`) | One clock for the rows and the lockout window, and the counter keys on the same value the lookup uses. The database clock is never asked |
+| 2 | OD-99: "the window query is `DATEADD`, tagged `-- PG-CONVERT: interval`" | The cutoff (`now - 15 min`) is computed in Python and bound. No `DATEADD`, no tag | Portable as written; nothing to convert |
+| 3 | `403 REFUSED` with `reason` | **403 whose `code` is the reason**: `SYS_USER`, `DEFAULT_PASSWORD`, `NO_GROUP`, `RESET_DUE`. 401 `SIGNIN_FAILED`, 423 `LOCKED`, 403 `CSRF` unchanged | The flat OD-15 error has one code field. The web shows the server's own message line, so OD-98's wording lives in one place |
+| 4 | `POST /signout` → 204 | **200 `{ok:true}`**, cookie cleared, idempotent | Every route answers the flat shape; a 204 has no body to read |
+| 5 | `GET /me` → 401 `NO_SESSION` | **401 `NO_IDENTITY`** | The code every client already handles since S1c (OD-12) |
+| 6 | "gates added to the planner `range` route, the workorders routes and the four `_diag` routes" | Gates sit on **whole routers** in `main.py`: Planner and WOMaint routers `require(<page>, 'RO')`; the `_diag` router `_dev_only` first, then `require_admin`. DP3 adds `require('planner', 'RW')` on its move routes | One place to read every gate. Router dependencies run before a route's own, so `_diag` answers 404 outside dev even to an administrator |
+
+Also as built, inside the signed text:
+- **One `SIGNOUT` row per session.** A second sign-out with the same cookie revokes nothing and writes nothing (the harness caught a duplicate before the cards went out).
+- **A session ends on the first request that finds it unusable**: `expired` (12 h), `idle` (4 h), `inactive` (`Users.Active` turned `N`) or `no_group`. That request revokes the row and writes one `EXPIRED` event with that reason; later requests with the cookie see a revoked row and write nothing.
+- **`deps.py` 1.2.0 resolves one `Principal` per request** through `LOADER`, which `main.py` installs (`service.principal_from_request`): cookie → `Auth_Session` → `Users.Active` (every request) → rights (cached 60 s per user, per process, dropped at sign-out). Core never imports `app.auth` (the OD-55 rule).
+- **An unknown login is verified against a dummy hash** (trap 6), so both 401s cost the same.
+- **`/api/v1/_diag/self-test` stays public** and stamps actor 0. DP4 decides whether a client site keeps it.
+
+### 11.2 DP2b, against §6
+
+1. **"View only" sits in the header**, under the person's name (`HeaderToolbar` 1.1.0), not on `PlannerView`. PlannerView has no move controls until DP3, so there is nothing to hide yet; DP3 hides its own controls at RO.
+2. **NA is handled once, in the root route.** `__root.tsx` 1.1.0 reads the page's right from the session (`pageAccess(rights, activeKey)`) and renders `NoAccess` in the shell's main cell instead of the page. The backend refuses with 403 `NO_RIGHT` either way.
+3. **`useSession`, not `useMe`.** Query key `['auth', 'session']`, 60 s stale, no retry. A 401 from `/auth/me` is `null` (signed out); anything else throws, and the gate shows the network line with **Try again**.
+4. **Sign-out and a stray 401 take the same path.** `signOut` posts `/auth/signout`, sets the cached session to `null` and drops every other query; a 401 from any call except `/auth/signin` and `/auth/me` does the same through the response interceptor. `SessionGate` sees `null` and sends the person to `/signin?next=<where they were>`. After sign-in they land back on that page.
+5. **`?next=` is sanitised** (`safeNext`): a same-origin path only (a leading `/`, not `//`, no backslash, no control character), and never the sign-in page itself, compared **case-insensitively with the query and hash stripped** (the review found `/SignIn` slipping past before release). Empty or `/` lands on `/planner`.
+6. **The header rule is one interceptor**: `X-Azztec-Request: 1` on every request that isn't GET, HEAD or OPTIONS.
+7. **The web's own lines are only three**: fields missing, server unreachable, page out of date (CSRF). Every 401/403/423 shows the server's message.
+8. **`/` still shows the CLI's placeholder page** inside the shell. DP4 makes `/` land on `/planner`.
+9. **Smoked through the production build** (`pnpm build` + `vite preview` on :3000, the same `/api` proxy). Vite's dev server can't rename its dependency cache inside the Dropbox folder (Landmines §F), and the first smoke rendered a blank page for that reason.
+
+### 11.3 What changed in §10's hand-over
+
+- **DP3:** the actor is the signed-in person (`Principal.user_id`, `request.state.actor`). Move and undo take `require('planner', 'RW')`; PlannerView hides its move controls when the page right is RO. At RST that leaves **413 of 443** able to move (P5).
+- **DP4:** everything §10 lists, plus the `/` route (11.2 point 8), the self-test decision (11.1), and the DBA note that `Auth_Session` / `Auth_Event` arrive with the schema script (head `0002`: 14 tables, 15 columns, 18 indexes, 47 steps).
+
+## 12. Changelog
+
+- 1.0.2 (2026-11-07) As built, after both halves shipped. No OD changed.
+  - Status: signed 2026-11-06; DP2a `1bc2f0a` and DP2b `1eaf3de`, both smokes green.
+  - §4 heading: signed.
+  - §5, §6, §8, §10: pointers to the new §11.
+  - §11 (new): the six DP2a differences from §5 with their reasons, what the build adds inside the signed text, the nine DP2b decisions, and the updated hand-over to DP3 and DP4.
+  - The changelog moves to §12.
 - 1.0.1 (2026-11-06) Block DP2-E's numbers in.
   - §3.3: the password = login id finding (25) and the 59-account total.
   - §3.4: rewritten as results.
