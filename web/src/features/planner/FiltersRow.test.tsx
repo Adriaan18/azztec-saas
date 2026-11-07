@@ -1,12 +1,15 @@
 /**
- * Azztec_SaaS_web_planner_FiltersRow_test_v1_0_0.tsx  ->  web/src/features/planner/FiltersRow.test.tsx
- * Version:  1.0.0   Date: 2026-09-13   Author: Adriaan
- * Spec:     Azztec_SaaS_S1g_Readonly_Chunk_Spec_v1_0_0.md §6 (FiltersRow.test.tsx row) · pair rule
+ * Azztec_SaaS_web_planner_FiltersRow_test_v1_1_0.tsx  ->  web/src/features/planner/FiltersRow.test.tsx
+ * Version:  1.1.0   Date: 2026-11-07   Author: Adriaan
+ * Spec:     Azztec_SaaS_S1g_Readonly_Chunk_Spec_v1_0_0.md §6 (FiltersRow.test.tsx row) · pair rule;
+ *           Azztec_SaaS_DP3_Planner_Moves_Chunk_Spec_v1_0_1.md §6 (FiltersRow.test.tsx row) · OD-107
  *
  * Zero network, zero fetch by import graph. No setupFiles / no globals on the box: explicit cleanup(),
  * plain DOM assertions. Fake timers only in the search cases, restored in afterEach.
  *
  * Changelog:
+ *   1.1.0  DP3b: VERSION is 1.1.0; the hint prop - HINT by default (the 1.0.0 case, unchanged), HINT_RW
+ *          when passed.
  *   1.0.0  Initial S1g.
  */
 import { cleanup, fireEvent, render } from '@testing-library/react';
@@ -14,10 +17,10 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { FiltersRow, SEARCH_SETTLE_MS, VERSION } from './FiltersRow';
 import { RANGE, WORKERS } from './range.fixture';
-import { DEFAULT_FILTERS, HINT, indexWorkers } from './rules';
+import { DEFAULT_FILTERS, HINT, HINT_RW, indexWorkers } from './rules';
 import type { Filters } from './rules';
 
-export const TEST_VERSION = '1.0.0';
+export const TEST_VERSION = '1.1.0';
 
 afterEach(() => {
   cleanup();
@@ -63,7 +66,7 @@ function renderRow(over: Partial<Filters> = {}, spies: Partial<Record<'onTeam' |
 
 describe('FiltersRow - the oracle filters row', () => {
   it('carries its version and the oracle settle time', () => {
-    expect(VERSION).toBe('1.0.0');
+    expect(VERSION).toBe('1.1.0');
     expect(SEARCH_SETTLE_MS).toBe(150);
   });
 
@@ -197,5 +200,28 @@ describe('FiltersRow - the oracle filters row', () => {
     expect(hints[0].textContent).toBe(HINT);
     expect(hints[0].textContent).not.toContain('Drag');
     expect(must(container, '[data-actor]').textContent).toBe('actor #1');
+  });
+
+  it('the hint prop replaces the hint line - HINT_RW when the person can move (OD-107)', () => {
+    const { container } = render(
+      <FiltersRow
+        teams={RANGE.teams}
+        priorities={RANGE.priorities}
+        workers={WORKERS}
+        byId={byId}
+        filters={DEFAULT_FILTERS}
+        actor={1}
+        hint={HINT_RW}
+        onTeam={vi.fn()}
+        onToggleWorker={vi.fn()}
+        onPri={vi.fn()}
+        onUnassigned={vi.fn()}
+        onQ={vi.fn()}
+        onClear={vi.fn()}
+      />,
+    );
+    const hints = container.querySelectorAll('.hint');
+    expect(hints[0].textContent).toBe(HINT_RW);
+    expect(hints[0].textContent).toContain('drag = move');
   });
 });

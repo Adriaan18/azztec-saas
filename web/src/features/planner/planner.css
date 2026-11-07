@@ -1,8 +1,9 @@
 /*
- * Azztec_SaaS_web_planner_css_v1_1_2.css  ->  web/src/features/planner/planner.css
- * Version:  1.1.2   Date: 2026-09-16   Author: Adriaan
+ * Azztec_SaaS_web_planner_css_v1_2_0.css  ->  web/src/features/planner/planner.css
+ * Version:  1.2.0   Date: 2026-11-07   Author: Adriaan
  * Spec:     Azztec_SaaS_S1g_Readonly_Chunk_Spec_v1_0_0.md s5.3 . OD-27, OD-31, OD-32;
- *           Azztec_SaaS_S1k_Shell_Chunk_Spec_v1_0_1.md s3.8 . OD-54
+ *           Azztec_SaaS_S1k_Shell_Chunk_Spec_v1_0_1.md s3.8 . OD-54;
+ *           Azztec_SaaS_DP3_Planner_Moves_Chunk_Spec_v1_0_1.md s6 (planner.css row) . OD-106
  * Oracle:   Planner_v1_8_1.html <style> 102-137 (tokens, base, header), 138-148 (filters, worker menu),
  *           149-172 (body, grid, cell, chip), 179-186 (rail week bars), 194 (.dlg.wide), 215-221
  *           (twoweek), 267-272 (day dialog rows), 273-301 (chip parts, strip, bar, week headers),
@@ -12,9 +13,9 @@
  *
  * Every selector is scoped under .wm-planner so the CTA starter and Tailwind preflight are untouched
  * outside the planner route. Class names are the oracle's on purpose: the screenshot smoke is held
- * next to the live Ignition planner, and S2 dnd-kit / S6 Playwright key on the same DOM.
+ * next to the live Ignition planner, and the DP3b drag (OD-106) / S6 Playwright key on the same DOM.
  * Ported in 1.1.0: filters row, worker menu, day dialog, overlay, selected card. Still not ported:
- * drag/drop states, .lab .x (remove control - S4), popover, toast, suggest, ai.
+ * the remove control (.lab .x, S4), popover, suggest, ai (drag and toast arrive in 1.2.0).
  * The oracle's inline style attributes in showDay/renderSelected (723-726, 810-818, 821) become scoped
  * classes here - .job .pri, .job .sid.<cat>, .none, .pinned, .nobody, .sub, .kv .v small - same values.
  * ASCII only.
@@ -40,7 +41,15 @@
  * (position:relative) and .ovl is absolute inside it (OD-54). The other absolute descendants already
  * have their own positioned ancestor (.loading in .grid-wrap, .wsel .menu in .wsel) and do not move.
  *
+ * 1.2.0 (DP3b) ports the oracle's write-side rules: the drag (.chip.dragging, .ghost, .cell.drop, the
+ * grabbing cursor - on .wm-planner.dragging, not body, so nothing outside the planner changes), the
+ * toast, the confirm dialog's .mv / .sub / list, and the banner's x. Two departures, both OD-54: the
+ * toast is absolute inside .wm-planner rather than fixed to the viewport, and the ghost's layer
+ * (.drag-layer) is an absolute, zero-size box so it takes no flex gap - the ghost itself stays
+ * position:fixed, because it follows the pointer in viewport coordinates.
+ *
  * Changelog:
+ *   1.2.0  DP3b: drag states, ghost, drop target, drag layer, toast, confirm dialog parts, banner x.
  *   1.1.2  .wm-planner height 100vh -> 100% + position:relative; .ovl position fixed -> absolute (OD-54).
  *   1.1.1  .pri.r1..r4 colour rules removed (OD-32 falsified by the RST Priority table). No other change.
  *   1.1.0  S1g: filters row + worker menu (138-148), .dlg.wide (194), day dialog rows (267-272),
@@ -230,3 +239,22 @@
 .wm-planner .dd2 .job .meta .none{color:var(--gold2)}
 .wm-planner .dd2 .job .acts{display:flex;gap:4px}
 .wm-planner .dd2 .job .acts button{padding:1px 8px;font-size:11px}
+
+/* moves (DP3b) - the drag (oracle .chip.dragging / body.dragging / .ghost / .cell.drop), the toast (oracle
+   .toast, absolute here - OD-54), the confirm dialog's parts (oracle .dlg .mv / ul / li / .sub) and the
+   banner's dismiss (oracle .banner .x) */
+.wm-planner .drag-layer{position:absolute;top:0;left:0;width:0;height:0;overflow:visible}
+.wm-planner .chip.dragging{opacity:.35}
+.wm-planner.dragging,.wm-planner.dragging *{cursor:grabbing!important}
+.wm-planner .ghost{position:fixed;z-index:50;pointer-events:none;opacity:.92;box-shadow:0 10px 30px rgba(0,0,0,.55);background:#1d2024;transform:rotate(-1.5deg)}
+.wm-planner .cell.drop{outline:2px dashed var(--gold);outline-offset:-2px;background:rgba(255,198,92,.10)!important}
+.wm-planner .toast{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);background:#1d2024;border:1px solid var(--gold2);color:var(--txt);padding:8px 14px;border-radius:8px;box-shadow:0 8px 30px rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .2s;z-index:30;display:flex;align-items:center;gap:12px;white-space:nowrap}
+.wm-planner .toast.on{opacity:1;pointer-events:auto}
+.wm-planner .toast button{background:var(--gold);color:#2b2b2b;border:none;font-weight:700;padding:3px 10px}
+.wm-planner .toast button:hover{background:#ffd27a}
+.wm-planner .toast .k{color:var(--dim);font-size:10px}
+.wm-planner .dlg .mv{font-size:13px;color:var(--txt);margin-bottom:8px}
+.wm-planner .dlg ul{margin:6px 0 10px 18px;padding:0;color:var(--txt)}
+.wm-planner .dlg li{margin:2px 0}
+.wm-planner .dlg .sub{color:var(--mut);font-size:11px}
+.wm-planner .banner .x{margin-left:auto;cursor:pointer;color:var(--mut)}

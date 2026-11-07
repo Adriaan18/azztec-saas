@@ -1,8 +1,9 @@
 /**
- * Azztec_SaaS_web_planner_rules_v1_2_0.ts  ->  web/src/features/planner/rules.ts
- * Version:  1.2.0   Date: 2026-09-14   Author: Adriaan
+ * Azztec_SaaS_web_planner_rules_v1_3_0.ts  ->  web/src/features/planner/rules.ts
+ * Version:  1.3.0   Date: 2026-11-07   Author: Adriaan
  * Spec:     Azztec_SaaS_S1g_Readonly_Chunk_Spec_v1_0_0.md §5.1 · OD-30…OD-34 · Landmines §D (index once);
- *           Azztec_SaaS_S1i_Priority_Paint_Chunk_Spec_v1_0_0.md §3.2 · OD-39, OD-40, OD-41
+ *           Azztec_SaaS_S1i_Priority_Paint_Chunk_Spec_v1_0_0.md §3.2 · OD-39, OD-40, OD-41;
+ *           Azztec_SaaS_DP3_Planner_Moves_Chunk_Spec_v1_0_1.md §6 (rules.ts row) · OD-107
  * Oracle:   Planner_v1_8_1.html - constants 482-485, state defaults 492, fmtRange/fmtLong/fmtH/fmtNum
  *           510-516, teamMembers/anySelectedWorker/visible/byDay 536-558, capacity 561-578, chipEl
  *           who/title 590-606, month header label 623, countText 662-667, strip 668-676, showDay rows
@@ -28,6 +29,10 @@
  *     a week start is always Monday. The card and the dialog name arbitrary days, hence this.
  *
  * Changelog:
+ *   1.3.0  DP3b. HINT_RW, the hint when the person can move (OD-107). chipTitle's engine-owned line
+ *          needs `wo.movable` too: identical on every payload the server sends (an engine-owned PM
+ *          that is not locked is movable, and locked is the branch before), and at RO - where
+ *          PlannerView maps movable to false - no chip promises a drag it cannot do.
  *   1.2.0  S1i. isHexColour (the OD-36 free-text guard), luminance / textOn (OD-40: WCAG contrast picks
  *          #2b2b2b or #ffffff, ties dark), PriBadge + priBadgeMap (OD-39: paint only at >= 2 distinct
  *          usable colours, case-folded; OD-41: one map for both badge sites, rank from priRankMap so the
@@ -44,7 +49,7 @@
  */
 import type { LabourRow, Priority, Team, Wo, Worker, WorkerWeek } from '../../api/client/types.gen';
 
-export const VERSION = '1.2.0';
+export const VERSION = '1.3.0';
 
 /* ------------------------------------------------------------------ constants (oracle 482-485) */
 
@@ -274,7 +279,7 @@ export function whoFor(wo: Wo, byId: ReadonlyMap<number, Worker>): string {
   return inits.join(' ') + (wo.assigned.length > 3 ? ` +${wo.assigned.length - 3}` : '');
 }
 
-/** Oracle 600-606: the chip tooltip. The locked line is OD-1 on RST, 2,364 times. Unchanged - OD-33. */
+/** Oracle 600-606: the chip tooltip. The locked line is OD-1 on RST, 2,364 times. OD-33; 1.3.0 gates the PM drag line on movable (OD-107). */
 export function chipTitle(wo: Wo): string {
   let t = `${wo.sid} \u00b7 ${wo.title}\n${wo.statusTitle}${wo.pri ? ` \u00b7 priority ${wo.pri}` : ''}`;
   if (wo.asset) t += `\n${wo.asset}${wo.assetTitle ? ` - ${wo.assetTitle}` : ''}`;
@@ -284,7 +289,7 @@ export function chipTitle(wo: Wo): string {
     t += `\nPINNED by the planner${wo.engineDate ? ` (engine date ${wo.engineDate})` : ''} - the release engine leaves it alone`;
   } else if (wo.locked) {
     t += '\nPM - engine owned; run the S3 DDL (WO_N_Plan) to allow planner pins';
-  } else if (wo.engineOwned) {
+  } else if (wo.engineOwned && wo.movable) {
     t += '\nPM - drag to move; the first move pins it';
   } else if (wo.movable) {
     t += '\ndrag to move';
@@ -666,6 +671,9 @@ export function cardRows(wo: Wo, labour: ReadonlyArray<LabourRow>, byId: Readonl
 
 /** The filters-row hint: only what is true in the read-only planner. */
 export const HINT = 'click = select \u00b7 \u2190 \u2192 = navigate \u00b7 T = today \u00b7 Esc = clear';
+
+/** DP3b, OD-107: the hint when the person can move - the drag and Ctrl+Z are true now. */
+export const HINT_RW = `drag = move \u00b7 Ctrl+Z = undo \u00b7 ${HINT}`;
 
 /** The envelope's actor is an int until identity (OD-2). */
 export function actorLabel(actor: number): string {

@@ -1,7 +1,8 @@
 /**
- * Azztec_SaaS_web_planner_FiltersRow_v1_0_0.tsx  ->  web/src/features/planner/FiltersRow.tsx
- * Version:  1.0.0   Date: 2026-09-13   Author: Adriaan
- * Spec:     Azztec_SaaS_S1g_Readonly_Chunk_Spec_v1_0_0.md §5.5 · OD-31, OD-34
+ * Azztec_SaaS_web_planner_FiltersRow_v1_1_0.tsx  ->  web/src/features/planner/FiltersRow.tsx
+ * Version:  1.1.0   Date: 2026-11-07   Author: Adriaan
+ * Spec:     Azztec_SaaS_S1g_Readonly_Chunk_Spec_v1_0_0.md §5.5 · OD-31, OD-34;
+ *           Azztec_SaaS_DP3_Planner_Moves_Chunk_Spec_v1_0_1.md §6 (FiltersRow.tsx row) · OD-107
  * Oracle:   Planner_v1_8_1.html markup 399-412, renderFilters 839-858, wiring 1533-1538
  *
  * The filters row: Team select, the worker multi-select menu (.wsel), Priority select, Unassigned only,
@@ -19,6 +20,7 @@
  * No shadcn (OD-31): the menu is the oracle's div + labels + checkboxes with its own CSS.
  *
  * Changelog:
+ *   1.1.0  DP3b. `hint` prop, default HINT: PlannerView passes HINT_RW when the person can move (OD-107).
  *   1.0.0  Initial S1g.
  */
 import { useEffect, useRef, useState } from 'react';
@@ -27,7 +29,7 @@ import { HINT, actorLabel, priorityOptions, teamOptions, workerLabel, workerMenu
 import type { Filters } from './rules';
 import type { Priority, Team, Worker } from '../../api/client/types.gen';
 
-export const VERSION = '1.0.0';
+export const VERSION = '1.1.0';
 
 /** Oracle 1536. */
 export const SEARCH_SETTLE_MS = 150;
@@ -40,6 +42,8 @@ export type FiltersRowProps = {
   filters: Filters;
   /** the envelope's actor (an int until OD-2) */
   actor: number;
+  /** the hint line; HINT (read-only) unless the person can move */
+  hint?: string;
   onTeam: (teamId: number) => void;
   onToggleWorker: (id: number) => void;
   onPri: (pri: number) => void;
@@ -56,6 +60,7 @@ export function FiltersRow({
   byId,
   filters,
   actor,
+  hint = HINT,
   onTeam,
   onToggleWorker,
   onPri,
@@ -169,7 +174,7 @@ export function FiltersRow({
       <button type="button" onClick={onClear}>
         Clear
       </button>
-      <span className="hint">{HINT}</span>
+      <span className="hint">{hint}</span>
       <span className="sp" />
       <span className="hint" data-actor>
         {actorLabel(actor)}

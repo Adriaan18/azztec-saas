@@ -1,7 +1,8 @@
 /**
- * Azztec_SaaS_web_usePlannerRange_test_v1_0_0.tsx  ->  web/src/features/planner/usePlannerRange.test.tsx
- * Version:  1.0.0   Date: 2026-09-12   Author: Adriaan
- * Spec:     Azztec_SaaS_S1e_Web_Chunk_Spec_v1_0_0.md §6.2 tests 1-7 · pair rule (Ways of Working §4)
+ * Azztec_SaaS_web_usePlannerRange_test_v1_1_0.tsx  ->  web/src/features/planner/usePlannerRange.test.tsx
+ * Version:  1.1.0   Date: 2026-11-07   Author: Adriaan
+ * Spec:     Azztec_SaaS_S1e_Web_Chunk_Spec_v1_0_0.md §6.2 tests 1-7 · pair rule (Ways of Working §4);
+ *           Azztec_SaaS_DP3_Planner_Moves_Chunk_Spec_v1_0_1.md §6 (usePlannerRange.test.tsx row) · OD-113
  *
  * Zero network: `fetch` is stubbed for the whole file and the stub is the instrument. Test 5 asserts
  * the stub was NOT called for a refused window - asserting only the returned error would pass even if
@@ -13,6 +14,8 @@
  * client gets an absolute baseUrl here. The browser build runs same-origin with baseUrl unset.
  *
  * Changelog:
+ *   1.1.0  DP3b: VERSION is 1.1.0; test 8 - paused options (no interval, no focus refetch) and the
+ *          default unchanged; test 9 - isPlannerRangeKey on real generated keys, range or not.
  *   1.0.0  Initial S1e.
  */
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -20,10 +23,24 @@ import { renderHook, waitFor } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import {
+  getPreviewApiV1PlannerPreviewGetQueryKey,
+  getRangeApiV1PlannerRangeGetQueryKey,
+} from '../../api/client/@tanstack/react-query.gen';
 import { client } from '../../api/client/client.gen';
-import { MAX_WINDOW_DAYS, POLL_MS, STALE_MS, VERSION, checkWindow, plannerQueryOptions, usePlannerRange } from './usePlannerRange';
+import {
+  MAX_WINDOW_DAYS,
+  POLL_MS,
+  STALE_MS,
+  VERSION,
+  checkWindow,
+  isPlannerRangeKey,
+  plannerQueryOptions,
+  usePlannerRange,
+} from './usePlannerRange';
+import { SESSION_KEY } from '../auth/session';
 
-export const TEST_VERSION = '1.0.0';
+export const TEST_VERSION = '1.1.0';
 
 const BASE = 'http://test.local';
 
@@ -87,7 +104,7 @@ describe('usePlannerRange - the capped hook', () => {
   });
 
   it('carries its version and the OD-23 constant', () => {
-    expect(VERSION).toBe('1.0.0');
+    expect(VERSION).toBe('1.1.0');
     expect(MAX_WINDOW_DAYS).toBe(42);
   });
 
@@ -155,5 +172,31 @@ describe('usePlannerRange - the capped hook', () => {
 
     const wide = plannerQueryOptions('2026-09-14', '2026-10-26');
     expect(wide.enabled).toBe(false);
+  });
+
+  // 8. DP3b, OD-113: the pause
+  it('paused options stop the poll and the focus refetch; unpaused is the 1.0.0 poll', () => {
+    const paused = plannerQueryOptions('2026-09-14', '2026-09-20', { paused: true });
+    expect(paused.refetchInterval).toBe(false);
+    expect(paused.refetchOnWindowFocus).toBe(false);
+    expect(paused.enabled).toBe(true);
+    const live = plannerQueryOptions('2026-09-14', '2026-09-20', { paused: false });
+    expect(live.refetchInterval).toBe(POLL_MS);
+    expect(live.refetchOnWindowFocus).toBe(true);
+    expect(plannerQueryOptions('2026-09-14', '2026-09-20').refetchInterval).toBe(POLL_MS);
+  });
+
+  // 9. DP3b: how PlannerView finds every cached window after a move
+  it('isPlannerRangeKey: any range window, nothing else', () => {
+    expect(
+      isPlannerRangeKey(getRangeApiV1PlannerRangeGetQueryKey({ query: { from: '2026-09-14', to: '2026-09-20' } })),
+    ).toBe(true);
+    expect(isPlannerRangeKey(plannerQueryOptions('2026-08-31', '2026-10-11').queryKey)).toBe(true);
+    expect(
+      isPlannerRangeKey(getPreviewApiV1PlannerPreviewGetQueryKey({ query: { woId: 101, to: '2026-09-16' } })),
+    ).toBe(false);
+    expect(isPlannerRangeKey(SESSION_KEY)).toBe(false);
+    expect(isPlannerRangeKey([])).toBe(false);
+    expect(isPlannerRangeKey(['planner', 'range'])).toBe(false);
   });
 });

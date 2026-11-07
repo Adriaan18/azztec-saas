@@ -1,6 +1,7 @@
 # Workmate SaaS — CLAUDE.md
-<!-- Azztec_SaaS_CLAUDE_md_v1_0_0.md → repo root CLAUDE.md · Version 1.0.0 · 2026-09-10 · Adriaan
-     Keep this short. Detail lives in docs/ and .claude/rules/. Bump the version line when you change it. -->
+<!-- Azztec_SaaS_CLAUDE_md_v1_1_0.md → repo root CLAUDE.md · Version 1.1.0 · 2026-11-07 · Adriaan
+     Keep this short. Detail lives in docs/ and .claude/rules/. Bump the version line when you change it.
+     1.1.0 (DP3b): the Style line - the drag is useWoDrag.ts, no drag library (OD-106). -->
 
 ## What this is
 Workmate Standalone Edition: a CMMS/ERP for manufacturing plants. FastAPI backend (`backend/`, uv) + React SPA (`web/`, pnpm).
@@ -29,5 +30,5 @@ Target database = PostgreSQL. First module = the Planner, a 1:1 port of the Igni
 10. Diagnostics: every route outcome logs one `[F]`/`[G]`/`[E]` line through `app/core/diag.py`; keep the Ignition message texts.
 
 ## Style
-Python 3.13, 4-space, type hints, Ruff. TypeScript strict, Prettier, Tailwind v4 + shadcn/ui, TanStack Router/Query, Zustand, @dnd-kit/core.
+Python 3.13, 4-space, type hints, Ruff. TypeScript strict, Prettier, Tailwind v4 + shadcn/ui, TanStack Router/Query, Zustand. Drag and drop is the oracle's pointer drag in `web/src/features/planner/useWoDrag.ts` - no drag library (OD-106).
 Short, direct comms. Report: what changed, what was run, the exact output, what's next. No summaries of files you didn't touch.

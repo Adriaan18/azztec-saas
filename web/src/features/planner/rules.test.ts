@@ -1,13 +1,17 @@
 /**
- * Azztec_SaaS_web_planner_rules_test_v1_2_0.ts  ->  web/src/features/planner/rules.test.ts
- * Version:  1.2.0   Date: 2026-09-14   Author: Adriaan
+ * Azztec_SaaS_web_planner_rules_test_v1_3_0.ts  ->  web/src/features/planner/rules.test.ts
+ * Version:  1.3.0   Date: 2026-11-07   Author: Adriaan
  * Spec:     Azztec_SaaS_S1g_Readonly_Chunk_Spec_v1_0_0.md §6 (rules.test.ts row) · pair rule;
- *           Azztec_SaaS_S1i_Priority_Paint_Chunk_Spec_v1_0_0.md §5.1 · pair of rules.ts 1.2.0
+ *           Azztec_SaaS_S1i_Priority_Paint_Chunk_Spec_v1_0_0.md §5.1 · pair of rules.ts 1.2.0;
+ *           Azztec_SaaS_DP3_Planner_Moves_Chunk_Spec_v1_0_1.md §6 (rules.test.ts row) · pair of rules.ts 1.3.0
  *
  * Zero network, zero DOM, plain objects from range.fixture.ts. The string cases are byte-for-byte the
  * oracle's output - a planner reads these tooltips every day, so they are the parity surface.
  *
  * Changelog:
+ *   1.3.0  DP3b: every 1.2.0 case kept; VERSION is 1.3.0. HINT_RW byte for byte; chipTitle on an
+ *          engine-owned PM that is not movable (the RO mapping, OD-107) carries no drag line, and the
+ *          payload's own engine-owned movable PM still does.
  *   1.2.0  S1i: every 1.1.0 case kept; VERSION is 1.2.0. New block for the badge paint - isHexColour
  *          edges, luminance anchors, textOn on the seven RST colours (the S1i spec §5.1 table, computed
  *          by hand there and VERIFIED by this run - #0080FF is the narrow one, 3.73 vs 3.80), and
@@ -31,6 +35,7 @@ import {
   DEFAULT_FILTERS,
   DEFAULT_RAIL,
   HINT,
+  HINT_RW,
   VERSION,
   actorLabel,
   anySelectedWorker,
@@ -86,14 +91,14 @@ import type { Filters, PriBadge } from './rules';
 import type { Priority } from '../../api/client/types.gen';
 import { DONE_104, FROM, PIN_105, PM_102, RANGE, REQ_103, TO, WO_101, WORKERS, WOS, WW_692, W_2, W_3, W_692, mkWo } from './range.fixture';
 
-export const TEST_VERSION = '1.2.0';
+export const TEST_VERSION = '1.3.0';
 
 const byId = indexWorkers(WORKERS);
 const f = (over: Partial<Filters>): Filters => ({ ...DEFAULT_FILTERS, ...over });
 
 describe('rules.ts - constants and ISO parts', () => {
   it('carries its version and the oracle cats default (DONE off)', () => {
-    expect(VERSION).toBe('1.2.0');
+    expect(VERSION).toBe('1.3.0');
     expect(DEFAULT_CATS).toEqual({ WO: true, PM: true, REQ: true, DONE: false });
     expect(DEFAULT_RAIL).toEqual({ contractors: false, loadedOnly: true });
     expect(DEFAULT_FILTERS).toEqual({ teamId: 0, workers: {}, pri: 0, unassigned: false, q: '' });
@@ -642,5 +647,20 @@ describe('rules.ts - chrome strings (OD-34)', () => {
   it('HINT and actorLabel byte-for-byte', () => {
     expect(HINT).toBe('click = select \u00b7 \u2190 \u2192 = navigate \u00b7 T = today \u00b7 Esc = clear');
     expect(actorLabel(1)).toBe('actor #1');
+  });
+
+  it('HINT_RW byte-for-byte: the drag and Ctrl+Z first, then the read-only hint (DP3b, OD-107)', () => {
+    expect(HINT_RW).toBe(
+      'drag = move \u00b7 Ctrl+Z = undo \u00b7 click = select \u00b7 \u2190 \u2192 = navigate \u00b7 T = today \u00b7 Esc = clear',
+    );
+  });
+
+  it('chipTitle promises a drag only to a chip that can move (OD-107)', () => {
+    const pm = mkWo({ sid: 'PM-9', title: 'Greasing', engineOwned: true, movable: true });
+    expect(chipTitle(pm)).toContain('\nPM - drag to move; the first move pins it');
+    const ro = chipTitle({ ...pm, movable: false });
+    expect(ro).not.toContain('drag');
+    expect(ro).toBe('PM-9 \u00b7 Greasing\nPlanned\nno hours yet');
+    expect(chipTitle(mkWo({ sid: 'WO-9', title: 'X', movable: false }))).toBe('WO-9 \u00b7 X\nPlanned\nno hours yet');
   });
 });
