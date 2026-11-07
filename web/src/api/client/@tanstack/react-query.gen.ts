@@ -14,6 +14,7 @@ import {
   getEventsApiV1WorkordersWoIdEventsGet,
   getLinkedApiV1WorkordersWoIdLinkedGet,
   getPoLinesApiV1WorkordersWoIdPosGet,
+  getPreviewApiV1PlannerPreviewGet,
   getQueriesApiV1WorkordersWoIdQueriesGet,
   getRangeApiV1PlannerRangeGet,
   getWorkorderApiV1WorkordersWoIdGet,
@@ -21,6 +22,8 @@ import {
   listWorkordersApiV1WorkordersGet,
   meApiV1AuthMeGet,
   type Options,
+  postMoveApiV1PlannerMovePost,
+  postUndoApiV1PlannerUndoPost,
   signInApiV1AuthSigninPost,
   signOutApiV1AuthSignoutPost,
 } from '../sdk.gen'
@@ -36,6 +39,9 @@ import type {
   GetPoLinesApiV1WorkordersWoIdPosGetData,
   GetPoLinesApiV1WorkordersWoIdPosGetError,
   GetPoLinesApiV1WorkordersWoIdPosGetResponse,
+  GetPreviewApiV1PlannerPreviewGetData,
+  GetPreviewApiV1PlannerPreviewGetError,
+  GetPreviewApiV1PlannerPreviewGetResponse,
   GetQueriesApiV1WorkordersWoIdQueriesGetData,
   GetQueriesApiV1WorkordersWoIdQueriesGetError,
   GetQueriesApiV1WorkordersWoIdQueriesGetResponse,
@@ -53,6 +59,12 @@ import type {
   MeApiV1AuthMeGetData,
   MeApiV1AuthMeGetError,
   MeApiV1AuthMeGetResponse,
+  PostMoveApiV1PlannerMovePostData,
+  PostMoveApiV1PlannerMovePostError,
+  PostMoveApiV1PlannerMovePostResponse,
+  PostUndoApiV1PlannerUndoPostData,
+  PostUndoApiV1PlannerUndoPostError,
+  PostUndoApiV1PlannerUndoPostResponse,
   SignInApiV1AuthSigninPostData,
   SignInApiV1AuthSigninPostError,
   SignInApiV1AuthSigninPostResponse,
@@ -265,6 +277,88 @@ export const getRangeApiV1PlannerRangeGetOptions = (
     },
     queryKey: getRangeApiV1PlannerRangeGetQueryKey(options),
   })
+
+export const getPreviewApiV1PlannerPreviewGetQueryKey = (
+  options: Options<GetPreviewApiV1PlannerPreviewGetData>,
+) => createQueryKey('getPreviewApiV1PlannerPreviewGet', options)
+
+/**
+ * Get Preview
+ */
+export const getPreviewApiV1PlannerPreviewGetOptions = (
+  options: Options<GetPreviewApiV1PlannerPreviewGetData>,
+) =>
+  queryOptions<
+    GetPreviewApiV1PlannerPreviewGetResponse,
+    GetPreviewApiV1PlannerPreviewGetError,
+    GetPreviewApiV1PlannerPreviewGetResponse,
+    ReturnType<typeof getPreviewApiV1PlannerPreviewGetQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await getPreviewApiV1PlannerPreviewGet({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      })
+      return data
+    },
+    queryKey: getPreviewApiV1PlannerPreviewGetQueryKey(options),
+  })
+
+/**
+ * Post Move
+ */
+export const postMoveApiV1PlannerMovePostMutation = (
+  options?: Partial<Options<PostMoveApiV1PlannerMovePostData>>,
+): UseMutationOptions<
+  PostMoveApiV1PlannerMovePostResponse,
+  PostMoveApiV1PlannerMovePostError,
+  Options<PostMoveApiV1PlannerMovePostData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    PostMoveApiV1PlannerMovePostResponse,
+    PostMoveApiV1PlannerMovePostError,
+    Options<PostMoveApiV1PlannerMovePostData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await postMoveApiV1PlannerMovePost({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      })
+      return data
+    },
+  }
+  return mutationOptions
+}
+
+/**
+ * Post Undo
+ */
+export const postUndoApiV1PlannerUndoPostMutation = (
+  options?: Partial<Options<PostUndoApiV1PlannerUndoPostData>>,
+): UseMutationOptions<
+  PostUndoApiV1PlannerUndoPostResponse,
+  PostUndoApiV1PlannerUndoPostError,
+  Options<PostUndoApiV1PlannerUndoPostData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    PostUndoApiV1PlannerUndoPostResponse,
+    PostUndoApiV1PlannerUndoPostError,
+    Options<PostUndoApiV1PlannerUndoPostData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await postUndoApiV1PlannerUndoPost({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      })
+      return data
+    },
+  }
+  return mutationOptions
+}
 
 export const listWorkordersApiV1WorkordersGetQueryKey = (
   options?: Options<ListWorkordersApiV1WorkordersGetData>,

@@ -20,6 +20,9 @@ import type {
   GetPoLinesApiV1WorkordersWoIdPosGetData,
   GetPoLinesApiV1WorkordersWoIdPosGetErrors,
   GetPoLinesApiV1WorkordersWoIdPosGetResponses,
+  GetPreviewApiV1PlannerPreviewGetData,
+  GetPreviewApiV1PlannerPreviewGetErrors,
+  GetPreviewApiV1PlannerPreviewGetResponses,
   GetQueriesApiV1WorkordersWoIdQueriesGetData,
   GetQueriesApiV1WorkordersWoIdQueriesGetErrors,
   GetQueriesApiV1WorkordersWoIdQueriesGetResponses,
@@ -37,6 +40,12 @@ import type {
   MeApiV1AuthMeGetData,
   MeApiV1AuthMeGetErrors,
   MeApiV1AuthMeGetResponses,
+  PostMoveApiV1PlannerMovePostData,
+  PostMoveApiV1PlannerMovePostErrors,
+  PostMoveApiV1PlannerMovePostResponses,
+  PostUndoApiV1PlannerUndoPostData,
+  PostUndoApiV1PlannerUndoPostErrors,
+  PostUndoApiV1PlannerUndoPostResponses,
   SignInApiV1AuthSigninPostData,
   SignInApiV1AuthSigninPostErrors,
   SignInApiV1AuthSigninPostResponses,
@@ -162,6 +171,74 @@ export const getRangeApiV1PlannerRangeGet = <
     GetRangeApiV1PlannerRangeGetErrors,
     ThrowOnError
   >({ url: '/api/v1/planner/range', ...options })
+
+/**
+ * Get Preview
+ */
+export const getPreviewApiV1PlannerPreviewGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<GetPreviewApiV1PlannerPreviewGetData, ThrowOnError>,
+): RequestResult<
+  GetPreviewApiV1PlannerPreviewGetResponses,
+  GetPreviewApiV1PlannerPreviewGetErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    GetPreviewApiV1PlannerPreviewGetResponses,
+    GetPreviewApiV1PlannerPreviewGetErrors,
+    ThrowOnError
+  >({ url: '/api/v1/planner/preview', ...options })
+
+/**
+ * Post Move
+ */
+export const postMoveApiV1PlannerMovePost = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<PostMoveApiV1PlannerMovePostData, ThrowOnError>,
+): RequestResult<
+  PostMoveApiV1PlannerMovePostResponses,
+  PostMoveApiV1PlannerMovePostErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).post<
+    PostMoveApiV1PlannerMovePostResponses,
+    PostMoveApiV1PlannerMovePostErrors,
+    ThrowOnError
+  >({
+    url: '/api/v1/planner/move',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  })
+
+/**
+ * Post Undo
+ */
+export const postUndoApiV1PlannerUndoPost = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<PostUndoApiV1PlannerUndoPostData, ThrowOnError>,
+): RequestResult<
+  PostUndoApiV1PlannerUndoPostResponses,
+  PostUndoApiV1PlannerUndoPostErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).post<
+    PostUndoApiV1PlannerUndoPostResponses,
+    PostUndoApiV1PlannerUndoPostErrors,
+    ThrowOnError
+  >({
+    url: '/api/v1/planner/undo',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  })
 
 /**
  * List Workorders

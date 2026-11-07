@@ -1,17 +1,23 @@
 """
-workmate_planner_repo_v1_1_0.py  ->  backend/app/planner/repo.py
-Version:  1.1.0
+Azztec_SaaS_app_planner_repo_v1_2_0.py  ->  backend/app/planner/repo.py
+Version:  1.2.0
 Author:   Adriaan
-Spec:     Azztec_SaaS_S1h_Priority_Initials_Chunk_Spec_v1_0_0.md §3.2
+Spec:     Azztec_SaaS_DP3_Planner_Moves_Chunk_Spec_v1_0_1.md §5.2 (OD-110, OD-114);
+          earlier: Azztec_SaaS_S1h_Priority_Initials_Chunk_Spec_v1_0_0.md §3.2
 Parent:   Azztec_SaaS_Planner_Port_Spec_v1_0_0.md §2, §3
 Ported from: workmate.planner 1.3.1 lines 532-706 (hoursUomId, fetchWOs,
-             fetchLabour, fetchSkillRows, fetchPriorities, _labourDict)
-Pair:     backend/tests/test_planner_repo.py 1.0.2
+             fetchLabour, fetchSkillRows, fetchPriorities, _labourDict); DP3
+             adds 820-853 (loadWO), the writes of moveWO (993-1014), _upsertPin
+             (1120-1130) and _eventRow (783-791)
+Pair:     backend/tests/test_planner_repo.py 1.0.3 (reads, the SQL gates) +
+          backend/tests/test_planner_move.py 1.0.0 (load_wo, dry moves)
 
 Row fetch and row mapping. Takes a SQLAlchemy Connection, returns PLAIN
 DICTS - the exact shapes rules.py already consumes and the JSON contract
 already publishes. No Pydantic, no FastAPI, no transactions: this layer
-reads, service.py composes, router.py serialises.
+reads and writes on the connection it is given, service.py composes and owns
+the transaction, router.py serialises. Every writer returns its rowcount and
+never commits.
 
 FUNCTION names are snake_case (port spec §2). DICT KEYS stay camelCase -
 they are the contract and rules.py's input shape. A snake_case key here
@@ -23,10 +29,17 @@ integral numeric, and weekNo (numeric 2026.38) must be a float in the
 contract - belt and braces, as Landmines §B prescribes for char(n).
 
 OD-1 in force: without dbo.WO_N_Plan every engine-owned PM comes back
-locked=True, movable=False. On RST that is ~2,364 PMs (raw log §1). Expect
-no PM to drag until the S3 migration - that is the decision working.
+locked=True, movable=False. On RST that was ~2,364 PMs (raw log §1) until
+0001 landed the table (S1j, OD-44); since then they read movable, and DP3's
+first move of one pins it (OD-114).
 
 Changelog:
+  1.2.0  DP3a. load_wo (the oracle's loadWO dict, same keys, plus the raw
+         startDate / endDate / engineDateValue the writer shifts); the six
+         writers move_header, shift_subtasks, shift_labour, upsert_pin,
+         clear_pin, insert_event, named in WRITERS so the API tests' tripwire
+         reaches every one (OD-111); _day_bounds, the half-open day every DP3
+         date predicate uses. No read path changed.
   1.1.0  S1h. fetch_priorities gains the colour key (open item 29). Ships
          with schemas.py 1.1.0 or not at all - Priority is extra='forbid',
          so a key here that the model does not declare is a 500 on every
@@ -57,9 +70,14 @@ from app.planner.rules import (
     timeOf,
 )
 
-__version__ = "1.1.0"
+__version__ = "1.2.0"
 
 PIN_TABLE = "WO_N_Plan"
+
+# Every function below that writes. The API tests patch each name to raise, so
+# a test that sends a real move fails instead of writing (OD-111) - add a new
+# writer here or the tripwire cannot see it.
+WRITERS = ("move_header", "shift_subtasks", "shift_labour", "upsert_pin", "clear_pin", "insert_event")
 
 # UOM id per engine. Engine objects are hashable and get_engine() caches one
 # per tenant (D-12), so this is bounded by tenant count and holds no secret.
@@ -244,3 +262,160 @@ def hours_uom_id(conn: Connection) -> int:
 def clear_caches() -> None:
     """Test seam - drops the per-engine UOM cache."""
     _uom_by_engine.clear()
+
+
+# ---------------------------------------------------------------------------
+# DP3 - one work order for the writer
+# ---------------------------------------------------------------------------
+
+
+def _day_bounds(d: date | datetime) -> tuple[datetime, datetime]:
+    """[midnight of d's day, midnight of the next) - the half-open day every DP3
+    predicate uses. No datetime is compared by equality (sql.py header)."""
+    base = d.date() if isinstance(d, datetime) else d
+    start = datetime.combine(base, time.min)
+    return start, start + timedelta(days=1)
+
+
+def load_wo(conn: Connection, wo_id: int) -> dict[str, Any] | None:
+    """The oracle's loadWO (820-853): the header and every date a move must
+    carry, or None when there is no header. Same keys as the source;
+    startDate / endDate / engineDateValue are the RAW datetimes the writer
+    shifts, so the time of day survives (DP3-E P3)."""
+    pin_table = pin_table_exists(conn)
+    statement = psql.LOAD_WO_PINNED if pin_table else psql.LOAD_WO_NOPIN
+    found = db.rows(conn, statement, wo_id=int(wo_id))
+    if not found:
+        return None
+    r = found[0]
+    st = s_(r["Status"])
+    tf = s_(r["WO_Type_Flag"]) or "N"
+    sd = r["Request_Start_Date"]
+    ed = r["Request_End_Date"]
+    eo = engineOwned(st, tf)
+    pinned = i_(r["Pinned"]) == 1
+    subs = [x["Req_Start_Date"] for x in db.rows(conn, psql.SUBTASK_DATES, wo_id=int(wo_id))]
+    labour = [(x["Res_Date"], i_(x["Cnt"])) for x in db.rows(conn, psql.LABOUR_DATES, wo_id=int(wo_id))]
+    return {
+        "id": i_(r["WO_ID"]),
+        "sid": s_(r["Short_WO_Id"]),
+        "title": s_(r["WO_Title"]),
+        "status": st,
+        "type": tf,
+        "cat": category(st, tf),
+        "startDate": sd,
+        "endDate": ed,
+        "start": iso(sd) if sd is not None else "",
+        "end": iso(ed) if ed is not None else "",
+        "weekNo": f_(r["Week_No"]),
+        "estimate": f_(r["Duration_In_Hours"]),
+        "hasDetails": i_(r["HasDetails"]) == 1,
+        "engineOwned": eo,
+        "pinned": pinned,
+        "pinTable": pin_table,
+        "hasPinRow": r["Prev_Start"] is not None or r["Pinned_On"] is not None,
+        "engineDate": iso(r["Prev_Start"]) if r["Prev_Start"] is not None else "",
+        "engineDateValue": r["Prev_Start"],
+        "locked": eo and not pinned and not pin_table,
+        "subtaskDates": [iso(x) for x in subs],
+        "labourDates": [(iso(d), n) for d, n in labour],
+    }
+
+
+# ---------------------------------------------------------------------------
+# DP3 - the writes. Each returns its rowcount; none commits (the service owns
+# the transaction, OD-110). Named in WRITERS above.
+# ---------------------------------------------------------------------------
+
+
+def move_header(
+    conn: Connection,
+    wo_id: int,
+    new_start: datetime,
+    new_end: datetime | None,
+    week_no: Any,
+    old_start: datetime,
+) -> int:
+    """moveWO 993, guarded by the loaded start's day: 0 rows means another move
+    got there first (STALE), never an overwrite."""
+    day_from, day_to = _day_bounds(old_start)
+    return db.execute(
+        conn,
+        psql.MOVE_HEADER,
+        wo_id=int(wo_id),
+        new_start=new_start,
+        new_end=new_end,
+        week_no=week_no,
+        day_from=day_from,
+        day_to=day_to,
+    )
+
+
+def shift_subtasks(conn: Connection, wo_id: int, old_day: date, delta: int, week_no: Any) -> int:
+    """moveWO 1002: every subtask on old_day moves by delta, Week_No to the new
+    day's. The service calls it once per distinct day, in collision-safe order."""
+    day_from, day_to = _day_bounds(old_day)
+    return db.execute(
+        conn,
+        psql.SHIFT_SUBTASKS,
+        wo_id=int(wo_id),
+        delta=int(delta),
+        week_no=week_no,
+        day_from=day_from,
+        day_to=day_to,
+    )
+
+
+def shift_labour(conn: Connection, wo_id: int, delta: int) -> int:
+    """moveWO 1006: every dated planned-labour row moves by delta."""
+    return db.execute(conn, psql.SHIFT_LABOUR, wo_id=int(wo_id), delta=int(delta))
+
+
+def upsert_pin(
+    conn: Connection, wo_id: int, user_id: int, engine_date: datetime, note: str, server_name: str
+) -> int:
+    """_upsertPin (1120-1130): the update first, the insert when it touched
+    nothing. Prev_Start is kept from the first pin (COALESCE in the SQL)."""
+    note = (note or "")[:255]
+    n = db.execute(
+        conn, psql.PIN_UPDATE, wo_id=int(wo_id), user_id=int(user_id), engine_date=engine_date, note=note
+    )
+    if n == 0:
+        n = db.execute(
+            conn,
+            psql.PIN_INSERT,
+            wo_id=int(wo_id),
+            user_id=int(user_id),
+            engine_date=engine_date,
+            note=note,
+            server_name=server_name,
+        )
+    return n
+
+
+def clear_pin(conn: Connection, wo_id: int) -> int:
+    """moveWO 1014: a move back onto the engine's date hands the WO back. The
+    row stays, Pinned goes to 'N' (OD-114)."""
+    return db.execute(conn, psql.PIN_CLEAR, wo_id=int(wo_id))
+
+
+def insert_event(
+    conn: Connection,
+    wo_id: int,
+    user_id: int,
+    event_name: str,
+    details: str,
+    server_name: str,
+    source_form: str,
+) -> int:
+    """_eventRow (783-791): one WO_Event_History row. The caller caps details."""
+    return db.execute(
+        conn,
+        psql.EVENT_INSERT,
+        wo_id=int(wo_id),
+        user_id=int(user_id),
+        event_name=event_name,
+        details=details,
+        server_name=server_name,
+        source_form=source_form,
+    )

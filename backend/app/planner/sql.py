@@ -1,25 +1,37 @@
 """
-workmate_planner_sql_v1_1_0.py  ->  backend/app/planner/sql.py
-Version:  1.1.0
+Azztec_SaaS_app_planner_sql_v1_2_0.py  ->  backend/app/planner/sql.py
+Version:  1.2.0
 Author:   Adriaan
-Spec:     Azztec_SaaS_S1h_Priority_Initials_Chunk_Spec_v1_0_0.md §3.1
+Spec:     Azztec_SaaS_DP3_Planner_Moves_Chunk_Spec_v1_0_1.md §5.1 (OD-110, OD-114);
+          earlier: Azztec_SaaS_S1h_Priority_Initials_Chunk_Spec_v1_0_0.md §3.1
 Parent:   Azztec_SaaS_Data_Layer_and_RST_DB_v1_0_0.md §4-§5, Architecture D-3
 Ported from: workmate.planner 1.3.1 lines 539-629 (_woSql, _LABOUR_SQL, _WORKER_SQL,
-             _PRIORITY_SQL, hoursUomId probes)
-Pair:     backend/app/planner/repo.py 1.1.0
+             _PRIORITY_SQL, hoursUomId probes); DP3 adds 783-817 (_eventRow,
+             _loadSql, _SUBTASK_SQL, _LABOUR_DATES_SQL), 993-1014 (moveWO's
+             writes) and 1120-1130 (_upsertPin)
+Pair:     backend/app/planner/repo.py 1.2.0
 
-Every statement the planner READ path runs, as dialect-portable text() source.
-No Python logic here beyond assembling the two pin variants - repo.py binds
-the params and maps the rows.
+Every statement the planner runs, as dialect-portable text() source. No Python
+logic here beyond assembling the two pin variants - repo.py binds the params
+and maps the rows. Since DP3 that is the read path AND the move: one header
+update, the subtask and planned-labour shifts, the pin row, the audit row.
 
 The five habits (Data Layer §5) applied on the way in:
-  the MSSQL null-default function -> COALESCE                    ~40 sites
+  the MSSQL null-default function -> COALESCE                    ~45 sites
   row-limiting by TOP             -> OFFSET / FETCH NEXT           5 sites
-  ? positional params             -> :from_d / :to_d named binds
-  the MSSQL current-time function -> not used in the read path at all
+  ? positional params             -> :named binds
+  the MSSQL current-time function -> CURRENT_TIMESTAMP (the pin and audit
+                                     writes, DP3)
   dbo. prefix                     -> already present throughout
 FETCH NEXT is valid on both engines (PostgreSQL treats NEXT and FIRST as
-synonyms), so none of the rewritten row limits needs a PG-CONVERT tag.
+synonyms), so none of the rewritten row limits needs a PG-CONVERT tag. The
+two date shifts DO need one - DATEADD is MSSQL date arithmetic - and carry it
+in their Python header (the D1a diag/sql.py precedent, OD-60).
+
+Datetimes are never compared by equality here (DP3 spec §3.3): RST runs at
+compatibility level 160 and dev at 170, where a datetime column compared with
+a bound datetime2 is converted exactly, so a value read back and bound again
+does not match. Every date predicate is a half-open day range.
 
 The CI dialect gate (Data Layer §5) greps this WHOLE FILE, not just the
 statements - a banned token in a comment fails it exactly as a banned token
@@ -33,6 +45,14 @@ survives the port. Header comments below are Python comments, outside the
 strings, so they are safe.
 
 Changelog:
+  1.2.0  DP3a. Ten statements for the move (OD-110, OD-114): LOAD_WO_PINNED /
+         LOAD_WO_NOPIN (the oracle's _loadSql, reusing the /range pin
+         columns), SUBTASK_DATES, LABOUR_DATES, MOVE_HEADER (with the start-day
+         guard the oracle lacked - a raced move touches 0 rows), SHIFT_SUBTASKS
+         and SHIFT_LABOUR (DATEADD with CAST(:delta AS int), PG-CONVERT in the
+         header), PIN_UPDATE / PIN_INSERT / PIN_CLEAR, EVENT_INSERT - eleven
+         entries in ALL_STATEMENTS (the load has two pin variants), so both
+         gates in test_planner_repo.py cover them. No read statement changed.
   1.1.0  S1h. PRIORITIES gains Colour (open item 29). One column added to one
          SELECT list - no other statement touched, ORDER BY unchanged.
   1.0.1  Docstring reworded so the CI dialect gate stops matching this
@@ -44,7 +64,7 @@ Changelog:
 
 from __future__ import annotations
 
-__version__ = "1.1.0"
+__version__ = "1.2.0"
 
 
 # ---------------------------------------------------------------------------
@@ -260,6 +280,203 @@ OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY
 """
 
 
+# ===========================================================================
+# DP3 - the move. Reads first (one WO), then the writes in the order the
+# service runs them inside its one transaction.
+# ===========================================================================
+
+# ---------------------------------------------------------------------------
+# name:    planner.load_wo   (LOAD_WO_PINNED / LOAD_WO_NOPIN)
+# dialect: portable
+# params:  wo_id
+# note:    The oracle's _loadSql (800-810): the header, the estimate, whether a
+#          details row exists, and the three pin columns - the same _PIN_COLS /
+#          _NOPIN_COLS the range read uses, so one WO reads the same here as
+#          on the grid. Both dates come back RAW: the writer shifts them and
+#          keeps their time of day (DP3-E P3 - 658 open starts and 2,713 open
+#          ends carry one at RST).
+# ---------------------------------------------------------------------------
+
+_LOAD_SELECT = """
+SELECT h.WO_ID, RTRIM(COALESCE(h.Short_WO_Id, '')) AS Short_WO_Id,
+       RTRIM(COALESCE(h.WO_Title, '')) AS WO_Title,
+       RTRIM(COALESCE(h.Status, '')) AS Status,
+       RTRIM(COALESCE(h.WO_Type_Flag, 'N')) AS WO_Type_Flag,
+       h.Request_Start_Date,
+       h.Request_End_Date,
+       COALESCE(h.Week_No, 0) AS Week_No,
+       COALESCE(d.Duration_In_Hours, 0) AS Duration_In_Hours,
+       CASE WHEN d.WO_ID IS NULL THEN 0 ELSE 1 END AS HasDetails,
+"""
+
+_LOAD_FROM = """
+  FROM dbo.WO_N_Header h
+  LEFT JOIN dbo.WO_N_Details d ON d.WO_ID = h.WO_ID
+ WHERE h.WO_ID = :wo_id
+"""
+
+LOAD_WO_PINNED = _LOAD_SELECT + _PIN_COLS + _LOAD_FROM
+LOAD_WO_NOPIN = _LOAD_SELECT + _NOPIN_COLS + _LOAD_FROM
+
+
+# ---------------------------------------------------------------------------
+# name:    planner.subtask_dates
+# dialect: portable
+# params:  wo_id
+# note:    _SUBTASK_SQL (812). One row per dated subtask, in date order. At
+#          RST no open WO has a subtask row (DP3-E P4 - 80,550 rows, none on
+#          an open WO): ported for parity, it returns nothing there.
+# ---------------------------------------------------------------------------
+
+SUBTASK_DATES = """
+SELECT s.Req_Start_Date
+  FROM dbo.WO_N_Subtasks s
+ WHERE s.WO_ID = :wo_id
+   AND s.Req_Start_Date IS NOT NULL
+ ORDER BY s.Req_Start_Date
+"""
+
+
+# ---------------------------------------------------------------------------
+# name:    planner.labour_dates
+# dialect: portable
+# params:  wo_id
+# note:    _LABOUR_DATES_SQL (815). Grouped by the exact Res_Date, as the
+#          oracle does; at RST that equals grouping by day (DP3-E P4 - no
+#          planned-labour row carries a time of day).
+# ---------------------------------------------------------------------------
+
+LABOUR_DATES = """
+SELECT r.Res_Date, COUNT(*) AS Cnt
+  FROM dbo.WO_N_Resource r
+ WHERE r.WO_Id = :wo_id
+   AND RTRIM(COALESCE(r.Resource_Type, '')) = 'L'
+   AND r.Res_Date IS NOT NULL
+ GROUP BY r.Res_Date
+ ORDER BY r.Res_Date
+"""
+
+
+# ---------------------------------------------------------------------------
+# name:    planner.move_header
+# dialect: portable
+# params:  wo_id, new_start, new_end (None when the WO has no end), week_no
+#          (Decimal), day_from / day_to (the loaded start's day, half-open)
+# note:    moveWO 993. The start-day guard is OD-110: the oracle loaded the WO
+#          outside its transaction and updated by WO_ID alone, so a move that
+#          raced it was overwritten. Here a raced move leaves this statement
+#          touching 0 rows, which the service turns into STALE and rolls back.
+# ---------------------------------------------------------------------------
+
+MOVE_HEADER = """
+UPDATE dbo.WO_N_Header
+   SET Request_Start_Date = :new_start,
+       Request_End_Date = :new_end,
+       Week_No = :week_no
+ WHERE WO_ID = :wo_id
+   AND Request_Start_Date >= :day_from
+   AND Request_Start_Date < :day_to
+"""
+
+
+# ---------------------------------------------------------------------------
+# name:    planner.shift_subtasks
+# dialect: MSSQL date arithmetic -- PG-CONVERT: Req_Start_Date + make_interval(days => :delta)
+# params:  wo_id, delta, week_no (Decimal, of the NEW day), day_from / day_to
+#          (one old day, half-open)
+# note:    moveWO 997-1004. One call per distinct old day; the service walks
+#          the days latest-first when delta > 0, earliest-first otherwise, so
+#          no row is shifted twice. DATEADD on the column keeps each row's
+#          time of day; CAST keeps its second argument an int whatever the
+#          driver binds.
+# ---------------------------------------------------------------------------
+
+SHIFT_SUBTASKS = """
+UPDATE dbo.WO_N_Subtasks
+   SET Req_Start_Date = DATEADD(day, CAST(:delta AS int), Req_Start_Date),
+       Week_No = :week_no
+ WHERE WO_ID = :wo_id
+   AND Req_Start_Date >= :day_from
+   AND Req_Start_Date < :day_to
+"""
+
+
+# ---------------------------------------------------------------------------
+# name:    planner.shift_labour
+# dialect: MSSQL date arithmetic -- PG-CONVERT: Res_Date + make_interval(days => :delta)
+# params:  wo_id, delta
+# note:    moveWO 1006 - the legacy "User Planned Date" moves with the WO. One
+#          statement over every planned-labour row with a date; parts rows
+#          ('P') never move. No index leads with WO_Id (the key is Res_Id,
+#          WO_Id - DP3-E P2), so this scans WO_N_Resource, as the range read
+#          already does.
+# ---------------------------------------------------------------------------
+
+SHIFT_LABOUR = """
+UPDATE dbo.WO_N_Resource
+   SET Res_Date = DATEADD(day, CAST(:delta AS int), Res_Date)
+ WHERE WO_Id = :wo_id
+   AND RTRIM(COALESCE(Resource_Type, '')) = 'L'
+   AND Res_Date IS NOT NULL
+"""
+
+
+# ---------------------------------------------------------------------------
+# name:    planner.pin_update / planner.pin_insert / planner.pin_clear
+# dialect: portable
+# params:  PIN_UPDATE  wo_id, user_id, engine_date, note
+#          PIN_INSERT  wo_id, user_id, engine_date, note, server_name
+#          PIN_CLEAR   wo_id
+# note:    _upsertPin (1120-1130) and the unpin branch of moveWO (1014).
+#          Prev_Start is written on the FIRST pin only - the date the WO had,
+#          undo's target - and COALESCE keeps it on every later pin (OD-114).
+#          The update runs first; the insert only when it touched nothing. The
+#          insert leaves Entry_Date to its default and Last_Save_Date NULL, as
+#          the oracle's did (DP3-E P1).
+# ---------------------------------------------------------------------------
+
+PIN_UPDATE = """
+UPDATE dbo.WO_N_Plan
+   SET Pinned = 'Y',
+       Pinned_By = :user_id,
+       Pinned_On = CURRENT_TIMESTAMP,
+       Prev_Start = COALESCE(Prev_Start, :engine_date),
+       Note = :note,
+       Last_Save_Date = CURRENT_TIMESTAMP
+ WHERE WO_ID = :wo_id
+"""
+
+PIN_INSERT = """
+INSERT INTO dbo.WO_N_Plan (WO_ID, Pinned, Pinned_By, Pinned_On, Prev_Start, Note, Server_Name)
+VALUES (:wo_id, 'Y', :user_id, CURRENT_TIMESTAMP, :engine_date, :note, :server_name)
+"""
+
+PIN_CLEAR = """
+UPDATE dbo.WO_N_Plan
+   SET Pinned = 'N',
+       Last_Save_Date = CURRENT_TIMESTAMP
+ WHERE WO_ID = :wo_id
+"""
+
+
+# ---------------------------------------------------------------------------
+# name:    planner.event_insert
+# dialect: portable
+# params:  wo_id, user_id, event_name, details, server_name, source_form
+# note:    _eventRow (783-791). Sys_WO_Event_Id is an identity (DP3-E P1) and
+#          nothing reads it back, so this is a plain insert, not
+#          db.insert_returning_id(). WO_Event_History is a heap with no index
+#          (P2): the insert is cheap. Edited_Date is the database's clock, as
+#          the oracle's was.
+# ---------------------------------------------------------------------------
+
+EVENT_INSERT = """
+INSERT INTO dbo.WO_Event_History
+       (WO_ID, User_Id_Edited_By, Edited_Date, Event_Name, event_details, server_name, Source_Form)
+VALUES (:wo_id, :user_id, CURRENT_TIMESTAMP, :event_name, :details, :server_name, :source_form)
+"""
+
+
 # Every statement in this module, for the CI-gate unit test and the
 # compile check. Keep in sync when a statement is added.
 ALL_STATEMENTS = {
@@ -270,4 +487,16 @@ ALL_STATEMENTS = {
     "PRIORITIES": PRIORITIES,
     "UOM_LR_STD": UOM_LR_STD,
     "UOM_MODAL": UOM_MODAL,
+    # DP3
+    "LOAD_WO_PINNED": LOAD_WO_PINNED,
+    "LOAD_WO_NOPIN": LOAD_WO_NOPIN,
+    "SUBTASK_DATES": SUBTASK_DATES,
+    "LABOUR_DATES": LABOUR_DATES,
+    "MOVE_HEADER": MOVE_HEADER,
+    "SHIFT_SUBTASKS": SHIFT_SUBTASKS,
+    "SHIFT_LABOUR": SHIFT_LABOUR,
+    "PIN_UPDATE": PIN_UPDATE,
+    "PIN_INSERT": PIN_INSERT,
+    "PIN_CLEAR": PIN_CLEAR,
+    "EVENT_INSERT": EVENT_INSERT,
 }

@@ -167,6 +167,24 @@ export type HttpValidationError = {
 }
 
 /**
+ * LabourMove
+ */
+export type LabourMove = {
+  /**
+   * From
+   */
+  from: string
+  /**
+   * To
+   */
+  to: string
+  /**
+   * Rows
+   */
+  rows: number
+}
+
+/**
  * LabourRow
  */
 export type LabourRow = {
@@ -306,6 +324,250 @@ export type LinkedRow = {
    * Selected
    */
   selected: boolean
+}
+
+/**
+ * MoveConfirm
+ *
+ * 200 with ok=false: the move needs a planner's confirm. The client reads `ok`, never the status.
+ */
+export type MoveConfirm = {
+  /**
+   * Ok
+   */
+  ok?: boolean
+  /**
+   * Code
+   */
+  code: string
+  /**
+   * Message
+   */
+  message: string
+  /**
+   * Rid
+   */
+  rid?: string
+  /**
+   * Sid
+   */
+  sid: string
+  preview: MovePreview
+}
+
+/**
+ * MovePreview
+ *
+ * GET /preview, and a CONFIRM's preview: movePreview (923-937) when the rules pass. `confirm` is the
+ * service's decision (OD-116), not moveRules'.
+ */
+export type MovePreview = {
+  /**
+   * Ok
+   */
+  ok: boolean
+  /**
+   * Code
+   */
+  code: string
+  /**
+   * Message
+   */
+  message: string
+  /**
+   * Confirm
+   */
+  confirm: boolean
+  /**
+   * Reasons
+   */
+  reasons: Array<Reason>
+  /**
+   * Delta
+   */
+  delta: number
+  /**
+   * Newstart
+   */
+  newStart: string
+  /**
+   * Newend
+   */
+  newEnd: string
+  /**
+   * Willpin
+   */
+  willPin: boolean
+  /**
+   * Willunpin
+   */
+  willUnpin: boolean
+  /**
+   * Pinnedafter
+   */
+  pinnedAfter: boolean
+  /**
+   * Woid
+   */
+  woId: number
+  /**
+   * Sid
+   */
+  sid: string
+  /**
+   * Title
+   */
+  title: string
+  /**
+   * Status
+   */
+  status: string
+  /**
+   * Statustitle
+   */
+  statusTitle: string
+  /**
+   * Prevstart
+   */
+  prevStart: string
+  /**
+   * Prevend
+   */
+  prevEnd: string
+  /**
+   * Subtasks
+   */
+  subtasks: number
+  /**
+   * Labourdates
+   */
+  labourDates: Array<[string, number]>
+  /**
+   * Labourmoves
+   */
+  labourMoves: Array<LabourMove>
+}
+
+/**
+ * MoveRequest
+ *
+ * POST /api/v1/planner/move. dryRun defaults to false - the UI's real move; the smoke sends true
+ * first (OD-111).
+ */
+export type MoveRequest = {
+  /**
+   * Woid
+   */
+  woId: number
+  /**
+   * Toiso
+   *
+   * yyyy-MM-dd - the day the WO should start on
+   */
+  toIso: string
+  /**
+   * Expectstartiso
+   *
+   * the start the client saw; STALE if it moved
+   */
+  expectStartIso?: string | null
+  /**
+   * Confirm
+   */
+  confirm?: boolean
+  /**
+   * Dryrun
+   */
+  dryRun?: boolean
+}
+
+/**
+ * MoveResult
+ *
+ * 200 ok from /move and /undo: moveWO's plan dict, plus the actor who moved it.
+ */
+export type MoveResult = {
+  /**
+   * Ok
+   */
+  ok: boolean
+  /**
+   * Dryrun
+   */
+  dryRun: boolean
+  /**
+   * Woid
+   */
+  woId: number
+  /**
+   * Sid
+   */
+  sid: string
+  /**
+   * Prevstart
+   */
+  prevStart: string
+  /**
+   * Prevend
+   */
+  prevEnd: string
+  /**
+   * Newstart
+   */
+  newStart: string
+  /**
+   * Newend
+   */
+  newEnd: string
+  /**
+   * Delta
+   */
+  delta: number
+  /**
+   * Weekno
+   */
+  weekNo: number
+  /**
+   * Prevweekno
+   */
+  prevWeekNo: number
+  /**
+   * Subtasks
+   */
+  subtasks: number
+  /**
+   * Labourrows
+   */
+  labourRows: number
+  /**
+   * Reasons
+   */
+  reasons: Array<Reason>
+  /**
+   * Events
+   */
+  events: number
+  /**
+   * Willpin
+   */
+  willPin: boolean
+  /**
+   * Willunpin
+   */
+  willUnpin: boolean
+  /**
+   * Pinned
+   */
+  pinned: boolean
+  /**
+   * Enginedate
+   */
+  engineDate: string
+  undo: UndoRef
+  /**
+   * Actor
+   */
+  actor: number
 }
 
 /**
@@ -594,6 +856,20 @@ export type RangeData = {
 }
 
 /**
+ * Reason
+ */
+export type Reason = {
+  /**
+   * Code
+   */
+  code: string
+  /**
+   * Text
+   */
+  text: string
+}
+
+/**
  * ResourceRow
  */
 export type ResourceRow = {
@@ -801,6 +1077,48 @@ export type Team = {
    * Users
    */
   users: number
+}
+
+/**
+ * UndoRef
+ */
+export type UndoRef = {
+  /**
+   * Woid
+   */
+  woId: number
+  /**
+   * Toiso
+   */
+  toIso: string
+  /**
+   * Expectstartiso
+   */
+  expectStartIso: string
+}
+
+/**
+ * UndoRequest
+ *
+ * POST /api/v1/planner/undo - the `undo` dict a move returned. Confirm is implied.
+ */
+export type UndoRequest = {
+  /**
+   * Woid
+   */
+  woId: number
+  /**
+   * Toiso
+   */
+  toIso: string
+  /**
+   * Expectstartiso
+   */
+  expectStartIso?: string | null
+  /**
+   * Dryrun
+   */
+  dryRun?: boolean
 }
 
 /**
@@ -1508,6 +1826,39 @@ export type WorkerWeek = {
   flag: string
 }
 
+/**
+ * WriteError
+ *
+ * 404 / 409 / 422 / 500 from the move routes: OD-15's flat body plus the oracle's sid, and the start
+ * the WO has now on STALE.
+ */
+export type WriteError = {
+  /**
+   * Ok
+   */
+  ok?: boolean
+  /**
+   * Code
+   */
+  code: string
+  /**
+   * Message
+   */
+  message: string
+  /**
+   * Rid
+   */
+  rid?: string
+  /**
+   * Sid
+   */
+  sid?: string
+  /**
+   * Currentstart
+   */
+  currentStart?: string
+}
+
 export type HealthApiV1HealthGetData = {
   body?: never
   path?: never
@@ -1684,6 +2035,162 @@ export type GetRangeApiV1PlannerRangeGetResponses = {
 
 export type GetRangeApiV1PlannerRangeGetResponse =
   GetRangeApiV1PlannerRangeGetResponses[keyof GetRangeApiV1PlannerRangeGetResponses]
+
+export type GetPreviewApiV1PlannerPreviewGetData = {
+  body?: never
+  path?: never
+  query: {
+    /**
+     * Woid
+     *
+     * WO_ID of the work order
+     */
+    woId: number
+    /**
+     * To
+     *
+     * yyyy-MM-dd - the day to preview a move to
+     */
+    to: string
+  }
+  url: '/api/v1/planner/preview'
+}
+
+export type GetPreviewApiV1PlannerPreviewGetErrors = {
+  /**
+   * Unauthorized
+   */
+  401: ApiError
+  /**
+   * Forbidden
+   */
+  403: ApiError
+  /**
+   * Not Found
+   */
+  404: WriteError
+  /**
+   * Unprocessable Content
+   */
+  422: WriteError
+}
+
+export type GetPreviewApiV1PlannerPreviewGetError =
+  GetPreviewApiV1PlannerPreviewGetErrors[keyof GetPreviewApiV1PlannerPreviewGetErrors]
+
+export type GetPreviewApiV1PlannerPreviewGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: MovePreview
+}
+
+export type GetPreviewApiV1PlannerPreviewGetResponse =
+  GetPreviewApiV1PlannerPreviewGetResponses[keyof GetPreviewApiV1PlannerPreviewGetResponses]
+
+export type PostMoveApiV1PlannerMovePostData = {
+  body: MoveRequest
+  path?: never
+  query?: never
+  url: '/api/v1/planner/move'
+}
+
+export type PostMoveApiV1PlannerMovePostErrors = {
+  /**
+   * Bad Request
+   */
+  400: WriteError
+  /**
+   * Unauthorized
+   */
+  401: ApiError
+  /**
+   * Forbidden
+   */
+  403: ApiError
+  /**
+   * Not Found
+   */
+  404: WriteError
+  /**
+   * Conflict
+   */
+  409: WriteError
+  /**
+   * Unprocessable Content
+   */
+  422: WriteError
+  /**
+   * Internal Server Error
+   */
+  500: WriteError
+}
+
+export type PostMoveApiV1PlannerMovePostError =
+  PostMoveApiV1PlannerMovePostErrors[keyof PostMoveApiV1PlannerMovePostErrors]
+
+export type PostMoveApiV1PlannerMovePostResponses = {
+  /**
+   * Response Post Move Api V1 Planner Move Post
+   *
+   * Successful Response
+   */
+  200: MoveResult | MoveConfirm
+}
+
+export type PostMoveApiV1PlannerMovePostResponse =
+  PostMoveApiV1PlannerMovePostResponses[keyof PostMoveApiV1PlannerMovePostResponses]
+
+export type PostUndoApiV1PlannerUndoPostData = {
+  body: UndoRequest
+  path?: never
+  query?: never
+  url: '/api/v1/planner/undo'
+}
+
+export type PostUndoApiV1PlannerUndoPostErrors = {
+  /**
+   * Bad Request
+   */
+  400: WriteError
+  /**
+   * Unauthorized
+   */
+  401: ApiError
+  /**
+   * Forbidden
+   */
+  403: ApiError
+  /**
+   * Not Found
+   */
+  404: WriteError
+  /**
+   * Conflict
+   */
+  409: WriteError
+  /**
+   * Unprocessable Content
+   */
+  422: WriteError
+  /**
+   * Internal Server Error
+   */
+  500: WriteError
+}
+
+export type PostUndoApiV1PlannerUndoPostError =
+  PostUndoApiV1PlannerUndoPostErrors[keyof PostUndoApiV1PlannerUndoPostErrors]
+
+export type PostUndoApiV1PlannerUndoPostResponses = {
+  /**
+   * Successful Response
+   */
+  200: MoveResult
+}
+
+export type PostUndoApiV1PlannerUndoPostResponse =
+  PostUndoApiV1PlannerUndoPostResponses[keyof PostUndoApiV1PlannerUndoPostResponses]
 
 export type ListWorkordersApiV1WorkordersGetData = {
   body?: never

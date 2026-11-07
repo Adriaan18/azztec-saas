@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Workmate SaaS",
-    "version": "0.6.0"
+    "version": "0.7.0"
   },
   "paths": {
     "/api/v1/health": {
@@ -246,6 +246,302 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/planner/preview": {
+      "get": {
+        "tags": [
+          "planner"
+        ],
+        "summary": "Get Preview",
+        "operationId": "get_preview_api_v1_planner_preview_get",
+        "parameters": [
+          {
+            "name": "woId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "description": "WO_ID of the work order",
+              "title": "Woid"
+            },
+            "description": "WO_ID of the work order"
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "yyyy-MM-dd - the day to preview a move to",
+              "title": "To"
+            },
+            "description": "yyyy-MM-dd - the day to preview a move to"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MovePreview"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteError"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/api/v1/planner/move": {
+      "post": {
+        "tags": [
+          "planner"
+        ],
+        "summary": "Post Move",
+        "operationId": "post_move_api_v1_planner_move_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MoveRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/MoveResult"
+                    },
+                    {
+                      "$ref": "#/components/schemas/MoveConfirm"
+                    }
+                  ],
+                  "title": "Response Post Move Api V1 Planner Move Post"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/planner/undo": {
+      "post": {
+        "tags": [
+          "planner"
+        ],
+        "summary": "Post Undo",
+        "operationId": "post_undo_api_v1_planner_undo_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UndoRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MoveResult"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteError"
                 }
               }
             }
@@ -1004,6 +1300,30 @@
         "type": "object",
         "title": "HTTPValidationError"
       },
+      "LabourMove": {
+        "properties": {
+          "from": {
+            "type": "string",
+            "title": "From"
+          },
+          "to": {
+            "type": "string",
+            "title": "To"
+          },
+          "rows": {
+            "type": "integer",
+            "title": "Rows"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "from",
+          "to",
+          "rows"
+        ],
+        "title": "LabourMove"
+      },
       "LabourRow": {
         "properties": {
           "resId": {
@@ -1188,6 +1508,340 @@
           "selected"
         ],
         "title": "LinkedRow"
+      },
+      "MoveConfirm": {
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "title": "Ok",
+            "default": false
+          },
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "rid": {
+            "type": "string",
+            "title": "Rid",
+            "default": ""
+          },
+          "sid": {
+            "type": "string",
+            "title": "Sid"
+          },
+          "preview": {
+            "$ref": "#/components/schemas/MovePreview"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "code",
+          "message",
+          "sid",
+          "preview"
+        ],
+        "title": "MoveConfirm",
+        "description": "200 with ok=false: the move needs a planner's confirm. The client reads `ok`, never the status."
+      },
+      "MovePreview": {
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "title": "Ok"
+          },
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "confirm": {
+            "type": "boolean",
+            "title": "Confirm"
+          },
+          "reasons": {
+            "items": {
+              "$ref": "#/components/schemas/Reason"
+            },
+            "type": "array",
+            "title": "Reasons"
+          },
+          "delta": {
+            "type": "integer",
+            "title": "Delta"
+          },
+          "newStart": {
+            "type": "string",
+            "title": "Newstart"
+          },
+          "newEnd": {
+            "type": "string",
+            "title": "Newend"
+          },
+          "willPin": {
+            "type": "boolean",
+            "title": "Willpin"
+          },
+          "willUnpin": {
+            "type": "boolean",
+            "title": "Willunpin"
+          },
+          "pinnedAfter": {
+            "type": "boolean",
+            "title": "Pinnedafter"
+          },
+          "woId": {
+            "type": "integer",
+            "title": "Woid"
+          },
+          "sid": {
+            "type": "string",
+            "title": "Sid"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "statusTitle": {
+            "type": "string",
+            "title": "Statustitle"
+          },
+          "prevStart": {
+            "type": "string",
+            "title": "Prevstart"
+          },
+          "prevEnd": {
+            "type": "string",
+            "title": "Prevend"
+          },
+          "subtasks": {
+            "type": "integer",
+            "title": "Subtasks"
+          },
+          "labourDates": {
+            "items": {
+              "prefixItems": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ],
+              "type": "array",
+              "maxItems": 2,
+              "minItems": 2
+            },
+            "type": "array",
+            "title": "Labourdates"
+          },
+          "labourMoves": {
+            "items": {
+              "$ref": "#/components/schemas/LabourMove"
+            },
+            "type": "array",
+            "title": "Labourmoves"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "ok",
+          "code",
+          "message",
+          "confirm",
+          "reasons",
+          "delta",
+          "newStart",
+          "newEnd",
+          "willPin",
+          "willUnpin",
+          "pinnedAfter",
+          "woId",
+          "sid",
+          "title",
+          "status",
+          "statusTitle",
+          "prevStart",
+          "prevEnd",
+          "subtasks",
+          "labourDates",
+          "labourMoves"
+        ],
+        "title": "MovePreview",
+        "description": "GET /preview, and a CONFIRM's preview: movePreview (923-937) when the rules pass. `confirm` is the\nservice's decision (OD-116), not moveRules'."
+      },
+      "MoveRequest": {
+        "properties": {
+          "woId": {
+            "type": "integer",
+            "exclusiveMinimum": 0.0,
+            "title": "Woid"
+          },
+          "toIso": {
+            "type": "string",
+            "title": "Toiso",
+            "description": "yyyy-MM-dd - the day the WO should start on"
+          },
+          "expectStartIso": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expectstartiso",
+            "description": "the start the client saw; STALE if it moved"
+          },
+          "confirm": {
+            "type": "boolean",
+            "title": "Confirm",
+            "default": false
+          },
+          "dryRun": {
+            "type": "boolean",
+            "title": "Dryrun",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "woId",
+          "toIso"
+        ],
+        "title": "MoveRequest",
+        "description": "POST /api/v1/planner/move. dryRun defaults to false - the UI's real move; the smoke sends true\nfirst (OD-111)."
+      },
+      "MoveResult": {
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "title": "Ok"
+          },
+          "dryRun": {
+            "type": "boolean",
+            "title": "Dryrun"
+          },
+          "woId": {
+            "type": "integer",
+            "title": "Woid"
+          },
+          "sid": {
+            "type": "string",
+            "title": "Sid"
+          },
+          "prevStart": {
+            "type": "string",
+            "title": "Prevstart"
+          },
+          "prevEnd": {
+            "type": "string",
+            "title": "Prevend"
+          },
+          "newStart": {
+            "type": "string",
+            "title": "Newstart"
+          },
+          "newEnd": {
+            "type": "string",
+            "title": "Newend"
+          },
+          "delta": {
+            "type": "integer",
+            "title": "Delta"
+          },
+          "weekNo": {
+            "type": "number",
+            "title": "Weekno"
+          },
+          "prevWeekNo": {
+            "type": "number",
+            "title": "Prevweekno"
+          },
+          "subtasks": {
+            "type": "integer",
+            "title": "Subtasks"
+          },
+          "labourRows": {
+            "type": "integer",
+            "title": "Labourrows"
+          },
+          "reasons": {
+            "items": {
+              "$ref": "#/components/schemas/Reason"
+            },
+            "type": "array",
+            "title": "Reasons"
+          },
+          "events": {
+            "type": "integer",
+            "title": "Events"
+          },
+          "willPin": {
+            "type": "boolean",
+            "title": "Willpin"
+          },
+          "willUnpin": {
+            "type": "boolean",
+            "title": "Willunpin"
+          },
+          "pinned": {
+            "type": "boolean",
+            "title": "Pinned"
+          },
+          "engineDate": {
+            "type": "string",
+            "title": "Enginedate"
+          },
+          "undo": {
+            "$ref": "#/components/schemas/UndoRef"
+          },
+          "actor": {
+            "type": "integer",
+            "title": "Actor"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "ok",
+          "dryRun",
+          "woId",
+          "sid",
+          "prevStart",
+          "prevEnd",
+          "newStart",
+          "newEnd",
+          "delta",
+          "weekNo",
+          "prevWeekNo",
+          "subtasks",
+          "labourRows",
+          "reasons",
+          "events",
+          "willPin",
+          "willUnpin",
+          "pinned",
+          "engineDate",
+          "undo",
+          "actor"
+        ],
+        "title": "MoveResult",
+        "description": "200 ok from /move and /undo: moveWO's plan dict, plus the actor who moved it."
       },
       "PageRights": {
         "properties": {
@@ -1599,6 +2253,25 @@
         "title": "RangeData",
         "description": "GET /api/v1/planner/range - the Ignition rangeData dict plus the OD-14 envelope. No `gate`."
       },
+      "Reason": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "code",
+          "text"
+        ],
+        "title": "Reason"
+      },
       "ResourceRow": {
         "properties": {
           "type": {
@@ -1916,6 +2589,67 @@
           "users"
         ],
         "title": "Team"
+      },
+      "UndoRef": {
+        "properties": {
+          "woId": {
+            "type": "integer",
+            "title": "Woid"
+          },
+          "toIso": {
+            "type": "string",
+            "title": "Toiso"
+          },
+          "expectStartIso": {
+            "type": "string",
+            "title": "Expectstartiso"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "woId",
+          "toIso",
+          "expectStartIso"
+        ],
+        "title": "UndoRef"
+      },
+      "UndoRequest": {
+        "properties": {
+          "woId": {
+            "type": "integer",
+            "exclusiveMinimum": 0.0,
+            "title": "Woid"
+          },
+          "toIso": {
+            "type": "string",
+            "title": "Toiso"
+          },
+          "expectStartIso": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expectstartiso"
+          },
+          "dryRun": {
+            "type": "boolean",
+            "title": "Dryrun",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "woId",
+          "toIso"
+        ],
+        "title": "UndoRequest",
+        "description": "POST /api/v1/planner/undo - the `undo` dict a move returned. Confirm is implied."
       },
       "ValidationError": {
         "properties": {
@@ -2844,6 +3578,46 @@
           "flag"
         ],
         "title": "WorkerWeek"
+      },
+      "WriteError": {
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "title": "Ok",
+            "default": false
+          },
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "rid": {
+            "type": "string",
+            "title": "Rid",
+            "default": ""
+          },
+          "sid": {
+            "type": "string",
+            "title": "Sid",
+            "default": ""
+          },
+          "currentStart": {
+            "type": "string",
+            "title": "Currentstart",
+            "default": ""
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "title": "WriteError",
+        "description": "404 / 409 / 422 / 500 from the move routes: OD-15's flat body plus the oracle's sid, and the start\nthe WO has now on STALE."
       }
     }
   }

@@ -1,16 +1,19 @@
 """
-workmate_test_planner_repo_v1_0_2.py  ->  backend/tests/test_planner_repo.py
-Version:  1.0.2
+Azztec_SaaS_test_planner_repo_v1_0_4.py  ->  backend/tests/test_planner_repo.py
+Version:  1.0.4
 Author:   Adriaan
 Spec:     Azztec_SaaS_S1b_Data_Chunk_Spec_v1_0_0.md §6
-Pair of:  backend/app/planner/sql.py 1.1.0 + backend/app/planner/repo.py 1.1.0
+Pair of:  backend/app/planner/sql.py 1.2.0 + backend/app/planner/repo.py 1.2.0 (the read path and every
+          statement's gates; the move's load and dry plans are in test_planner_move.py 1.0.0)
 
 Two halves:
   - no DB: the PG-CONVERT / dialect gate, run as a unit test so a bad
     statement fails on a laptop, not in CI.
   - RST DB: every fetch inside a transaction that is ROLLED BACK (Ways of
-    Working §4). This chunk is read-only, but dbWorkmate holds real RST data
-    and the fixture is written now so S2 inherits it.
+    Working §4). The DB half never writes: test_all_statements_compile runs
+    only the statements that start with SELECT; each writer goes to the
+    server inside a branch that can never be taken, so it is compiled and
+    nothing runs (OD-111).
 
 The DB half SKIPS with a clear reason when SQL Server is unreachable - a red
 suite on a box without the database is noise, not signal.
@@ -21,6 +24,21 @@ in the raw log; here they are derived from control queries so the suite still
 means something when it is pointed at the KT dev copy.
 
 Changelog:
+  1.0.4  DP3a, Block 1 run 1 (1 failed, 485 passed). test_all_statements_compile handed every
+         ALL_STATEMENTS entry to db.rows with the range binds or none; LOAD_WO_PINNED binds wo_id, so it
+         failed on the missing bind before anything reached the server. The obvious fix - pass the
+         binds - would have sent the seven writers to the server to RUN, which no test may do (OD-111).
+         1.0.3's "no assertion changed" was wrong: this test executes the statements, it is not a gate.
+         Now every bind comes from _bind_samples by the names the statement uses (an unknown name fails
+         with its own message); only a statement that starts with SELECT runs; any other statement is
+         sent inside IF 1 = 0, so the server compiles it - an unknown column fails the batch - and runs
+         nothing (no row, no lock, no identity value), after its target table is checked to exist
+         (deferred name resolution would let a missing table through). New, no DB:
+         test_only_selects_run_in_the_compile_check pins the seven writers to the compile-only side.
+  1.0.3  DP3a. HEADER ONLY - the Pair line follows sql.py / repo.py 1.2.0. No assertion changed: the
+         dialect gate and the colon gate are parametrised over sql.ALL_STATEMENTS, so they run over the
+         eleven new entries by registration (18 statements, 36 cases), and test_sql_module_source_is_gate_clean
+         reads the whole new file. Checked by hand against sql.py 1.2.0 before the card was cut.
   1.0.2  S1h. HEADER ONLY - the Pair line pointed at sql.py 1.0.1 and repo.py
          1.0.0, both of which moved to 1.1.0 when PRIORITIES gained Colour. No
          assertion changed and none needed to: this file checks the port, not
@@ -41,6 +59,7 @@ from __future__ import annotations
 import os
 import re
 from datetime import date, timedelta
+from decimal import Decimal
 from pathlib import Path
 
 import pytest
@@ -52,7 +71,7 @@ from app.planner import repo  # noqa: E402
 from app.planner import sql as psql  # noqa: E402
 from app.planner.rules import buildWorkers, hoursFor  # noqa: E402
 
-__version__ = "1.0.2"
+__version__ = "1.0.4"
 
 # The project's canonical planner window (Ways of Working §6, Architecture §6).
 FROM_D = date(2026, 9, 14)
@@ -168,6 +187,79 @@ def test_exclusive_end_adds_one_day():
     assert repo._bound(FROM_D).date() == FROM_D
 
 
+# test_all_statements_compile's machinery. SQL_BIND is the pattern SQLAlchemy text() itself uses, so
+# the names found here are exactly the binds the driver will ask for.
+SQL_BIND = re.compile(r"(?<![:\w\x5c]):(\w+)(?!:)")
+WRITE_TARGET = re.compile(
+    r"\b(?:UPDATE|INSERT\s+INTO|DELETE\s+FROM|MERGE\s+INTO)\s+dbo\.(\w+)", re.IGNORECASE
+)
+DP3A_WRITERS = {
+    "MOVE_HEADER",
+    "SHIFT_SUBTASKS",
+    "SHIFT_LABOUR",
+    "PIN_UPDATE",
+    "PIN_INSERT",
+    "PIN_CLEAR",
+    "EVENT_INSERT",
+}
+
+
+def _first_keyword(statement: str) -> str:
+    for ln in statement.splitlines():
+        s = ln.strip()
+        if s and not s.startswith("--"):
+            return s.split()[0].upper()
+    return ""
+
+
+def _runs(statement: str) -> bool:
+    """Only a statement that starts with SELECT is run. Anything else - a writer, or a read that opens
+    with WITH - is compiled and never run: a misread can only make a read compile-only, never make a
+    writer run."""
+    return _first_keyword(statement) == "SELECT"
+
+
+def _never_run(statement: str) -> str:
+    """The server compiles the whole batch, so an unknown column in the dead branch still fails it;
+    the branch itself is never taken, so nothing is written, locked or numbered.
+    PG-CONVERT: PostgreSQL has no IF outside a function - use EXPLAIN <statement> (plans, never runs)."""
+    return f"IF 1 = 0\nBEGIN\n{statement}\nEND"
+
+
+def _bind_samples() -> dict:
+    """A value of the type the repo passes, for every bind name sql.py uses. wo_id and user_id 0 match
+    no row, so the reads return nothing."""
+    day = repo._bound(FROM_D)
+    return {
+        "from_d": day,
+        "to_d": repo._exclusive_end(FROM_D),
+        "wo_id": 0,
+        "user_id": 0,
+        "delta": 0,
+        "week_no": Decimal("2026.38"),
+        "new_start": day,
+        "new_end": day,
+        "day_from": day,
+        "day_to": repo._exclusive_end(FROM_D),
+        "engine_date": day,
+        "note": "",
+        "server_name": "SaaS",
+        "source_form": "Planner",
+        "event_name": "Rescheduled",
+        "details": "",
+    }
+
+
+def test_only_selects_run_in_the_compile_check():
+    """The DB half runs the reads and only compiles the writers - pinned here, without a database."""
+    compiled_only = {name for name, statement in psql.ALL_STATEMENTS.items() if not _runs(statement)}
+    assert compiled_only == DP3A_WRITERS
+    for name in DP3A_WRITERS:
+        statement = psql.ALL_STATEMENTS[name]
+        assert WRITE_TARGET.search(statement), name
+        assert set(SQL_BIND.findall(statement)) <= set(_bind_samples()), name
+
+
 # ---------------------------------------------------------------------------
 # RST DB - rolled back
 # ---------------------------------------------------------------------------
@@ -199,15 +291,27 @@ def wos(conn):
 
 
 def test_all_statements_compile(conn):
-    """Both pin variants and every other statement parse on the live dialect.
-    The pinned variant has no rows to return on RST (no WO_N_Plan) but it must
-    still compile - it ships untested against real data until S3."""
-    params = {"from_d": repo._bound(FROM_D), "to_d": repo._exclusive_end(FROM_D)}
+    """Every statement compiles on the live server, and the reads run. Each gets the binds it names,
+    with the repo's own types. A writer is compiled inside IF 1 = 0 and never run (OD-111): rowcount
+    stays at or below 0. A statement on WO_N_Plan is skipped where that table does not exist - the
+    server cannot compile a reference to it."""
+    samples = _bind_samples()
+    pin_table = repo.pin_table_exists(conn)
     for name, statement in psql.ALL_STATEMENTS.items():
-        binds = params if ":from_d" in statement else {}
-        if name == "WO_RANGE_PINNED" and not repo.pin_table_exists(conn):
-            continue  # cannot compile a reference to a table that does not exist
-        db.rows(conn, statement, **binds)
+        if repo.PIN_TABLE in statement and not pin_table:
+            continue
+        names = set(SQL_BIND.findall(statement))
+        unknown = names - set(samples)
+        assert not unknown, f"{name}: add a sample for {sorted(unknown)} to _bind_samples"
+        binds = {k: samples[k] for k in names}
+        if _runs(statement):
+            db.rows(conn, statement, **binds)
+            continue
+        target = WRITE_TARGET.search(statement)
+        assert target, f"{name}: no dbo. target table found"
+        assert db.table_exists(conn, target.group(1)), f"{name}: dbo.{target.group(1)} does not exist"
+        n = db.execute(conn, _never_run(statement), **binds)
+        assert n <= 0, f"{name}: rowcount {n} - the never-taken branch ran"
 
 
 def test_fetch_wos_shape(wos):

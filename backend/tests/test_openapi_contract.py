@@ -1,10 +1,11 @@
 """
-Azztec_SaaS_test_openapi_contract_v1_2_0.py  ->  backend/tests/test_openapi_contract.py
-Version:  1.2.0
+Azztec_SaaS_test_openapi_contract_v1_3_0.py  ->  backend/tests/test_openapi_contract.py
+Version:  1.3.0
 Author:   Adriaan
 Spec:     Azztec_SaaS_S1d_Diag_Chunk_Spec_v1_0_0.md §6
           Azztec_SaaS_W1a_WOMaint_Read_Api_Chunk_Spec_v1_0_0.md §3.6
           Azztec_SaaS_DP2_SignIn_Rights_Chunk_Spec_v1_0_1.md s5
+          Azztec_SaaS_DP3_Planner_Moves_Chunk_Spec_v1_0_1.md §5.7 (OD-112)
 
 Guards the PUBLISHED schema, not the runtime body. `from` is a Python keyword, so the contract key needs
 Field(alias="from") on the model AND Query(alias="from") on the route parameter - two independent
@@ -17,6 +18,10 @@ Reads app.openapi(). Never iterates router.routes - FastAPI 0.137 made that a tr
 (Landmines §A). Zero DB: building the schema opens no connection.
 
 Changelog:
+  1.3.0  DP3a. The three move paths: published with their methods, the two request bodies (the oracle's
+         keys, woId and toIso required, no extras), POST /move's 200 as MoveResult or MoveConfirm, the
+         flat failure shapes with sid / currentStart, /preview's woId and to, LabourMove's literal `from`,
+         403 documented on all three. info.version 0.7.0. Nothing above changed.
   1.2.0  DP2a. The three /auth paths: published with their methods, SignIn's two fields and no extras,
          SessionInfo's key set, the 401/403/423 failure shapes. 403 documented on the range route and on
          every /workorders path (the router gates, OD-100). info.version 0.6.0. Nothing above changed.
@@ -234,7 +239,7 @@ def test_workorders_no_from_underscore_anywhere(schema: dict[str, Any]) -> None:
 def test_info_version_is_the_app_version(schema: dict[str, Any]) -> None:
     from app.main import __version__ as app_version  # noqa: PLC0415 - after env is set
 
-    assert schema["info"]["version"] == app_version == "0.6.0"
+    assert schema["info"]["version"] == app_version == "0.7.0"
 
 
 # ---------------------------------------------------------------------------
@@ -284,3 +289,79 @@ def test_every_gated_route_documents_403(schema: dict[str, Any]) -> None:
         responses = _wo_get(schema, path)["responses"]
         assert "403" in responses, path
         assert {"ok", "code", "message"} <= _flat(schema, responses, "403"), path
+
+
+# ---------------------------------------------------------------------------
+# DP3a - the three move paths (OD-112)
+# ---------------------------------------------------------------------------
+
+PLANNER = "/api/v1/planner"
+WRITE_ERROR = {"ok", "code", "message", "rid", "sid", "currentStart"}
+
+
+def _op(schema: dict[str, Any], path: str, method: str) -> dict[str, Any]:
+    return schema["paths"][PLANNER + path][method]
+
+
+def _body(schema: dict[str, Any], path: str) -> dict[str, Any]:
+    ref = _op(schema, path, "post")["requestBody"]["content"]["application/json"]["schema"]["$ref"]
+    return _resolve(schema, ref)
+
+
+def test_move_routes_are_published_with_their_methods(schema: dict[str, Any]) -> None:
+    assert set(schema["paths"][PLANNER + "/preview"]) == {"get"}
+    assert set(schema["paths"][PLANNER + "/move"]) == {"post"}
+    assert set(schema["paths"][PLANNER + "/undo"]) == {"post"}
+
+
+def test_move_and_undo_bodies_are_the_oracle_keys_and_nothing_else(schema: dict[str, Any]) -> None:
+    move = _body(schema, "/move")
+    assert set(move["properties"]) == {"woId", "toIso", "expectStartIso", "confirm", "dryRun"}
+    assert set(move["required"]) == {"woId", "toIso"}
+    assert move.get("additionalProperties") is False
+    assert move["properties"]["dryRun"]["default"] is False  # the UI's real move; the smoke sends true
+    undo = _body(schema, "/undo")
+    assert set(undo["properties"]) == {"woId", "toIso", "expectStartIso", "dryRun"}
+    assert set(undo["required"]) == {"woId", "toIso"}
+    assert undo.get("additionalProperties") is False
+
+
+def test_move_200_is_a_result_or_a_confirm(schema: dict[str, Any]) -> None:
+    from app.planner.schemas import MoveConfirm, MoveResult  # noqa: PLC0415 - after env is set
+
+    ok = _op(schema, "/move", "post")["responses"]["200"]["content"]["application/json"]["schema"]
+    refs = {_resolve(schema, x["$ref"])["title"] for x in ok["anyOf"]}
+    assert refs == {"MoveResult", "MoveConfirm"}
+    result = schema["components"]["schemas"]["MoveResult"]
+    assert set(result["properties"]) == set(MoveResult.model_fields) == set(result["required"])
+    assert result.get("additionalProperties") is False
+    confirm = schema["components"]["schemas"]["MoveConfirm"]
+    assert set(confirm["properties"]) == set(MoveConfirm.model_fields)
+    undo_ok = _op(schema, "/undo", "post")["responses"]["200"]["content"]["application/json"]["schema"]
+    assert _resolve(schema, undo_ok["$ref"])["title"] == "MoveResult"  # undo never asks
+
+
+def test_move_failures_are_documented_flat_with_sid(schema: dict[str, Any]) -> None:
+    for path in ("/move", "/undo"):
+        responses = _op(schema, path, "post")["responses"]
+        for code in ("400", "404", "409", "422", "500"):
+            assert _flat(schema, responses, code) == WRITE_ERROR, (path, code)
+        assert {"ok", "code", "message"} <= _flat(schema, responses, "401"), path
+        assert {"ok", "code", "message"} <= _flat(schema, responses, "403"), path  # the router gate, OD-100
+    responses = _op(schema, "/preview", "get")["responses"]
+    for code in ("404", "422"):
+        assert _flat(schema, responses, code) == WRITE_ERROR, code
+    assert "403" in responses
+
+
+def test_preview_params_are_wo_id_and_to(schema: dict[str, Any]) -> None:
+    params = {p["name"]: p for p in _op(schema, "/preview", "get").get("parameters", [])}
+    assert set(params) == {"woId", "to"}
+    assert all(p["in"] == "query" and p["required"] is True for p in params.values())
+    assert params["woId"]["schema"]["type"] == "integer" and params["woId"]["schema"]["exclusiveMinimum"] == 0
+
+
+def test_labour_move_carries_a_literal_from(schema: dict[str, Any]) -> None:
+    labour_move = schema["components"]["schemas"]["LabourMove"]
+    assert set(labour_move["properties"]) == {"from", "to", "rows"}
+    assert "from_" not in json.dumps(schema["components"])

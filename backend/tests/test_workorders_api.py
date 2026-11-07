@@ -1,9 +1,9 @@
 """
-Azztec_SaaS_test_workorders_api_v1_1_0.py  ->  backend/tests/test_workorders_api.py
-Version:  1.1.0
+Azztec_SaaS_test_workorders_api_v1_2_0.py  ->  backend/tests/test_workorders_api.py
+Version:  1.2.0
 Author:   Adriaan
 Spec:     Azztec_SaaS_W1a_WOMaint_Read_Api_Chunk_Spec_v1_0_0.md §5 · Azztec_SaaS_DP2_SignIn_Rights_Chunk_Spec_v1_0_1.md s5
-Pair of app/workorders/router.py 1.0.0 + schemas.py 1.0.0 (+ main.py 0.6.0, deps.py 1.2.0).
+Pair of app/workorders/router.py 1.0.0 + schemas.py 1.0.0 (+ main.py 0.7.0, deps.py 1.2.0).
 TestClient over the real app, DB dependency overridden with one RST connection inside a transaction that
 is rolled back (D-10), principal dependency overridden (DP2a: deps.get_principal, read by the actor and by
 the router's womaint gate). WO 662704 is the newest live header on RST as restored; the archive-only and
@@ -12,6 +12,10 @@ Without the override no cookie reaches the app, so the request is a 401 by desig
 under test, so `persist=False` (OD-69) is proven by a spy on diag.log, not by counting rows.
 
 Changelog:
+  1.2.0  DP3a. The health test reads the app version from app.main.__version__ instead of the literal
+         "0.6.0": main.py went to 0.7.0 for the planner's move routes, and a literal here would turn red on
+         every app bump that has nothing to do with WO Maint. The literal pin lives in one place,
+         test_openapi_contract.py's info.version test. Nothing else changed.
   1.1.0  DP2a. The fixture overrides deps.get_principal (an RWD principal for actor 21) instead of
          deps.get_current_actor; test_401_without_actor pops that override (same 401 NO_IDENTITY); new
          test_403_without_the_womaint_right; the health test expects app version 0.6.0. Nothing else.
@@ -31,12 +35,13 @@ from sqlalchemy.engine import Connection
 os.environ.setdefault("WORKMATE_ENV", "test")
 
 from app.core import db, deps, diag  # noqa: E402 - after env is set
+from app.main import __version__ as app_version  # noqa: E402
 from app.main import app  # noqa: E402
 from app.workorders import repo  # noqa: E402
 from app.workorders import router as wo_router  # noqa: E402
 from app.workorders.schemas import WoRecord  # noqa: E402
 
-__version__ = "1.1.0"
+__version__ = "1.2.0"
 
 BASE = "/api/v1/workorders"
 WO = 662704
@@ -342,5 +347,5 @@ def test_forensic_line_once_and_not_persisted(
 
 def test_health_reports_the_workorders_version(client: TestClient) -> None:
     body = client.get("/api/v1/health").json()
-    assert body["version"] == "0.6.0"
+    assert body["version"] == app_version
     assert body["versions"]["workorders"] == wo_router.__version__

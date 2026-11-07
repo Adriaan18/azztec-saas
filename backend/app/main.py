@@ -1,10 +1,11 @@
 """
-Azztec_SaaS_app_main_v1_0_9.py  ->  backend/app/main.py
-Version:  0.6.0   (app version reported by /api/v1/health, and info.version of the exported OpenAPI document)
-                  The card revision is 1.0.9.
+Azztec_SaaS_app_main_v1_0_10.py  ->  backend/app/main.py
+Version:  0.7.0   (app version reported by /api/v1/health, and info.version of the exported OpenAPI document)
+                  The card revision is 1.0.10.
 Author:   Adriaan
 Spec:     Azztec_SaaS_Architecture_and_Stack_v1_0_0.md (D-6, D-8, D-9), S1d chunk spec §5 (OD-19, OD-20),
-          Azztec_SaaS_DP2_SignIn_Rights_Chunk_Spec_v1_0_1.md s5 (OD-97, OD-100, OD-103)
+          Azztec_SaaS_DP2_SignIn_Rights_Chunk_Spec_v1_0_1.md s5 (OD-97, OD-100, OD-103),
+          Azztec_SaaS_DP3_Planner_Moves_Chunk_Spec_v1_0_1.md §5.6 (OD-112)
 
 App factory, lifespan (engine up/down + tz probe), request-id middleware with [F]/[G]/[E] outcome lines,
 /api/v1/health, /api/v1/_diag/self-test, the auth, planner and workorders routers, and app.frontend()
@@ -12,6 +13,11 @@ serving web/dist in prod.
 Run: uv run fastapi dev app/main.py
 
 Changelog:
+  0.7.0  DP3a (card 1.0.10), OD-112. VERSION LINE ONLY - no logic, no route, no mount change in this file.
+         The planner router (1.2.0) publishes three new paths - GET /planner/preview, POST /planner/move,
+         POST /planner/undo - and their models, so the app version is a minor bump (WoW §2, OD-38): the
+         export is openapi_0_7_0.json and the 0.6.0 file leaves the tree in the same commit. The router-
+         level require('planner', 'RO') stays; the two writes add RW and the CSRF header on the route.
   0.6.0  DP2a (card 1.0.9). Sign-in and rights:
          - deps.LOADER = auth.service.principal_from_request, so every gated request resolves one
            session-backed principal (core still imports no feature package - the PERSIST_SQL pattern);
@@ -104,7 +110,7 @@ from app.planner import service as planner_service
 from app.planner.schemas import ApiError
 from app.workorders import router as workorders_router
 
-__version__ = "0.6.0"
+__version__ = "0.7.0"
 
 _HTTP_CODES = {
     401: "NO_IDENTITY",

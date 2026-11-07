@@ -1,10 +1,11 @@
 """
-Azztec_SaaS_test_planner_api_v1_3_0.py  ->  backend/tests/test_planner_api.py
-Version:  1.3.0
+Azztec_SaaS_test_planner_api_v1_4_0.py  ->  backend/tests/test_planner_api.py
+Version:  1.4.0
 Author:   Adriaan
 Spec:     Azztec_SaaS_S1c_Api_Chunk_Spec_v1_0_0.md §7 · Azztec_SaaS_S1h_Priority_Initials_Chunk_Spec_v1_0_0.md §5.2
           · Azztec_SaaS_S1j_KT_Uplift_Chunk_Spec_v1_0_0.md §3.4 · Azztec_SaaS_DP2_SignIn_Rights_Chunk_Spec_v1_0_1.md s5
-          Pair of router.py 1.1.1 + service.py 1.0.1 + schemas.py 1.1.0 + deps.py 1.2.0 + main.py 0.6.0.
+          · Azztec_SaaS_DP3_Planner_Moves_Chunk_Spec_v1_0_1.md §5.7 (OD-107, OD-111, OD-112, OD-116)
+          Pair of router.py 1.2.0 + service.py 1.1.0 + schemas.py 1.2.0 + deps.py 1.2.0 + main.py 0.7.0.
 
 TestClient over the real app, DB dependency overridden with one RST connection inside a transaction that is
 rolled back (D-10), principal dependency overridden (DP2a: deps.get_principal, which get_current_actor and
@@ -15,10 +16,23 @@ fresh copy of the same backup).
 Twenty tests from spec §7 plus one for the [F] line (§9 acceptance), plus five from S1h §5.2 (priority
 colour), plus one DP2a gate. Without the override no cookie reaches the app, so the request is a 401 by
 design (§7.4 #19).
-Assumes the database after migration 0001 (S1j): #12 asserts pinTable is True with the pin table EMPTY - OD-1
-in its intended end state. After S2 pins a row the "every row unpinned" half moves (S2 owns that edit).
+Assumes the database after migration 0001 (S1j): #12 asserts pinTable is True. Since DP3 a move can pin a
+PM, so #12 no longer asserts an empty pin table - it asserts what every pin row must look like.
+
+DP3a adds the move routes (GET /preview, POST /move, POST /undo). THIS FILE NEVER WRITES (OD-111): an autouse
+tripwire replaces every function in repo.WRITERS with one that records the call and raises, and every test
+fails if anything reached it. Every move request here is either dryRun:true or one the service refuses
+before its first write (404, 409, 422, CONFIRM, 403); the write itself is proven by DP3a's smoke on
+dbWorkmate_DP1_Test. The WOs are chosen by query on the rolled-back connection, never by a pinned id, and
+the target days come from the configured "today".
 
 Changelog:
+  1.4.0  DP3a. The tripwire; nineteen move-route test functions, 24 cases (the tripwire's own reach, dry
+         plans for move and undo, the refusals over HTTP, CONFIRM's 200, the RW and CSRF gates, /preview,
+         the code -> status map through a fake service, contract drift, the [F] line, a body that carries
+         an unknown key). test_range_pin_table_true_after_0001
+         keeps pinTable True and every engine-owned PM movable, and swaps "every row unpinned" for what a pin
+         row must carry (Pinned implies Prev_Start and Pinned_On) - the edit 1.2.0 said S2 would own.
   1.3.0  DP2a. The fixture overrides deps.get_principal with an RWD principal for actor 1 instead of
          deps.get_current_actor (the planner router now sits behind require('planner', 'RO'), which
          reads the principal). test_range_401_without_actor pops that override - same 401 NO_IDENTITY.
@@ -48,7 +62,7 @@ from __future__ import annotations
 import json
 import os
 from collections.abc import Iterator
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from zoneinfo import ZoneInfo
 
 import pytest
@@ -60,13 +74,17 @@ os.environ.setdefault("WORKMATE_ENV", "test")
 from app.core import db, deps  # noqa: E402 - after env is set
 from app.core.config import get_settings  # noqa: E402
 from app.main import app  # noqa: E402
-from app.planner import repo, rules  # noqa: E402
+from app.planner import repo, rules, service  # noqa: E402
 from app.planner import router as planner_router  # noqa: E402
 from app.planner.schemas import Priority  # noqa: E402 - after env is set
 
 RANGE = "/api/v1/planner/range"
+PREVIEW = "/api/v1/planner/preview"
+MOVE = "/api/v1/planner/move"
+UNDO = "/api/v1/planner/undo"
+CSRF = {"X-Azztec-Request": "1"}
 FROM, TO = "2026-09-14", "2026-09-20"
-ACTOR = 1  # only echoed as `actor` here; the write slices stamp real people
+ACTOR = 1  # only echoed as `actor` here; nothing in this file writes (OD-111)
 PRINCIPAL = deps.Principal(user_id=ACTOR, rights={"planner": "RWD", "womaint": "RWD"})
 
 CONTRACT_KEYS = frozenset(
@@ -111,6 +129,77 @@ def body(client: TestClient) -> dict:
     r = client.get(RANGE, params={"from": FROM, "to": TO})
     assert r.status_code == 200, r.text
     return r.json()
+
+
+TRIPPED: list[str] = []
+
+
+@pytest.fixture(autouse=True)
+def tripwire(monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
+    """OD-111: every repo writer records the call and raises, so nothing is written, and the test that
+    reached one fails here even if its own assertions passed."""
+    TRIPPED.clear()
+
+    def _make(name: str):
+        def _tripped(*args, **kwargs):
+            TRIPPED.append(name)
+            raise AssertionError(f"tripwire: a test reached repo.{name}")
+
+        return _tripped
+
+    for name in repo.WRITERS:
+        monkeypatch.setattr(repo, name, _make(name))
+    yield
+    assert not TRIPPED, f"a test tried to write: {TRIPPED}"
+
+
+# An open, non-PM, not-Active work order whose planned labour sits on at most one day: moving it to a
+# future day asks nothing (SPAN alone never asks - OD-116), so a dry run comes back ok.
+OPEN_PLAIN_WO = """
+SELECT h.WO_ID
+  FROM dbo.WO_N_Header h
+ WHERE RTRIM(COALESCE(h.Status, '')) NOT IN ('C', 'D', 'V')
+   AND RTRIM(COALESCE(h.WO_Type_Flag, '')) <> 'M'
+   AND h.Request_Start_Date IS NOT NULL
+   AND (SELECT COUNT(DISTINCT r.Res_Date) FROM dbo.WO_N_Resource r
+         WHERE r.WO_Id = h.WO_ID AND RTRIM(COALESCE(r.Resource_Type, '')) = 'L'
+           AND r.Res_Date IS NOT NULL) <= 1
+ ORDER BY h.WO_ID DESC
+OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY
+"""
+
+CLOSED_WO = """
+SELECT h.WO_ID
+  FROM dbo.WO_N_Header h
+ WHERE RTRIM(COALESCE(h.Status, '')) = 'C'
+   AND h.Request_Start_Date IS NOT NULL
+ ORDER BY h.WO_ID DESC
+OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY
+"""
+
+
+@pytest.fixture(scope="module")
+def plain(conn: Connection) -> dict:
+    wo_id = db.scalar(conn, OPEN_PLAIN_WO)
+    assert wo_id, "no open, non-PM, not-Active WO with planned labour on at most one day"
+    wo = repo.load_wo(conn, int(wo_id))
+    assert wo is not None
+    return {"id": wo["id"], "sid": wo["sid"], "start": wo["start"]}
+
+
+@pytest.fixture(scope="module")
+def closed_id(conn: Connection) -> int:
+    wo_id = db.scalar(conn, CLOSED_WO)
+    assert wo_id, "no closed WO with a start date"
+    return int(wo_id)
+
+
+def _day(offset: int, avoid: str) -> str:
+    """today + offset days in the configured zone, one further if that is the WO's own start."""
+    d = date.fromisoformat(service.today_iso()) + timedelta(days=offset)
+    if rules.iso(d) == avoid:
+        d += timedelta(days=1 if offset >= 0 else -1)
+    return rules.iso(d)
 
 
 # ---------------------------------------------------------------------------
@@ -200,11 +289,13 @@ def test_range_by_wo_index_matches_full_scan(body: dict) -> None:
 
 
 def test_range_pin_table_true_after_0001(body: dict) -> None:
-    """OD-1's end state (OD-44). Assumes dbWorkmate after migration 0001 with WO_N_Plan EMPTY: the table
-    exists, so pinTable is True and engine-owned PMs are movable-with-pin; nothing has pinned yet, so
-    every row is still unpinned. Red before 0001 by design. S2 edits the second half when it pins."""
+    """OD-1's end state (OD-44). Assumes the database after migration 0001: the table exists, so pinTable is
+    True and engine-owned PMs are movable-with-pin. Red before 0001 by design. Since DP3 a move pins a PM
+    (OD-114), so the table need not be empty: a pinned row carries the date it was pinned from and when."""
     assert body["pinTable"] is True, "WO_N_Plan missing: alembic upgrade head has not run"
-    assert all(w["pinned"] is False and w["engineDate"] == "" and w["pinnedOn"] == "" for w in body["wos"])
+    for w in body["wos"]:
+        if w["pinned"]:
+            assert w["engineDate"] and w["pinnedOn"], w["id"]
     pms = [w for w in body["wos"] if w["engineOwned"]]
     assert pms, "standing window carries engine-owned PMs (Raw Log 2026-09-11 §5)"
     for w in pms:
@@ -382,3 +473,214 @@ def test_priority_model_takes_colour_and_still_forbids_extras() -> None:
         Priority(id=1, short="P2", title="Priority 2", colour="#FF9F40", rank=1)
     with pytest.raises(ValidationError):
         Priority(id=1, short="P2", title="Priority 2")
+
+
+# ---------------------------------------------------------------------------
+# DP3a - the move routes. Nothing here writes: dryRun:true, or refused before the first write.
+# ---------------------------------------------------------------------------
+
+MOVE_RESULT_KEYS = frozenset(
+    {
+        "ok", "dryRun", "woId", "sid", "prevStart", "prevEnd", "newStart", "newEnd", "delta", "weekNo",
+        "prevWeekNo", "subtasks", "labourRows", "reasons", "events", "willPin", "willUnpin", "pinned",
+        "engineDate", "undo", "actor",
+    }
+)  # fmt: skip
+
+MOVE_PREVIEW_KEYS = frozenset(
+    {
+        "ok", "code", "message", "confirm", "reasons", "delta", "newStart", "newEnd", "willPin", "willUnpin",
+        "pinnedAfter", "woId", "sid", "title", "status", "statusTitle", "prevStart", "prevEnd", "subtasks",
+        "labourDates", "labourMoves",
+    }
+)  # fmt: skip
+
+
+def test_tripwire_covers_every_writer() -> None:
+    for name in repo.WRITERS:
+        assert getattr(repo, name).__name__ == "_tripped", name
+
+
+def test_move_dry_run_plans_and_writes_nothing(client: TestClient, plain: dict) -> None:
+    to = _day(14, plain["start"])
+    body = {"woId": plain["id"], "toIso": to, "expectStartIso": plain["start"], "dryRun": True}
+    r = client.post(MOVE, json=body, headers=CSRF)
+    assert r.status_code == 200, r.text
+    b = r.json()
+    assert set(b) == MOVE_RESULT_KEYS, sorted(set(b) ^ MOVE_RESULT_KEYS)
+    assert b["ok"] is True and b["dryRun"] is True and b["events"] == 0
+    assert b["actor"] == ACTOR and b["sid"] == plain["sid"]
+    assert b["prevStart"] == plain["start"] and b["newStart"] == to
+    assert b["undo"] == {"woId": plain["id"], "toIso": plain["start"], "expectStartIso": to}
+    assert "PAST" not in [x["code"] for x in b["reasons"]]
+
+
+def test_undo_dry_run(client: TestClient, plain: dict) -> None:
+    body = {
+        "woId": plain["id"],
+        "toIso": _day(14, plain["start"]),
+        "expectStartIso": plain["start"],
+        "dryRun": True,
+    }
+    r = client.post(UNDO, json=body, headers=CSRF)
+    assert r.status_code == 200, r.text
+    assert r.json()["dryRun"] is True and set(r.json()) == MOVE_RESULT_KEYS
+
+
+def test_move_to_a_past_day_is_a_200_confirm_with_a_preview(client: TestClient, plain: dict) -> None:
+    """PAST still asks (OD-116); CONFIRM comes back before the first write, so no dryRun is needed."""
+    r = client.post(MOVE, json={"woId": plain["id"], "toIso": _day(-30, plain["start"])}, headers=CSRF)
+    assert r.status_code == 200, r.text
+    b = r.json()
+    assert set(b) == {"ok", "code", "message", "rid", "sid", "preview"}
+    assert b["ok"] is False and b["code"] == "CONFIRM" and b["sid"] == plain["sid"]
+    assert set(b["preview"]) == MOVE_PREVIEW_KEYS
+    assert b["preview"]["confirm"] is True
+    assert "PAST" in [x["code"] for x in b["preview"]["reasons"]]
+
+
+def test_move_stale_is_409_with_the_current_start(client: TestClient, plain: dict) -> None:
+    body = {"woId": plain["id"], "toIso": _day(14, plain["start"]), "expectStartIso": "1999-01-01"}
+    r = client.post(MOVE, json=body, headers=CSRF)
+    assert r.status_code == 409, r.text
+    b = r.json()
+    assert b["ok"] is False and b["code"] == "STALE"
+    assert b["currentStart"] == plain["start"] and b["sid"] == plain["sid"] and b["rid"]
+    assert "error" not in b  # flat (OD-15), not the nested Ignition shape
+
+
+def test_move_to_its_own_day_is_422_no_change(client: TestClient, plain: dict) -> None:
+    r = client.post(MOVE, json={"woId": plain["id"], "toIso": plain["start"]}, headers=CSRF)
+    assert r.status_code == 422, r.text
+    assert r.json()["code"] == "NO_CHANGE"
+
+
+def test_move_to_a_calendar_invalid_day_is_422_bad_date(client: TestClient, plain: dict) -> None:
+    r = client.post(MOVE, json={"woId": plain["id"], "toIso": "2026-02-31"}, headers=CSRF)
+    assert r.status_code == 422, r.text
+    assert r.json()["code"] == "BAD_DATE"
+
+
+def test_move_closed_is_422_locked_status(client: TestClient, closed_id: int) -> None:
+    r = client.post(MOVE, json={"woId": closed_id, "toIso": "2030-01-07"}, headers=CSRF)
+    assert r.status_code == 422, r.text
+    assert r.json()["code"] == "LOCKED_STATUS"
+
+
+def test_move_unknown_is_404(client: TestClient) -> None:
+    r = client.post(MOVE, json={"woId": 999999999, "toIso": "2030-01-07"}, headers=CSRF)
+    assert r.status_code == 404, r.text
+    assert r.json()["code"] == "NOT_FOUND"
+
+
+def test_move_without_the_csrf_header_is_403(client: TestClient, plain: dict) -> None:
+    r = client.post(MOVE, json={"woId": plain["id"], "toIso": _day(14, plain["start"]), "dryRun": True})
+    assert r.status_code == 403, r.text
+    assert r.json()["code"] == "CSRF"
+
+
+def test_move_and_undo_need_rw_preview_does_not(client: TestClient, plain: dict) -> None:
+    """OD-107: the router's RO gate lets a read-only planner in; the two writes need RW on top."""
+    saved = app.dependency_overrides[deps.get_principal]
+    app.dependency_overrides[deps.get_principal] = lambda: deps.Principal(
+        user_id=ACTOR, rights={"planner": "RO", "womaint": "RO"}
+    )
+    to = _day(14, plain["start"])
+    try:
+        writes = [
+            client.post(path, json={"woId": plain["id"], "toIso": to, "dryRun": True}, headers=CSRF)
+            for path in (MOVE, UNDO)
+        ]
+        read = client.get(PREVIEW, params={"woId": plain["id"], "to": to})
+    finally:
+        app.dependency_overrides[deps.get_principal] = saved
+    for r in writes:
+        assert r.status_code == 403, r.text
+        assert r.json()["code"] == "NO_RIGHT"
+    assert read.status_code == 200, read.text
+
+
+def test_move_body_with_an_unknown_key_is_refused(client: TestClient, plain: dict) -> None:
+    body = {"woId": plain["id"], "toIso": _day(14, plain["start"]), "dryRun": True, "bogus": 1}
+    assert client.post(MOVE, json=body, headers=CSRF).status_code == 422  # extra="forbid", FastAPI's own
+
+
+def test_move_wo_id_must_be_positive(client: TestClient) -> None:
+    assert client.post(MOVE, json={"woId": 0, "toIso": "2030-01-07"}, headers=CSRF).status_code == 422
+
+
+def test_preview_200(client: TestClient, plain: dict) -> None:
+    to = _day(14, plain["start"])
+    r = client.get(PREVIEW, params={"woId": plain["id"], "to": to})
+    assert r.status_code == 200, r.text
+    b = r.json()
+    assert set(b) == MOVE_PREVIEW_KEYS, sorted(set(b) ^ MOVE_PREVIEW_KEYS)
+    assert b["ok"] is True and b["newStart"] == to and b["prevStart"] == plain["start"]
+    assert b["confirm"] is False, b["reasons"]  # a future day; SPAN alone never asks (OD-116)
+    assert all(set(m) == {"from", "to", "rows"} for m in b["labourMoves"])
+
+
+def test_preview_refusals_are_flat(client: TestClient, closed_id: int) -> None:
+    r = client.get(PREVIEW, params={"woId": 999999999, "to": "2030-01-07"})
+    assert r.status_code == 404 and r.json()["code"] == "NOT_FOUND"
+    r = client.get(PREVIEW, params={"woId": closed_id, "to": "2030-01-07"})
+    assert r.status_code == 422 and r.json()["code"] == "LOCKED_STATUS"
+    assert set(r.json()) == {"ok", "code", "message", "rid", "sid", "currentStart"}
+
+
+def test_preview_missing_params_is_422(client: TestClient) -> None:
+    assert client.get(PREVIEW, params={"woId": 1}).status_code == 422
+    assert client.get(PREVIEW, params={"to": "2030-01-07"}).status_code == 422
+
+
+@pytest.mark.parametrize(
+    ("code", "status"),
+    [
+        ("WRITE_FAILED", 500),
+        ("INTERNAL", 500),
+        ("NO_IDENTITY", 403),
+        ("BAD_REQUEST", 400),
+        ("ENGINE_OWNED", 422),
+        ("NO_START", 422),
+    ],
+)
+def test_move_code_to_status_map(
+    client: TestClient, monkeypatch: pytest.MonkeyPatch, code: str, status: int
+) -> None:
+    """The oracle's _CODE_HTTP for the codes the live database cannot produce on demand."""
+
+    def fake(*args, **kwargs) -> dict:
+        return {"ok": False, "code": code, "sid": "X-1", "message": "m"}
+
+    monkeypatch.setattr(planner_router.service, "move_wo", fake)
+    r = client.post(MOVE, json={"woId": 1, "toIso": "2030-01-07"}, headers=CSRF)
+    assert r.status_code == status, r.text
+    b = r.json()
+    assert b == {"ok": False, "code": code, "message": "m", "rid": b["rid"], "sid": "X-1", "currentStart": ""}
+
+
+def test_move_result_drift_is_a_500(client: TestClient, monkeypatch: pytest.MonkeyPatch, plain: dict) -> None:
+    """extra="forbid": a key the service adds must be a loud 500, never silently dropped."""
+    real = service.move_wo
+
+    def drifted(*args, **kwargs) -> dict:
+        d = real(*args, **kwargs)
+        d["gate"] = True
+        return d
+
+    monkeypatch.setattr(planner_router.service, "move_wo", drifted)
+    body = {"woId": plain["id"], "toIso": _day(14, plain["start"]), "dryRun": True}
+    r = client.post(MOVE, json=body, headers=CSRF)
+    assert r.status_code == 500
+    assert r.json()["code"] == "INTERNAL"
+
+
+def test_move_forensic_line_once(client: TestClient, capfd: pytest.CaptureFixture[str], plain: dict) -> None:
+    """The oracle's _diagWrite text, once, with the dry-run label (OD-111). capfd, as the range test."""
+    body = {"woId": plain["id"], "toIso": _day(14, plain["start"]), "dryRun": True}
+    r = client.post(MOVE, json=body, headers=CSRF)
+    assert r.status_code == 200, r.text
+    lines = [x.strip() for x in capfd.readouterr().out.splitlines() if x.strip().startswith("{")]
+    hits = [json.loads(x)["message"] for x in lines if f"move (dry run) {plain['sid']} " in x]
+    assert len(hits) == 1, hits
+    assert f"{plain['start']} -> " in hits[0] and hits[0].endswith("events=0")
